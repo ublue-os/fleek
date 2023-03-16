@@ -1,0 +1,8 @@
+{ pkgs, misc, ... }: {
+   home.shellAliases = {
+    {{range $index, $element := .Config.Aliases}}
+    {{$index}} = "{{$element}}";
+    {{end}}
+  };
+
+}

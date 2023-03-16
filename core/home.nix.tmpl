@@ -1,0 +1,24 @@
+{ config, pkgs, misc, ... }: {
+  nixpkgs = {
+    # Configure your nixpkgs instance
+    config = {
+      # Disable if you don't want unfree packages
+      {{ if .Config.Unfree }}
+      allowUnfree = true;
+      # Workaround for https://github.com/nix-community/home-manager/issues/2942
+      allowUnfreePredicate = (_: true);
+      {{ end }}
+    };
+  };
+  home.username = "{{.UserName}}";
+  home.homeDirectory = "{{.Home}}";
+  # managed by fleek, modify ~/.fleek.yml to change installed packages
+  # packages are just installed
+  home.packages = [{{ range .Config.Packages }}
+    pkgs.{{ . }}{{ end }}
+  ];
+  
+  home.stateVersion =
+    "22.11"; # To figure this out (in-case it changes) you can comment out the line and see what version it expected.
+  programs.home-manager.enable = true;
+}

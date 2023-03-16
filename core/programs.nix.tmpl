@@ -1,0 +1,6 @@
+{ pkgs, misc, ... }: {
+ 
+  # programs are installed and configured.
+  # add your program configuration in ./user.nix{{ range .Config.Programs }}
+    programs.{{ . }}.enable = true;{{ end }}
+}
