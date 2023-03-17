@@ -3,14 +3,30 @@ package core
 import (
 	"errors"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
+)
+
+var (
+	shells          = []string{"bash", "zsh"}
+	blingLevels     = []string{"low", "default", "high"}
+	lowPackages     = []string{"htop"}
+	defaultPackages = []string{"fzf", "ripgrep", "vscode"}
+	highPackages    = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
+	lowPrograms     = []string{"starship"}
+	defaultPrograms = []string{"gh", "direnv"}
+	highPrograms    = []string{"exa", "bat", "atuin", "zoxide"}
 )
 
 // Config holds the options that will be
 // merged into the home-manager flake.
 type Config struct {
-	Unfree     bool              `yaml:"unfree"`
+	Unfree bool `yaml:"unfree"`
+	// bash or zsh
+	Shell string `yaml:"shell"`
+	// low, default, high
+	Bling      string            `yaml:"bling"`
 	Repository string            `yaml:"repo"`
 	Name       string            `yaml:"name"`
 	Packages   []string          `yaml:",flow"`
@@ -22,6 +38,25 @@ type Config struct {
 type Me struct {
 	Name  string `yaml:"name"`
 	Email string `yaml:"email"`
+}
+
+func (c Config) Validate() error {
+	if !isValueInList(c.Shell, shells) {
+		return errors.New("fleek.yml: invalid shell, valid shells are: " + strings.Join(shells, ", "))
+	}
+	if !isValueInList(c.Bling, blingLevels) {
+		return errors.New("fleek.yml: invalid bling level, valid levels are: " + strings.Join(blingLevels, ", "))
+	}
+	return nil
+}
+
+func isValueInList(value string, list []string) bool {
+	for _, v := range list {
+		if v == value {
+			return true
+		}
+	}
+	return false
 }
 
 // ReadConfig returns the configuration data
@@ -50,32 +85,15 @@ func WriteSampleConfig(email, name string, force bool) error {
 	aliases["cdfleek"] = "cd ~/.config/home-manager"
 	c := Config{
 		Unfree:     true,
+		Shell:      "bash",
+		Bling:      "default",
 		Name:       "My Fleek Configuration",
 		Repository: "git@github.com/my/homeconfig",
 		Packages: []string{
-			"neovim",
-			"fzf",
-			"nixfmt",
-			"lazygit",
-			"ripgrep",
-			"jq",
-			"dive",
-			"htop",
-			"yq",
-			"vscode",
-			"go_1_20",
-			"gnumake",
-			"gcc",
-			"statix",
-			"rustup",
-			"goreleaser",
+			"helix",
 		},
 		Programs: []string{
-			"direnv",
-			"starship",
-			"atuin",
-			"gh",
-			"zellij",
+			"dircolors",
 		},
 		Aliases: aliases,
 		Paths: []string{
