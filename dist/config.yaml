@@ -15,8 +15,10 @@ builds:
   - id: fleek
     goos:
       - linux
+      - darwin
     goarch:
       - amd64
+      - arm64
     goarm:
       - "6"
     gomips:
@@ -25,15 +27,17 @@ builds:
       - v1
     targets:
       - linux_amd64_v1
+      - linux_arm64
+      - darwin_amd64_v1
+      - darwin_arm64
     dir: .
     main: .
     binary: fleek
     builder: go
     gobinary: go
     command: build
-    no_unique_dist_dir: true
     ldflags:
-      - -s -w -X main.Version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
     env:
       - CGO_ENABLED=0
 archives:
