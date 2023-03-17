@@ -3,8 +3,17 @@
     programs.git.userEmail = "{{.Config.Me.Email}}";
     programs.git.userName = "{{.Config.Me.Name}}";
 
+    # {{ .Config.Shell }}
+    {{ if eq .Config.Shell "bash" }}
     programs.bash.profileExtra = ". {{.Home}}/.nix-profile/etc/profile.d/nix.sh";
     programs.bash.enableCompletion = true;
     programs.bash.enableVteIntegration = true;
     programs.bash.enable = true;
+    {{ end }}
+
+    {{ if eq .Config.Shell "zsh" }}
+    programs.zsh.profileExtra = ". {{.Home}}/.nix-profile/etc/profile.d/nix.sh";
+    programs.zsh.enableCompletion = true;
+    programs.zsh.enable = true;
+    {{ end }}
 }

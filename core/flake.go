@@ -11,9 +11,15 @@ import (
 )
 
 type Data struct {
-	Config   *Config
-	UserName string
-	Home     string
+	Config          *Config
+	UserName        string
+	Home            string
+	LowPackages     []string
+	DefaultPackages []string
+	HighPackages    []string
+	LowPrograms     []string
+	DefaultPrograms []string
+	HighPrograms    []string
 }
 
 // InitFlake writes the first flake configuration
@@ -23,6 +29,10 @@ func InitFlake(force bool) error {
 		return err
 	}
 	conf, err := ReadConfig()
+	if err != nil {
+		return err
+	}
+	err = conf.Validate()
 	if err != nil {
 		return err
 	}
@@ -38,9 +48,15 @@ func InitFlake(force bool) error {
 		return err
 	}
 	data := Data{
-		Config:   conf,
-		UserName: username,
-		Home:     home,
+		Config:          conf,
+		UserName:        username,
+		Home:            home,
+		LowPackages:     lowPackages,
+		DefaultPackages: defaultPackages,
+		HighPackages:    highPackages,
+		LowPrograms:     lowPrograms,
+		DefaultPrograms: defaultPrograms,
+		HighPrograms:    highPrograms,
 	}
 
 	err = writeFile("flake.nix", t, data, force)
@@ -86,6 +102,10 @@ func WriteFlake() error {
 	if err != nil {
 		return err
 	}
+	err = conf.Validate()
+	if err != nil {
+		return err
+	}
 	user, err := user.Current()
 	if err != nil {
 		return err
@@ -98,9 +118,15 @@ func WriteFlake() error {
 		return err
 	}
 	data := Data{
-		Config:   conf,
-		UserName: username,
-		Home:     home,
+		Config:          conf,
+		UserName:        username,
+		Home:            home,
+		LowPackages:     lowPackages,
+		DefaultPackages: defaultPackages,
+		HighPackages:    highPackages,
+		LowPrograms:     lowPrograms,
+		DefaultPrograms: defaultPrograms,
+		HighPrograms:    highPrograms,
 	}
 
 	err = writeFile("home.nix", t, data, true)
@@ -128,6 +154,10 @@ func WriteFlake() error {
 
 func ApplyFlake() error {
 	conf, err := ReadConfig()
+	if err != nil {
+		return err
+	}
+	err = conf.Validate()
 	if err != nil {
 		return err
 	}

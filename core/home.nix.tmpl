@@ -16,7 +16,19 @@
   # packages are just installed
   home.packages = [{{ range .Config.Packages }}
     pkgs.{{ . }}{{ end }}
-    (pkgs.nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; })
+    {{ range .LowPackages }}
+    pkgs.{{ . }}{{end}}
+    {{ if eq .Config.Bling "default" }}
+    {{ range .DefaultPackages }}
+    pkgs.{{ . }}{{end}}
+    {{ end }}
+    {{ if eq .Config.Bling "high" }}
+    {{ range .DefaultPackages }}
+    pkgs.{{ . }}{{end}}
+    {{ range .HighPackages }}
+    pkgs.{{ . }}{{end}}
+    {{ end }}
+    (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
   ];
   fonts.fontconfig.enable = true; 
   home.stateVersion =
