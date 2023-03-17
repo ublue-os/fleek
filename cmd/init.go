@@ -4,44 +4,60 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
-	"github.com/ublue/fleek/core"
+	"github.com/ublue-os/fleek/core"
+	"github.com/vanilla-os/orchid/cmdr"
 )
 
-// initCmd represents the init command
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize fleek configuration.",
-	Long: `Initialize fleek configuration by creating $HOME/.fleek.yml
-and a persistence directory for your configs.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Setting up Fleek.")
-		var force bool
-		if cmd.Flag("force").Changed {
-			force = true
-		}
-		fmt.Println("Checking nix configuration.")
-
-		ok := core.CheckNix()
-		if ok {
-			fmt.Println("Writing fleek configuration file.")
-			err := core.WriteSampleConfig(force)
-			cobra.CheckErr(err)
-			err = core.MakeFlakeDir()
-			cobra.CheckErr(err)
-			err = core.InitFlake(force)
-			cobra.CheckErr(err)
-		} else {
-			fmt.Println("Is nix installed?")
-		}
-		fmt.Println("Done. \n\nEdit ~/.fleek.yml to your taste and run `fleek apply`")
-
-	},
+func NewInitCommand() *cmdr.Command {
+	cmd := cmdr.NewCommandRun(
+		fleek.Trans("init.use"),
+		fleek.Trans("init.long"),
+		fleek.Trans("init.short"),
+		initialize,
+	).WithBoolFlag(
+		cmdr.NewBoolFlag(
+			"force",
+			"f",
+			fleek.Trans("init.force"),
+			false,
+		))
+	return cmd
 }
 
-func init() {
-	rootCmd.AddCommand(initCmd)
-	initCmd.Flags().BoolP("force", "f", false, "Overwrite configs if they exist")
+// initCmd represents the init command
+func initialize(cmd *cobra.Command, args []string) {
+	var verbose bool
+	if cmd.Flag("verbose").Changed {
+		verbose = true
+	}
+	cmdr.Info.Println(fleek.Trans("init.start"))
+	var force bool
+	if cmd.Flag("force").Changed {
+		force = true
+	}
+	if verbose {
+		cmdr.Info.Println(fleek.Trans("init.checkNix"))
+	}
+
+	ok := core.CheckNix()
+	if ok {
+		email, err := cmdr.Prompt.Show("Git Config - enter your email address")
+		cobra.CheckErr(err)
+
+		name, err := cmdr.Prompt.Show("Git Config - enter your full name")
+		cobra.CheckErr(err)
+		if verbose {
+			cmdr.Info.Println(fleek.Trans("init.writingConfigs"))
+		}
+		err = core.WriteSampleConfig(email, name, force)
+		cobra.CheckErr(err)
+		err = core.MakeFlakeDir()
+		cobra.CheckErr(err)
+		err = core.InitFlake(force)
+		cobra.CheckErr(err)
+	} else {
+		cmdr.Error.Println(fleek.Trans("init.nixNotFound"))
+	}
+	cmdr.Info.Println(fleek.Trans("init.complete"))
 }

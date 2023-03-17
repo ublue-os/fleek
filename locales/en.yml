@@ -1,0 +1,27 @@
+fleek:
+  use: "fleek"
+  long: "Fleek installs and manages packages in your nix installation with a \nfriendly and approachable config file."
+  short: "Fleek makes nix friendly"
+  verboseFlag: "show more detailed output"
+
+apply:
+  use: "apply"
+  long: "Apply fleek profile by reading the ~/.fleek.yml file and updating \nthe flake templates."
+  short: "Apply fleek profile"
+  dryRun: "dry run - don't apply configuration"
+  writingConfig: "Writing configuration templates"
+  writingFlake: "Writing Nix flake"
+  applyingConfig: "Applying config to flake"
+  dryApplyingConfig: "Not Applying config to flake, dry run"
+  done: "Complete!"
+
+init:
+  use: "init"
+  long: "Initialize fleek"
+  short: "Initialize fleek"
+  force: "overwrite existing configuration files"
+  start: "initializing fleek"
+  checkNix: "checking for nix installation"
+  writingConfigs: "writing configuration files"
+  nixNotFound: "can't find `nix` binary - is nix installed?"
+  complete: "Done. \n\nEdit ~/.fleek.yml to your taste and run `fleek apply`"
