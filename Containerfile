@@ -7,10 +7,11 @@ COPY go.sum ./
 COPY build.sh ./
 
 RUN go mod download
-RUN go get github.com/ublue-os/fleek/cmd
 
 COPY *.go ./
-
+COPY cmd ./cmd
+COPY core ./core
+COPY locales ./locales
 RUN ./build.sh
-
-CMD [ "/fleek" ]
+RUN ./fleek man > fleek.man.1
+ENTRYPOINT ["/app/fleek"]
