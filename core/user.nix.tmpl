@@ -1,9 +1,7 @@
 { pkgs, misc, ... }: {
     # This file will never be modified by fleek
     # configs mentioned here must be listed in ~/fleek.yml #programs array or you will get errors
-    programs.git.userEmail = "{{.Config.Me.Email}}";
-    programs.git.userName = "{{.Config.Me.Name}}";
-    programs.bash.profileExtra = ". {{.Home}}/.nix-profile/etc/profile.d/nix.sh";
-    programs.bash.enableCompletion = true;
-    programs.bash.enableVteIntegration = true;
+
+
+ 
 }

@@ -16,8 +16,9 @@
   # packages are just installed
   home.packages = [{{ range .Config.Packages }}
     pkgs.{{ . }}{{ end }}
+    (pkgs.nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; })
   ];
-  
+  fonts.fontconfig.enable = true; 
   home.stateVersion =
     "22.11"; # To figure this out (in-case it changes) you can comment out the line and see what version it expected.
   programs.home-manager.enable = true;

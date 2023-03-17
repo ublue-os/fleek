@@ -1,3 +1,10 @@
 { pkgs, misc, ... }: {
+    programs.git.enable = true;
+    programs.git.userEmail = "{{.Config.Me.Email}}";
+    programs.git.userName = "{{.Config.Me.Name}}";
 
+    programs.bash.profileExtra = ". {{.Home}}/.nix-profile/etc/profile.d/nix.sh";
+    programs.bash.enableCompletion = true;
+    programs.bash.enableVteIntegration = true;
+    programs.bash.enable = true;
 }
