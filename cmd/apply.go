@@ -4,49 +4,54 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
-	"github.com/ublue/fleek/core"
+	"github.com/ublue-os/fleek/core"
+	"github.com/vanilla-os/orchid/cmdr"
 )
 
-// applyCmd represents the apply command
-var applyCmd = &cobra.Command{
-	Use:   "apply",
-	Short: "Apply nix home-manager result based on your ~/.fleek.yml configuration",
-	Long:  `Apply nix home-manager result based on your ~/.fleek.yml configuration`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Writing Configuration")
-		err := core.WriteFlake()
-		cobra.CheckErr(err)
-		fmt.Println("Compiling Configuration")
-		err = core.CheckFlake()
-		cobra.CheckErr(err)
-		var dry bool
-		if cmd.Flag("dry-run").Changed {
-			dry = true
-		}
-		if !dry {
-			fmt.Println("Applying Configuration")
-			err = core.ApplyFlake()
-			cobra.CheckErr(err)
-		} else {
-			fmt.Println("Dry Run, Not applying Configuration")
-		}
-		fmt.Println("Done.")
-	},
+func NewApplyCommand() *cmdr.Command {
+	cmd := cmdr.NewCommandRun(
+		fleek.Trans("apply.use"),
+		fleek.Trans("apply.long"),
+		fleek.Trans("apply.short"),
+		apply,
+	).WithBoolFlag(
+		cmdr.NewBoolFlag(
+			"dry-run",
+			"d",
+			fleek.Trans("apply.dryRun"),
+			false,
+		))
+	return cmd
 }
 
-func init() {
-	rootCmd.AddCommand(applyCmd)
+func apply(cmd *cobra.Command, args []string) {
 
-	// Here you will define your flags and configuration settings.
+	var verbose bool
+	if cmd.Flag("verbose").Changed {
+		verbose = true
+	}
+	if verbose {
+		cmdr.Info.Println(fleek.Trans("apply.writingConfig"))
+	}
+	err := core.WriteFlake()
+	cobra.CheckErr(err)
+	if verbose {
+		cmdr.Info.Println(fleek.Trans("apply.writingFlake"))
+	}
+	err = core.CheckFlake()
+	cobra.CheckErr(err)
+	var dry bool
+	if cmd.Flag("dry-run").Changed {
+		dry = true
+	}
+	if !dry {
+		cmdr.Info.Println(fleek.Trans("apply.applyingConfig"))
+		err = core.ApplyFlake()
+		cobra.CheckErr(err)
+	} else {
+		cmdr.Info.Println(fleek.Trans("apply.dryApplyingConfig"))
+	}
+	cmdr.Success.Println(fleek.Trans("apply.done"))
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// applyCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	applyCmd.Flags().BoolP("dry-run", "d", false, "dry run - compile but don't apply")
 }

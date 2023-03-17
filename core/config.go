@@ -45,7 +45,7 @@ func ReadConfig() (*Config, error) {
 
 // WriteSampleConfig creates the first fleek
 // configuration file
-func WriteSampleConfig(force bool) error {
+func WriteSampleConfig(email, name string, force bool) error {
 	aliases := make(map[string]string)
 	aliases["cdfleek"] = "cd ~/.config/home-manager"
 	c := Config{
@@ -68,6 +68,7 @@ func WriteSampleConfig(force bool) error {
 			"gcc",
 			"statix",
 			"rustup",
+			"goreleaser",
 		},
 		Programs: []string{
 			"direnv",
@@ -82,8 +83,8 @@ func WriteSampleConfig(force bool) error {
 			"$HOME/.local/bin",
 		},
 		Me: Me{
-			Name:  "Nix User",
-			Email: "joe@ublue.it",
+			Name:  name,
+			Email: email,
 		},
 	}
 	cfile, err := ConfigLocation()
