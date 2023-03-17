@@ -135,7 +135,7 @@ func ApplyFlake() error {
 	if err != nil {
 		return err
 	}
-	apply := exec.Command("nix", "run", "--impure", "home-manager/master", "switch", "--", "--flake", ".")
+	apply := exec.Command("nix", "run", "--impure", "home-manager/master", "--", "-b", "bak", "switch", "--flake", ".")
 	apply.Stderr = os.Stderr
 	apply.Stdin = os.Stdin
 	apply.Stdout = os.Stdout
