@@ -8,11 +8,11 @@ import (
 // ConfigLocation returns the path for the
 // fleek configuration file.
 func ConfigLocation() (string, error) {
-	home, err := os.UserHomeDir()
+	hm, err := FlakeLocation()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(home, ".fleek.yml"), nil
+	return filepath.Join(hm, ".fleek.yml"), nil
 }
 
 // FlakeLocation returns the path where the
