@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -133,6 +134,15 @@ func WriteSampleConfig(email, name string, force bool) error {
 		// convert to string to get `-` style lists
 		sbb := string(n)
 		_, err = cfg.WriteString(sbb)
+		if err != nil {
+			return err
+		}
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+		csym := filepath.Join(home, ".fleek.yml")
+		err = os.Symlink(cfile, csym)
 		if err != nil {
 			return err
 		}
