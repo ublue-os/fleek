@@ -14,4 +14,5 @@ COPY core ./core
 COPY locales ./locales
 RUN ./build.sh
 RUN ./fleek man > fleek.man.1
+RUN gzip fleek.man.1
 ENTRYPOINT ["/app/fleek"]
