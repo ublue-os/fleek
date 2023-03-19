@@ -128,7 +128,10 @@ func WriteFlake() error {
 		DefaultPrograms: defaultPrograms,
 		HighPrograms:    highPrograms,
 	}
-
+	err = writeFile("flake.nix", t, data, true)
+	if err != nil {
+		return err
+	}
 	err = writeFile("home.nix", t, data, true)
 	if err != nil {
 		return err
