@@ -1,4 +1,5 @@
 fleek
-fleek.man.*
+fleek.1
+fleek.1.*
 
 dist/
