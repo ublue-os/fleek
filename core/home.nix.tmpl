@@ -12,8 +12,11 @@
   };
   home.username = "{{.UserName}}";
   home.homeDirectory = "{{.Home}}";
+  {{ if not .Config.Ejected }}
   # managed by fleek, modify ~/.fleek.yml to change installed packages
-  # packages are just installed
+  {{ end }}
+  # packages are just installed (no configuration applied)
+  # programs are installed and configuration applied to dotfiles
   home.packages = [{{ range .Config.Packages }}
     pkgs.{{ . }}{{ end }}
     {{ range .LowPackages }}

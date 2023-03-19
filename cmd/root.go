@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"embed"
+	"os"
 
+	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/core"
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
@@ -30,5 +33,12 @@ func NewRootCommand(version string) *cmdr.Command {
 				false))
 
 	root.Version = version
+	root.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		ok := core.CheckNix()
+		if !ok {
+			cmdr.Error.Println(fleek.Trans("fleek.installNix"))
+			os.Exit(1)
+		}
+	}
 	return root
 }

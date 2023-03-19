@@ -1,10 +1,12 @@
 package core
 
-import "fmt"
+import (
+	"os/exec"
+)
 
 // CheckNix verifies that the nix
 // command is available in user's PATH
 func CheckNix() bool {
-	fmt.Println("TODO: check for nix binary, configs here")
-	return true
+	_, err := exec.LookPath("nix")
+	return err == nil
 }

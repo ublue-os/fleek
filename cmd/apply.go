@@ -34,23 +34,28 @@ func apply(cmd *cobra.Command, args []string) {
 	if verbose {
 		cmdr.Info.Println(fleek.Trans("apply.writingConfig"))
 	}
-	err := core.WriteFlake()
-	cobra.CheckErr(err)
-	if verbose {
-		cmdr.Info.Println(fleek.Trans("apply.writingFlake"))
+	// only re-apply the templates if not `ejected`
+	if ejected, _ := core.Ejected(); !ejected {
+		if verbose {
+			cmdr.Info.Println(fleek.Trans("apply.writingFlake"))
+		}
+		err := core.WriteFlake()
+		cobra.CheckErr(err)
+
 	}
-	err = core.CheckFlake()
-	cobra.CheckErr(err)
+
 	var dry bool
 	if cmd.Flag("dry-run").Changed {
 		dry = true
 	}
 	if !dry {
 		cmdr.Info.Println(fleek.Trans("apply.applyingConfig"))
-		err = core.ApplyFlake()
+		err := core.ApplyFlake()
 		cobra.CheckErr(err)
 	} else {
 		cmdr.Info.Println(fleek.Trans("apply.dryApplyingConfig"))
+		err := core.CheckFlake()
+		cobra.CheckErr(err)
 	}
 	cmdr.Success.Println(fleek.Trans("apply.done"))
 
