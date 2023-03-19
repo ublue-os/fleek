@@ -26,10 +26,11 @@ apply:
 
 init:
   use: "init"
-  long: "Initialize fleek"
+  long: "Initialize fleek with standard configuration options.\n\nIf `--clone` is set, an existing Fleek configuration will be cloned from that repository."
   short: "Initialize fleek"
   force: "overwrite existing configuration files"
   start: "initializing fleek"
+  clone: "address of existing fleek repository"
   checkNix: "checking for nix installation"
   writingConfigs: "writing configuration files"
   nixNotFound: "can't find `nix` binary - is nix installed?"

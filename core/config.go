@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -87,6 +88,22 @@ func Ejected() (bool, error) {
 		return false, err
 	}
 	return conf.Ejected, nil
+}
+
+func Clone(repo string) error {
+	location, err := FlakeLocation()
+	if err != nil {
+		return err
+	}
+
+	clone := exec.Command("git", "clone", repo, location)
+	clone.Stderr = os.Stderr
+	clone.Stdin = os.Stdin
+	clone.Stdout = os.Stdout
+	clone.Env = os.Environ()
+
+	return clone.Run()
+
 }
 
 // WriteSampleConfig creates the first fleek

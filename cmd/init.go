@@ -21,6 +21,12 @@ func NewInitCommand() *cmdr.Command {
 			"f",
 			fleek.Trans("init.force"),
 			false,
+		)).WithStringFlag(
+		cmdr.NewStringFlag(
+			"clone",
+			"c",
+			fleek.Trans("init.clone"),
+			"",
 		))
 	return cmd
 }
@@ -30,6 +36,17 @@ func initialize(cmd *cobra.Command, args []string) {
 	var verbose bool
 	if cmd.Flag("verbose").Changed {
 		verbose = true
+	}
+	var repo string
+	if cmd.Flag("clone").Changed {
+		repo = cmd.Flag("clone").Value.String()
+
+		// clone it
+		err := core.Clone(repo)
+		cobra.CheckErr(err)
+		// return
+		return
+
 	}
 	cmdr.Info.Println(fleek.Trans("init.start"))
 	var force bool
