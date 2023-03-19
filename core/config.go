@@ -35,6 +35,7 @@ type Config struct {
 	Aliases    map[string]string `yaml:",flow"`
 	Paths      []string          `yaml:"paths"`
 	Me         Me                `yaml:"me"`
+	Ejected    bool              `yaml:"ejected"`
 }
 type Me struct {
 	Name  string `yaml:"name"`
@@ -68,6 +69,7 @@ func ReadConfig() (*Config, error) {
 	if err != nil {
 		return c, err
 	}
+
 	bb, err := os.ReadFile(cfile)
 	if err != nil {
 		return c, err
@@ -77,6 +79,14 @@ func ReadConfig() (*Config, error) {
 		return c, err
 	}
 	return c, nil
+}
+
+func Ejected() (bool, error) {
+	conf, err := ReadConfig()
+	if err != nil {
+		return false, err
+	}
+	return conf.Ejected, nil
 }
 
 // WriteSampleConfig creates the first fleek
@@ -149,5 +159,39 @@ func WriteSampleConfig(email, name string, force bool) error {
 	} else {
 		return errors.New("cowardly refusing to overwrite config file without --force flag")
 	}
+	return nil
+}
+
+// WriteEjectConfig updates the .fleek.yml file
+// to indicated ejected status
+func WriteEjectConfig() error {
+
+	c := Config{
+		Ejected: true,
+	}
+	cfile, err := ConfigLocation()
+	if err != nil {
+		return err
+	}
+
+	bb, err := yaml.Marshal(&c)
+	if err != nil {
+		return err
+	}
+	m := make(map[interface{}]interface{})
+	err = yaml.Unmarshal(bb, &m)
+	if err != nil {
+		return err
+	}
+	n, err := yaml.Marshal(&m)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(cfile, n, 0755)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

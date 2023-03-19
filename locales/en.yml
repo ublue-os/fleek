@@ -3,7 +3,16 @@ fleek:
   long: "Fleek installs and manages packages in your nix installation with a \nfriendly and approachable config file."
   short: "Fleek makes nix friendly"
   verboseFlag: "show more detailed output"
+  installNix: "No nix installation found! We recommend starting at https://zero-to-nix.com/"
 
+eject:
+  use: "eject"
+  long: "Eject writes your current configuration to disk and removes Fleek's templates.\n\nChanges to .fleek.yml will be ignored; you will modify your Nix configurations directly."
+  short: "Manage your home configuration directly, without the .fleek.yml file."
+  verboseFlag: "show more detailed output"
+  start: "Applying current fleek configuration to your home flake."
+  complete: "Home configuration written. All changes should now be made in ~/.config/home-manager/ directly."
+  confirm: "Are you sure you want to manage your home configuration files directly?"
 apply:
   use: "apply"
   long: "Apply fleek profile by reading the ~/.fleek.yml file and updating \nthe flake templates."

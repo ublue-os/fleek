@@ -1,7 +1,7 @@
 { pkgs, misc, ... }: {
- 
-  # programs are installed and configured.
-  # add your program configuration in ./user.nix{{ range .Config.Programs }}
+  # packages are just installed (no configuration applied)
+  # programs are installed and configuration applied to dotfiles
+  # add your personalized program configuration in ./user.nix{{ range .Config.Programs }}
     programs.{{ . }}.enable = true;{{ end }}
     # low bling
     {{ range .LowPrograms }}
