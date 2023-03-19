@@ -30,6 +30,7 @@ init:
   short: "Initialize fleek"
   force: "overwrite existing configuration files"
   start: "initializing fleek"
+  apply: "apply configuration immediately after cloning"
   clone: "address of existing fleek repository"
   checkNix: "checking for nix installation"
   writingConfigs: "writing configuration files"

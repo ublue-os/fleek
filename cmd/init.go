@@ -27,6 +27,12 @@ func NewInitCommand() *cmdr.Command {
 			"c",
 			fleek.Trans("init.clone"),
 			"",
+		)).WithBoolFlag(
+		cmdr.NewBoolFlag(
+			"apply",
+			"a",
+			fleek.Trans("init.apply"),
+			false,
 		))
 	return cmd
 }
@@ -44,6 +50,24 @@ func initialize(cmd *cobra.Command, args []string) {
 		// clone it
 		err := core.Clone(repo)
 		cobra.CheckErr(err)
+		if cmd.Flag("apply").Changed {
+			// only re-apply the templates if not `ejected`
+			if ejected, _ := core.Ejected(); !ejected {
+				if verbose {
+					cmdr.Info.Println(fleek.Trans("apply.writingFlake"))
+				}
+				err := core.WriteFlake()
+				cobra.CheckErr(err)
+
+			}
+			cmdr.Info.Println(fleek.Trans("apply.applyingConfig"))
+			err := core.ApplyFlake()
+			cobra.CheckErr(err)
+			cmdr.Success.Println(fleek.Trans("apply.done"))
+
+			return
+		}
+
 		// return
 		return
 
