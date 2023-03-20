@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing/cache"
 
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -125,4 +126,45 @@ func Dirty() (bool, error) {
 	}
 
 	return false, nil
+}
+
+func RemoteAdd(remote string, name string) error {
+	flake, err := FlakeLocation()
+	if err != nil {
+		return err
+	}
+	r, err := git.PlainOpen(flake)
+	if err != nil {
+		return fmt.Errorf("opening repository: %s", err)
+	}
+	_, err = r.CreateRemote(&config.RemoteConfig{
+		Name: name,
+		URLs: []string{remote},
+	})
+	return err
+}
+
+func Remote() (string, error) {
+	flake, err := FlakeLocation()
+	if err != nil {
+		return "", err
+	}
+	r, err := git.PlainOpen(flake)
+	if err != nil {
+		return "", fmt.Errorf("opening repository: %s", err)
+	}
+
+	list, err := r.Remotes()
+	if err != nil {
+		return "", fmt.Errorf("getting remotes	: %s", err)
+	}
+	var urls string
+	for _, r := range list {
+		for _, upstream := range r.Config().URLs {
+			urls = urls + upstream + "\n"
+
+		}
+
+	}
+	return urls, nil
 }

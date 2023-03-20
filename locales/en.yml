@@ -57,3 +57,16 @@ remove:
   apply: "apply configs after adding"
   applying: "Removing package and applying configuration"
   done: "Complete!"
+repo:
+  use: "remote"
+  long: "Manage or show the remote git repository"
+  short: "Manage or show the remote git repository"
+reposhow:
+  use: "show"
+  long: "Show the remote git repository"
+  short: "Show the remote git repository"
+repoadd:
+  use: "add"
+  long: "Configure fleek to use a remote git repository"
+  short: "Configure fleek to use a remote git repository"
+  name: "git reference name of the remote"
