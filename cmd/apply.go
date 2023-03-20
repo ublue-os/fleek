@@ -52,7 +52,6 @@ func apply(cmd *cobra.Command, args []string) {
 		}
 		err := core.WriteFlake()
 		cobra.CheckErr(err)
-
 	}
 
 	var dry bool
