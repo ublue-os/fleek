@@ -1,12 +1,15 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"runtime"
 
 	"os/user"
 )
+
+var ErrSysNotFound = errors.New("system not found")
 
 func Runtime() string {
 	arch := runtime.GOARCH
@@ -69,5 +72,5 @@ func CurrentSystem() (*System, error) {
 			}
 		}
 	}
-	return nil, fmt.Errorf("System Not Found")
+	return nil, fmt.Errorf("system not found")
 }

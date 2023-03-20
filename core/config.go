@@ -62,6 +62,27 @@ func (s System) HomeDir() string {
 	return base + "/" + s.Username
 }
 
+func NewSystem(name, email string) (*System, error) {
+	user, err := Username()
+	if err != nil {
+		return nil, err
+	}
+	host, err := Hostname()
+	if err != nil {
+		return nil, err
+	}
+	return &System{
+		Hostname: host,
+		Arch:     Arch(),
+		OS:       runtime.GOOS,
+		Username: user,
+		GitConfig: GitConfig{
+			Name:  name,
+			Email: email,
+		},
+	}, nil
+}
+
 func (c Config) Validate() error {
 	if !isValueInList(c.Shell, shells) {
 		return errors.New("fleek.yml: invalid shell, valid shells are: " + strings.Join(shells, ", "))
@@ -88,6 +109,37 @@ func isValueInList(value string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func (c *Config) Save() error {
+	cfile, err := ConfigLocation()
+	if err != nil {
+		return err
+	}
+	cfg, err := os.Create(cfile)
+	if err != nil {
+		return err
+	}
+	bb, err := yaml.Marshal(&c)
+	if err != nil {
+		return err
+	}
+	m := make(map[interface{}]interface{})
+	err = yaml.Unmarshal(bb, &m)
+	if err != nil {
+		return err
+	}
+	n, err := yaml.Marshal(&m)
+	if err != nil {
+		return err
+	}
+	// convert to string to get `-` style lists
+	sbb := string(n)
+	_, err = cfg.WriteString(sbb)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // ReadConfig returns the configuration data
@@ -137,16 +189,13 @@ func Clone(repo string) error {
 // WriteSampleConfig creates the first fleek
 // configuration file
 func WriteSampleConfig(email, name string, force bool) error {
-	user, err := Username()
-	if err != nil {
-		return err
-	}
-	host, err := Hostname()
-	if err != nil {
-		return err
-	}
+
 	aliases := make(map[string]string)
 	aliases["cdfleek"] = "cd ~/.config/home-manager"
+	sys, err := NewSystem(name, email)
+	if err != nil {
+		return err
+	}
 	c := Config{
 		Unfree:     true,
 		Shell:      "bash",
@@ -164,17 +213,7 @@ func WriteSampleConfig(email, name string, force bool) error {
 			"$HOME/bin",
 			"$HOME/.local/bin",
 		},
-		Systems: []System{{
-			Hostname: host,
-			Arch:     Arch(),
-			OS:       runtime.GOOS,
-			Username: user,
-			GitConfig: GitConfig{
-				Name:  name,
-				Email: email,
-			},
-		},
-		},
+		Systems: []System{*sys},
 	}
 	cfile, err := ConfigLocation()
 	if err != nil {

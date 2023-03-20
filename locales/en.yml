@@ -22,6 +22,8 @@ apply:
   pushing: "Pushing changes to git remote"
   writingConfig: "Writing configuration templates"
   writingFlake: "Writing Nix flake"
+  checkingSystem: "Checking for current system in flake"
+  newSystem: "New system detected"
   applyingConfig: "Applying config to flake"
   dryApplyingConfig: "Not Applying config to flake, dry run"
   done: "Complete!"

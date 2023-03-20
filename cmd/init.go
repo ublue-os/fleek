@@ -4,6 +4,8 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/core"
 	"github.com/vanilla-os/orchid/cmdr"
@@ -54,9 +56,46 @@ func initialize(cmd *cobra.Command, args []string) {
 			// only re-apply the templates if not `ejected`
 			if ejected, _ := core.Ejected(); !ejected {
 				if verbose {
+
+					cmdr.Info.Println(fleek.Trans("apply.checkingSystem"))
+				}
+				// check to see if the current machine (system) is in the existing
+				// configs. If not, create a new one and add it.
+				_, err := core.CurrentSystem()
+				if err != nil {
+					if strings.Contains(err.Error(), "not") {
+						cmdr.Info.Println(fleek.Trans("apply.newSystem"))
+
+						//make a new system
+
+						// prompt for git configuration
+						email, err := cmdr.Prompt.Show("Git Config - enter your email address")
+						cobra.CheckErr(err)
+
+						name, err := cmdr.Prompt.Show("Git Config - enter your full name")
+						cobra.CheckErr(err)
+
+						// create new system struct
+						sys, err := core.NewSystem(email, name)
+						cobra.CheckErr(err)
+						cmdr.Info.Println("New System: %s@%s", sys.Username, sys.Hostname)
+						// get current config
+						conf, err := core.ReadConfig()
+						cobra.CheckErr(err)
+
+						// append new(current) system
+						conf.Systems = append(conf.Systems, *sys)
+						// save it
+						err = conf.Save()
+						cobra.CheckErr(err)
+
+					}
+				}
+
+				if verbose {
 					cmdr.Info.Println(fleek.Trans("apply.writingFlake"))
 				}
-				err := core.WriteFlake()
+				err = core.WriteFlake()
 				cobra.CheckErr(err)
 
 			}
@@ -68,7 +107,6 @@ func initialize(cmd *cobra.Command, args []string) {
 			return
 		}
 
-		// return
 		return
 
 	}
