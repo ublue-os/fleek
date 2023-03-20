@@ -16,7 +16,7 @@ var (
 	architectures    = []string{"aarch64", "x86_64"}
 	shells           = []string{"bash", "zsh"}
 	blingLevels      = []string{"low", "default", "high"}
-	lowPackages      = []string{"htop"}
+	lowPackages      = []string{"htop", "git", "github-cli", "glab"}
 	defaultPackages  = []string{"fzf", "ripgrep", "vscode"}
 	highPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
 	lowPrograms      = []string{"starship"}
