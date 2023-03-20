@@ -2,10 +2,16 @@ package core
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
+	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/cache"
+
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/storage/filesystem"
 )
 
 func Worktree() (*git.Worktree, error) {
@@ -55,6 +61,26 @@ func Commit() error {
 	return nil
 }
 
+func CreateRepo() error {
+	floc, err := FlakeLocation()
+	if err != nil {
+		return err
+	}
+	dotGit := filepath.Join(floc, ".git")
+	store := osfs.New(dotGit)
+	_, err = git.Init(filesystem.NewStorage(store, cache.NewObjectLRUDefault()), store)
+	if err != nil {
+		return err
+	}
+	gitIgnore, err := os.Create(filepath.Join(floc, ".gitignore"))
+	if err != nil {
+		return err
+	}
+	defer gitIgnore.Close()
+	_, err = gitIgnore.WriteString("result")
+
+	return err
+}
 func Push() error {
 	flake, err := FlakeLocation()
 	if err != nil {

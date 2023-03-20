@@ -82,6 +82,14 @@ func InitFlake(force bool) error {
 		return err
 	}
 
+	err = CreateRepo()
+	if err != nil {
+		return err
+	}
+	err = Commit()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -219,6 +227,7 @@ func writeFile(fname string, t *template.Template, d Data, force bool) error {
 		if err != nil {
 			return err
 		}
+		defer f.Close()
 		tmplName := fname + ".tmpl"
 		if err = t.ExecuteTemplate(f, tmplName, d); err != nil {
 			return err
@@ -246,6 +255,7 @@ func writeSystem(sys System, t *template.Template, force bool) error {
 		if err != nil {
 			return err
 		}
+		defer f.Close()
 		tmplName := "host.nix.tmpl"
 		if err = t.ExecuteTemplate(f, tmplName, sys); err != nil {
 			return err
