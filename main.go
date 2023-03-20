@@ -35,6 +35,12 @@ func main() {
 
 	remove := cmd.NewRemoveCommand()
 	root.AddCommand(remove)
+	repo := cmd.NewRepoCommand()
+	root.AddCommand(repo)
+	reposhow := cmd.NewRepoShowCommand()
+	repo.AddCommand(reposhow)
+	repoadd := cmd.NewRepoAddCommand()
+	repo.AddCommand(repoadd)
 	// run the app
 	err := fleek.Run()
 	if err != nil {

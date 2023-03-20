@@ -256,11 +256,10 @@ func WriteSampleConfig(email, name string, force bool) error {
 		return err
 	}
 	c := Config{
-		Unfree:     true,
-		Shell:      "bash",
-		Bling:      "default",
-		Name:       "My Fleek Configuration",
-		Repository: "git@github.com/my/homeconfig",
+		Unfree: true,
+		Shell:  "bash",
+		Bling:  "default",
+		Name:   "My Fleek Configuration",
 		Packages: []string{
 			"helix",
 		},
