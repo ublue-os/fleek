@@ -33,6 +33,8 @@ func main() {
 	add := cmd.NewAddCommand()
 	root.AddCommand(add)
 
+	remove := cmd.NewRemoveCommand()
+	root.AddCommand(remove)
 	// run the app
 	err := fleek.Run()
 	if err != nil {

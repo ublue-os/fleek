@@ -9,23 +9,23 @@ import (
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
-func NewAddCommand() *cmdr.Command {
+func NewRemoveCommand() *cmdr.Command {
 	cmd := cmdr.NewCommandRun(
-		fleek.Trans("add.use"),
-		fleek.Trans("add.long"),
-		fleek.Trans("add.short"),
-		add,
+		fleek.Trans("remove.use"),
+		fleek.Trans("remove.long"),
+		fleek.Trans("remove.short"),
+		remove,
 	).WithBoolFlag(
 		cmdr.NewBoolFlag(
 			"program",
 			"p",
-			fleek.Trans("add.program"),
+			fleek.Trans("remove.program"),
 			false,
 		)).WithBoolFlag(
 		cmdr.NewBoolFlag(
 			"apply",
 			"a",
-			fleek.Trans("add.apply"),
+			fleek.Trans("remove.apply"),
 			false,
 		))
 	cmd.Args = cobra.MinimumNArgs(1)
@@ -33,7 +33,7 @@ func NewAddCommand() *cmdr.Command {
 }
 
 // initCmd represents the init command
-func add(cmd *cobra.Command, args []string) {
+func remove(cmd *cobra.Command, args []string) {
 	var verbose bool
 	if cmd.Flag("verbose").Changed {
 		verbose = true
@@ -44,18 +44,17 @@ func add(cmd *cobra.Command, args []string) {
 		apply = true
 	}
 	if verbose {
-		cmdr.Info.Println(fleek.Trans("add.applying"))
+		cmdr.Info.Println(fleek.Trans("remove.applying"))
 	}
 
 	conf, err := core.ReadConfig()
 	cobra.CheckErr(err)
-
 	for _, p := range args {
 		if cmd.Flag("program").Changed {
-			err = conf.AddProgram(p)
+			err = conf.RemoveProgram(p)
 			cobra.CheckErr(err)
 		} else {
-			err = conf.AddPackage(p)
+			err = conf.RemovePackage(p)
 			cobra.CheckErr(err)
 		}
 
@@ -65,5 +64,5 @@ func add(cmd *cobra.Command, args []string) {
 		cobra.CheckErr(err)
 	}
 
-	cmdr.Info.Println(fleek.Trans("add.done"))
+	cmdr.Info.Println(fleek.Trans("remove.done"))
 }

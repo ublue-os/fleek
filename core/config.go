@@ -119,7 +119,48 @@ func (c *Config) AddPackage(pack string) error {
 	}
 	return c.Save()
 }
-
+func (c *Config) RemovePackage(pack string) error {
+	var index int
+	var found bool
+	for x, p := range c.Packages {
+		if p == pack {
+			index = x
+			found = true
+			break
+		}
+	}
+	if found {
+		c.Packages = append(c.Packages[:index], c.Packages[index+1:]...)
+	} else {
+		return errors.New("not found")
+	}
+	err := c.Validate()
+	if err != nil {
+		return err
+	}
+	return c.Save()
+}
+func (c *Config) RemoveProgram(prog string) error {
+	var index int
+	var found bool
+	for x, p := range c.Programs {
+		if p == prog {
+			index = x
+			found = true
+			break
+		}
+	}
+	if found {
+		c.Programs = append(c.Programs[:index], c.Programs[index+1:]...)
+	} else {
+		return errors.New("not found")
+	}
+	err := c.Validate()
+	if err != nil {
+		return err
+	}
+	return c.Save()
+}
 func (c *Config) AddProgram(prog string) error {
 	c.Programs = append(c.Programs, prog)
 	err := c.Validate()
