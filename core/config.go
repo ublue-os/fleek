@@ -20,7 +20,7 @@ var (
 	defaultPackages  = []string{"fzf", "ripgrep", "vscode"}
 	highPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
 	lowPrograms      = []string{"starship"}
-	defaultPrograms  = []string{"gh", "direnv"}
+	defaultPrograms  = []string{"direnv"}
 	highPrograms     = []string{"exa", "bat", "atuin", "zoxide"}
 )
 
