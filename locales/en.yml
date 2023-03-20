@@ -41,3 +41,11 @@ init:
   writingConfigs: "writing configuration files"
   nixNotFound: "can't find `nix` binary - is nix installed?"
   complete: "Done. \n\nEdit ~/.fleek.yml to your taste and run `fleek apply`"
+add:
+  use: "add"
+  long: "Add a new package or program to your configuration.\n Use the `--program` flag to specify a program which can also be configured by nix."
+  short: "Add a new package or program to your configuration"
+  program: "add a program instead of package"
+  apply: "apply configs after adding"
+  applying: "Adding package and applying configuration"
+  done: "Complete!"

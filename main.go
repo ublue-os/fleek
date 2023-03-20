@@ -30,6 +30,9 @@ func main() {
 	eject := cmd.NewEjectCommand()
 	root.AddCommand(eject)
 
+	add := cmd.NewAddCommand()
+	root.AddCommand(add)
+
 	// run the app
 	err := fleek.Run()
 	if err != nil {

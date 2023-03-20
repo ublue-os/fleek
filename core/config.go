@@ -111,6 +111,24 @@ func isValueInList(value string, list []string) bool {
 	return false
 }
 
+func (c *Config) AddPackage(pack string) error {
+	c.Packages = append(c.Packages, pack)
+	err := c.Validate()
+	if err != nil {
+		return err
+	}
+	return c.Save()
+}
+
+func (c *Config) AddProgram(prog string) error {
+	c.Programs = append(c.Programs, prog)
+	err := c.Validate()
+	if err != nil {
+		return err
+	}
+	return c.Save()
+}
+
 func (c *Config) Save() error {
 	cfile, err := ConfigLocation()
 	if err != nil {
