@@ -49,6 +49,17 @@ add:
   apply: "apply configs after adding"
   applying: "Adding package and applying configuration"
   done: "Complete!"
+
+list:
+  use: "list"
+  long: "List installed packages"
+  short: "List installed packages"
+  userBling: "Your Bling Level:"
+  lowBling: "Low Bling Packages:"
+  defaultBling: "Default Bling Packages:"
+  highBling: "High Bling Packages:"
+  userInstalled: "User Selected Packages:"
+
 remove:
   use: "remove [package] [package] ..."
   long: "Remove a package or program from your configuration.\n Use the `--program` flag to specify a program which can also be configured by nix."

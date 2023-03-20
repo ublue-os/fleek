@@ -16,12 +16,12 @@ var (
 	architectures    = []string{"aarch64", "x86_64"}
 	shells           = []string{"bash", "zsh"}
 	blingLevels      = []string{"low", "default", "high"}
-	lowPackages      = []string{"htop", "git", "github-cli", "glab"}
-	defaultPackages  = []string{"fzf", "ripgrep", "vscode"}
-	highPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
-	lowPrograms      = []string{"starship"}
-	defaultPrograms  = []string{"direnv"}
-	highPrograms     = []string{"exa", "bat", "atuin", "zoxide"}
+	LowPackages      = []string{"htop", "git", "github-cli", "glab"}
+	DefaultPackages  = []string{"fzf", "ripgrep", "vscode"}
+	HighPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
+	LowPrograms      = []string{"starship"}
+	DefaultPrograms  = []string{"direnv"}
+	HighPrograms     = []string{"exa", "bat", "atuin", "zoxide"}
 )
 
 // Config holds the options that will be

@@ -38,12 +38,12 @@ func InitFlake(force bool) error {
 
 	data := Data{
 		Config:          conf,
-		LowPackages:     lowPackages,
-		DefaultPackages: defaultPackages,
-		HighPackages:    highPackages,
-		LowPrograms:     lowPrograms,
-		DefaultPrograms: defaultPrograms,
-		HighPrograms:    highPrograms,
+		LowPackages:     LowPackages,
+		DefaultPackages: DefaultPackages,
+		HighPackages:    HighPackages,
+		LowPrograms:     LowPrograms,
+		DefaultPrograms: DefaultPrograms,
+		HighPrograms:    HighPrograms,
 	}
 
 	err = writeFile("flake.nix", t, data, force)
@@ -110,12 +110,12 @@ func WriteFlake() error {
 
 	data := Data{
 		Config:          conf,
-		LowPackages:     lowPackages,
-		DefaultPackages: defaultPackages,
-		HighPackages:    highPackages,
-		LowPrograms:     lowPrograms,
-		DefaultPrograms: defaultPrograms,
-		HighPrograms:    highPrograms,
+		LowPackages:     LowPackages,
+		DefaultPackages: DefaultPackages,
+		HighPackages:    HighPackages,
+		LowPrograms:     LowPrograms,
+		DefaultPrograms: DefaultPrograms,
+		HighPrograms:    HighPrograms,
 	}
 	err = writeFile("flake.nix", t, data, true)
 	if err != nil {
