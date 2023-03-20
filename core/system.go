@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"os"
 	"runtime"
 
@@ -46,4 +47,27 @@ func Hostname() (string, error) {
 		return "", e
 	}
 	return h, nil
+}
+
+func CurrentSystem() (*System, error) {
+	conf, err := ReadConfig()
+	if err != nil {
+		return nil, fmt.Errorf("reading config: %s", err)
+	}
+	host, err := Hostname()
+	if err != nil {
+		return nil, fmt.Errorf("getting hostname: %s", err)
+	}
+	user, err := Username()
+	if err != nil {
+		return nil, fmt.Errorf("getting username: %s", err)
+	}
+	for _, sys := range conf.Systems {
+		if sys.Hostname == host {
+			if sys.Username == user {
+				return &sys, nil
+			}
+		}
+	}
+	return nil, fmt.Errorf("System Not Found")
 }

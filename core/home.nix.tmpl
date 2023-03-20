@@ -30,6 +30,8 @@
     {{ range .HighPackages }}
     pkgs.{{ . }}{{end}}
     {{ end }}
+    pkgs.go
+    pkgs.gcc
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
   ];
   fonts.fontconfig.enable = true; 

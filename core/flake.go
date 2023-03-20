@@ -139,7 +139,8 @@ func WriteFlake() error {
 	if err != nil {
 		return err
 	}
-	return nil
+	return Commit()
+
 }
 
 func ApplyFlake() error {
@@ -232,7 +233,12 @@ func writeSystem(sys System, t *template.Template, force bool) error {
 	if err != nil {
 		return err
 	}
-	fpath := filepath.Join(fleekPath, sys.Hostname+".nix")
+	hostPath := filepath.Join(fleekPath, sys.Hostname)
+	err = os.MkdirAll(hostPath, 0755)
+	if err != nil {
+		return err
+	}
+	fpath := filepath.Join(hostPath, sys.Hostname+".nix")
 	_, err = os.Stat(fpath)
 	if force || os.IsNotExist(err) {
 

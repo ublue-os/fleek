@@ -18,6 +18,8 @@ apply:
   long: "Apply fleek profile by reading the ~/.fleek.yml file and updating \nthe flake templates."
   short: "Apply fleek profile"
   dryRun: "dry run - don't apply configuration"
+  push: "push modified configuration to git remote"
+  pushing: "Pushing changes to git remote"
   writingConfig: "Writing configuration templates"
   writingFlake: "Writing Nix flake"
   applyingConfig: "Applying config to flake"
