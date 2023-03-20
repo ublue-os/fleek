@@ -5,20 +5,23 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
 var (
-	shells          = []string{"bash", "zsh"}
-	blingLevels     = []string{"low", "default", "high"}
-	lowPackages     = []string{"htop"}
-	defaultPackages = []string{"fzf", "ripgrep", "vscode"}
-	highPackages    = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
-	lowPrograms     = []string{"starship"}
-	defaultPrograms = []string{"gh", "direnv"}
-	highPrograms    = []string{"exa", "bat", "atuin", "zoxide"}
+	operatingSystems = []string{"linux", "darwin"}
+	architectures    = []string{"aarch64", "x86_64"}
+	shells           = []string{"bash", "zsh"}
+	blingLevels      = []string{"low", "default", "high"}
+	lowPackages      = []string{"htop", "git", "github-cli", "glab"}
+	defaultPackages  = []string{"fzf", "ripgrep", "vscode"}
+	highPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
+	lowPrograms      = []string{"starship"}
+	defaultPrograms  = []string{"direnv"}
+	highPrograms     = []string{"exa", "bat", "atuin", "zoxide"}
 )
 
 // Config holds the options that will be
@@ -35,12 +38,49 @@ type Config struct {
 	Programs   []string          `yaml:",flow"`
 	Aliases    map[string]string `yaml:",flow"`
 	Paths      []string          `yaml:"paths"`
-	Me         Me                `yaml:"me"`
 	Ejected    bool              `yaml:"ejected"`
+	Systems    []System          `yaml:",flow"`
 }
-type Me struct {
+type GitConfig struct {
 	Name  string `yaml:"name"`
 	Email string `yaml:"email"`
+}
+
+type System struct {
+	Hostname  string    `yaml:"hostname"`
+	Username  string    `yaml:"username"`
+	Arch      string    `yaml:"arch"`
+	OS        string    `yaml:"os"`
+	GitConfig GitConfig `yaml:"git"`
+}
+
+func (s System) HomeDir() string {
+	base := "/home"
+	if s.OS == "darwin" {
+		base = "/Users"
+	}
+	return base + "/" + s.Username
+}
+
+func NewSystem(name, email string) (*System, error) {
+	user, err := Username()
+	if err != nil {
+		return nil, err
+	}
+	host, err := Hostname()
+	if err != nil {
+		return nil, err
+	}
+	return &System{
+		Hostname: host,
+		Arch:     Arch(),
+		OS:       runtime.GOOS,
+		Username: user,
+		GitConfig: GitConfig{
+			Name:  name,
+			Email: email,
+		},
+	}, nil
 }
 
 func (c Config) Validate() error {
@@ -49,6 +89,15 @@ func (c Config) Validate() error {
 	}
 	if !isValueInList(c.Bling, blingLevels) {
 		return errors.New("fleek.yml: invalid bling level, valid levels are: " + strings.Join(blingLevels, ", "))
+	}
+	for _, sys := range c.Systems {
+		if !isValueInList(sys.Arch, architectures) {
+			return errors.New("fleek.yml: invalid architecture, valid architectures are: " + strings.Join(architectures, ", "))
+		}
+
+		if !isValueInList(sys.OS, operatingSystems) {
+			return errors.New("fleek.yml: invalid OS, valid operating systems are: " + strings.Join(operatingSystems, ", "))
+		}
 	}
 	return nil
 }
@@ -60,6 +109,37 @@ func isValueInList(value string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func (c *Config) Save() error {
+	cfile, err := ConfigLocation()
+	if err != nil {
+		return err
+	}
+	cfg, err := os.Create(cfile)
+	if err != nil {
+		return err
+	}
+	bb, err := yaml.Marshal(&c)
+	if err != nil {
+		return err
+	}
+	m := make(map[interface{}]interface{})
+	err = yaml.Unmarshal(bb, &m)
+	if err != nil {
+		return err
+	}
+	n, err := yaml.Marshal(&m)
+	if err != nil {
+		return err
+	}
+	// convert to string to get `-` style lists
+	sbb := string(n)
+	_, err = cfg.WriteString(sbb)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // ReadConfig returns the configuration data
@@ -109,8 +189,13 @@ func Clone(repo string) error {
 // WriteSampleConfig creates the first fleek
 // configuration file
 func WriteSampleConfig(email, name string, force bool) error {
+
 	aliases := make(map[string]string)
 	aliases["cdfleek"] = "cd ~/.config/home-manager"
+	sys, err := NewSystem(name, email)
+	if err != nil {
+		return err
+	}
 	c := Config{
 		Unfree:     true,
 		Shell:      "bash",
@@ -128,10 +213,7 @@ func WriteSampleConfig(email, name string, force bool) error {
 			"$HOME/bin",
 			"$HOME/.local/bin",
 		},
-		Me: Me{
-			Name:  name,
-			Email: email,
-		},
+		Systems: []System{*sys},
 	}
 	cfile, err := ConfigLocation()
 	if err != nil {

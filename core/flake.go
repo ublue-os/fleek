@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 )
 
@@ -36,21 +35,9 @@ func InitFlake(force bool) error {
 	if err != nil {
 		return err
 	}
-	user, err := user.Current()
-	if err != nil {
-		return err
-	}
 
-	username := user.Username
-
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
 	data := Data{
 		Config:          conf,
-		UserName:        username,
-		Home:            home,
 		LowPackages:     lowPackages,
 		DefaultPackages: defaultPackages,
 		HighPackages:    highPackages,
@@ -84,11 +71,25 @@ func InitFlake(force bool) error {
 	if err != nil {
 		return err
 	}
+	for _, sys := range data.Config.Systems {
+		err = writeSystem(sys, t, force)
+		if err != nil {
+			return err
+		}
+	}
 	err = writeFile("user.nix", t, data, force)
 	if err != nil {
 		return err
 	}
 
+	err = CreateRepo()
+	if err != nil {
+		return err
+	}
+	err = Commit()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -106,21 +107,9 @@ func WriteFlake() error {
 	if err != nil {
 		return err
 	}
-	user, err := user.Current()
-	if err != nil {
-		return err
-	}
 
-	username := user.Username
-
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
 	data := Data{
 		Config:          conf,
-		UserName:        username,
-		Home:            home,
 		LowPackages:     lowPackages,
 		DefaultPackages: defaultPackages,
 		HighPackages:    highPackages,
@@ -148,11 +137,18 @@ func WriteFlake() error {
 	if err != nil {
 		return err
 	}
+	for _, sys := range data.Config.Systems {
+		err = writeSystem(sys, t, true)
+		if err != nil {
+			return err
+		}
+	}
 	err = writeFile("shell.nix", t, data, true)
 	if err != nil {
 		return err
 	}
-	return nil
+	return Commit()
+
 }
 
 func ApplyFlake() error {
@@ -168,7 +164,15 @@ func ApplyFlake() error {
 	if err != nil {
 		return err
 	}
-	apply := exec.Command("nix", "run", "--impure", "home-manager/master", "--", "-b", "bak", "switch", "--flake", ".")
+	user, err := Username()
+	if err != nil {
+		return err
+	}
+	host, err := Hostname()
+	if err != nil {
+		return err
+	}
+	apply := exec.Command("nix", "run", "--impure", "home-manager/master", "--", "-b", "bak", "switch", "--flake", ".#"+user+"@"+host)
 	apply.Stderr = os.Stderr
 	apply.Stdin = os.Stdin
 	apply.Stdout = os.Stdout
@@ -223,8 +227,37 @@ func writeFile(fname string, t *template.Template, d Data, force bool) error {
 		if err != nil {
 			return err
 		}
+		defer f.Close()
 		tmplName := fname + ".tmpl"
 		if err = t.ExecuteTemplate(f, tmplName, d); err != nil {
+			return err
+		}
+	} else {
+		return errors.New("cowardly refusing to overwrite existing file without --force flag")
+	}
+	return nil
+}
+func writeSystem(sys System, t *template.Template, force bool) error {
+	fleekPath, err := FlakeLocation()
+	if err != nil {
+		return err
+	}
+	hostPath := filepath.Join(fleekPath, sys.Hostname)
+	err = os.MkdirAll(hostPath, 0755)
+	if err != nil {
+		return err
+	}
+	fpath := filepath.Join(hostPath, sys.Hostname+".nix")
+	_, err = os.Stat(fpath)
+	if force || os.IsNotExist(err) {
+
+		f, err := os.Create(fpath)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		tmplName := "host.nix.tmpl"
+		if err = t.ExecuteTemplate(f, tmplName, sys); err != nil {
 			return err
 		}
 	} else {

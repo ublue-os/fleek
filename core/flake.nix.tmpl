@@ -1,39 +1,35 @@
 {
-  description = "{{.Config.Name}}";
+  description = "{{ .Config.Name }}";
 
   inputs = {
-    # Specify the source of Home Manager and Nixpkgs.
+    # Nixpkgs
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+
+    # Home manager
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { nixpkgs, home-manager, ... }:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-      defaultPackage.${system} = home-manager.defaultPackage.${system};
+  outputs = { nixpkgs, home-manager, ... }@inputs: {
 
-    in {
-      homeConfigurations.{{.UserName}} = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-
-        # Specify your home configuration modules here, for example,
-        # the path to your home.nix.
+    # Available through 'home-manager --flake .#your-username@your-hostname'
+    homeConfigurations = {
+    {{ range .Config.Systems }}
+      "{{ .Username }}@{{ .Hostname }}" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.{{ .Arch }}-{{ .OS }}; # Home-manager requires 'pkgs' instance
+        extraSpecialArgs = { inherit inputs; }; # Pass flake inputs to our config
         modules = [ 
           ./home.nix 
-          ./aliases.nix
           ./path.nix
-          ./programs.nix
           ./shell.nix
-          # add your own configs in ./user.nix, they won't be overwritten
           ./user.nix
+          ./aliases.nix
+          ./programs.nix
+          # Host Specific configs
+          ./{{.Hostname}}/{{.Hostname}}.nix
         ];
-
-        # Optionally use extraSpecialArgs
-        # to pass through arguments to home.nix
       };
+      {{ end }}
     };
+  };
 }

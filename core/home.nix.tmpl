@@ -10,27 +10,33 @@
       {{ end }}
     };
   };
-  home.username = "{{.UserName}}";
-  home.homeDirectory = "{{.Home}}";
+
   {{ if not .Config.Ejected }}
   # managed by fleek, modify ~/.fleek.yml to change installed packages
   {{ end }}
   # packages are just installed (no configuration applied)
   # programs are installed and configuration applied to dotfiles
   home.packages = [{{ range .Config.Packages }}
+    # base packages
     pkgs.{{ . }}{{ end }}
     {{ range .LowPackages }}
     pkgs.{{ . }}{{end}}
     {{ if eq .Config.Bling "default" }}
+    # default packages
     {{ range .DefaultPackages }}
     pkgs.{{ . }}{{end}}
     {{ end }}
     {{ if eq .Config.Bling "high" }}
+    # default packages
     {{ range .DefaultPackages }}
     pkgs.{{ . }}{{end}}
+    # high packages
     {{ range .HighPackages }}
     pkgs.{{ . }}{{end}}
     {{ end }}
+    # extra until this works, remove later :TODO:
+    pkgs.go
+    pkgs.gcc
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
   ];
   fonts.fontconfig.enable = true; 
