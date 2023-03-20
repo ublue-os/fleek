@@ -30,8 +30,11 @@
     {{ range .HighPackages }}
     pkgs.{{ . }}{{end}}
     {{ end }}
+    # required for fleek git integration
     pkgs.github-cli
     pkgs.glab
+
+    # extra until this works, remove later :TODO:
     pkgs.go
     pkgs.gcc
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
