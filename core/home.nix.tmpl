@@ -17,16 +17,20 @@
   # packages are just installed (no configuration applied)
   # programs are installed and configuration applied to dotfiles
   home.packages = [{{ range .Config.Packages }}
+    # base packages
     pkgs.{{ . }}{{ end }}
     {{ range .LowPackages }}
     pkgs.{{ . }}{{end}}
     {{ if eq .Config.Bling "default" }}
+    # default packages
     {{ range .DefaultPackages }}
     pkgs.{{ . }}{{end}}
     {{ end }}
     {{ if eq .Config.Bling "high" }}
+    # default packages
     {{ range .DefaultPackages }}
     pkgs.{{ . }}{{end}}
+    # high packages
     {{ range .HighPackages }}
     pkgs.{{ . }}{{end}}
     {{ end }}
