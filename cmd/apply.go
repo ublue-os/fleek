@@ -63,6 +63,10 @@ func apply(cmd *cobra.Command, args []string) {
 		cmdr.Info.Println(fleek.Trans("apply.applyingConfig"))
 		err := core.ApplyFlake()
 		cobra.CheckErr(err)
+		err = core.Commit()
+		if err != nil {
+			cmdr.Error.Println(fleek.Trans("apply.commitError"), err)
+		}
 	} else {
 		cmdr.Info.Println(fleek.Trans("apply.dryApplyingConfig"))
 		err := core.CheckFlake()
