@@ -91,10 +91,11 @@ func initialize(cmd *cobra.Command, args []string) {
 		if verbose {
 			cmdr.Info.Println(fleek.Trans("init.writingConfigs"))
 		}
-		err = core.WriteSampleConfig(email, name, force)
-		cobra.CheckErr(err)
 		err = core.MakeFlakeDir()
 		cobra.CheckErr(err)
+		err = core.WriteSampleConfig(email, name, force)
+		cobra.CheckErr(err)
+
 		err = core.InitFlake(force)
 		cobra.CheckErr(err)
 	} else {

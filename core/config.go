@@ -5,20 +5,23 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
 var (
-	shells          = []string{"bash", "zsh"}
-	blingLevels     = []string{"low", "default", "high"}
-	lowPackages     = []string{"htop"}
-	defaultPackages = []string{"fzf", "ripgrep", "vscode"}
-	highPackages    = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
-	lowPrograms     = []string{"starship"}
-	defaultPrograms = []string{"gh", "direnv"}
-	highPrograms    = []string{"exa", "bat", "atuin", "zoxide"}
+	operatingSystems = []string{"linux", "darwin"}
+	architectures    = []string{"aarch64", "x86_64"}
+	shells           = []string{"bash", "zsh"}
+	blingLevels      = []string{"low", "default", "high"}
+	lowPackages      = []string{"htop"}
+	defaultPackages  = []string{"fzf", "ripgrep", "vscode"}
+	highPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
+	lowPrograms      = []string{"starship"}
+	defaultPrograms  = []string{"gh", "direnv"}
+	highPrograms     = []string{"exa", "bat", "atuin", "zoxide"}
 )
 
 // Config holds the options that will be
@@ -35,12 +38,28 @@ type Config struct {
 	Programs   []string          `yaml:",flow"`
 	Aliases    map[string]string `yaml:",flow"`
 	Paths      []string          `yaml:"paths"`
-	Me         Me                `yaml:"me"`
 	Ejected    bool              `yaml:"ejected"`
+	Systems    []System          `yaml:",flow"`
 }
-type Me struct {
+type GitConfig struct {
 	Name  string `yaml:"name"`
 	Email string `yaml:"email"`
+}
+
+type System struct {
+	Hostname  string    `yaml:"hostname"`
+	Username  string    `yaml:"username"`
+	Arch      string    `yaml:"arch"`
+	OS        string    `yaml:"os"`
+	GitConfig GitConfig `yaml:"git"`
+}
+
+func (s System) HomeDir() string {
+	base := "/home"
+	if s.OS == "darwin" {
+		base = "/Users"
+	}
+	return base + "/" + s.Username
 }
 
 func (c Config) Validate() error {
@@ -49,6 +68,15 @@ func (c Config) Validate() error {
 	}
 	if !isValueInList(c.Bling, blingLevels) {
 		return errors.New("fleek.yml: invalid bling level, valid levels are: " + strings.Join(blingLevels, ", "))
+	}
+	for _, sys := range c.Systems {
+		if !isValueInList(sys.Arch, architectures) {
+			return errors.New("fleek.yml: invalid architecture, valid architectures are: " + strings.Join(architectures, ", "))
+		}
+
+		if !isValueInList(sys.OS, operatingSystems) {
+			return errors.New("fleek.yml: invalid OS, valid operating systems are: " + strings.Join(operatingSystems, ", "))
+		}
 	}
 	return nil
 }
@@ -109,6 +137,14 @@ func Clone(repo string) error {
 // WriteSampleConfig creates the first fleek
 // configuration file
 func WriteSampleConfig(email, name string, force bool) error {
+	user, err := Username()
+	if err != nil {
+		return err
+	}
+	host, err := Hostname()
+	if err != nil {
+		return err
+	}
 	aliases := make(map[string]string)
 	aliases["cdfleek"] = "cd ~/.config/home-manager"
 	c := Config{
@@ -128,9 +164,16 @@ func WriteSampleConfig(email, name string, force bool) error {
 			"$HOME/bin",
 			"$HOME/.local/bin",
 		},
-		Me: Me{
-			Name:  name,
-			Email: email,
+		Systems: []System{{
+			Hostname: host,
+			Arch:     Arch(),
+			OS:       runtime.GOOS,
+			Username: user,
+			GitConfig: GitConfig{
+				Name:  name,
+				Email: email,
+			},
+		},
 		},
 	}
 	cfile, err := ConfigLocation()

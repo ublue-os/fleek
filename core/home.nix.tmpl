@@ -10,8 +10,7 @@
       {{ end }}
     };
   };
-  home.username = "{{.UserName}}";
-  home.homeDirectory = "{{.Home}}";
+
   {{ if not .Config.Ejected }}
   # managed by fleek, modify ~/.fleek.yml to change installed packages
   {{ end }}

@@ -1,7 +1,4 @@
 { pkgs, misc, ... }: {
-    programs.git.enable = true;
-    programs.git.userEmail = "{{.Config.Me.Email}}";
-    programs.git.userName = "{{.Config.Me.Name}}";
 
     # {{ .Config.Shell }}
     {{ if eq .Config.Shell "bash" }}
