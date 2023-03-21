@@ -241,7 +241,17 @@ func Clone(repo string) error {
 	clone.Stdout = os.Stdout
 	clone.Env = os.Environ()
 
-	return clone.Run()
+	err = clone.Run()
+	if err != nil {
+		return err
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	yamlPath := filepath.Join(location, ".fleek.yml")
+	csym := filepath.Join(home, ".fleek.yml")
+	return os.Symlink(yamlPath, csym)
 
 }
 
