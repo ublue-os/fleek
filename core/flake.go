@@ -263,6 +263,22 @@ func writeSystem(sys System, t *template.Template, force bool) error {
 	} else {
 		return errors.New("cowardly refusing to overwrite existing file without --force flag")
 	}
+	upath := filepath.Join(hostPath, "user.nix")
+	_, err = os.Stat(upath)
+	if force || os.IsNotExist(err) {
+
+		f, err := os.Create(upath)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		tmplName := "user.nix.tmpl"
+		if err = t.ExecuteTemplate(f, tmplName, sys); err != nil {
+			return err
+		}
+	} else {
+		return errors.New("cowardly refusing to overwrite existing file without --force flag")
+	}
 	return nil
 }
 

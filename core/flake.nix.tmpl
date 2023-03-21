@@ -27,6 +27,7 @@
           ./programs.nix
           # Host Specific configs
           ./{{.Hostname}}/{{.Hostname}}.nix
+          ./{{.Hostname}}/user.nix
         ];
       };
       {{ end }}
