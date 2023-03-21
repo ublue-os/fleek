@@ -52,6 +52,10 @@ add:
 
 list:
   use: "list"
+  long: "List installed packages or programs"
+  short: "List installed packages or programs"
+listPackages:
+  use: "packages"
   long: "List installed packages"
   short: "List installed packages"
   userBling: "Your Bling Level:"
