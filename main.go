@@ -44,7 +44,10 @@ func main() {
 
 	list := cmd.NewListCommand()
 	listPkgs := cmd.NewListPackagesCommand()
+	listProgs := cmd.NewListProgramsCommand()
+
 	list.AddCommand(listPkgs)
+	list.AddCommand(listProgs)
 	root.AddCommand(list)
 	// run the app
 	err := fleek.Run()
