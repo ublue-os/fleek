@@ -49,6 +49,9 @@ func main() {
 	list.AddCommand(listPkgs)
 	list.AddCommand(listProgs)
 	root.AddCommand(list)
+
+	update := cmd.NewUpdateCommand()
+	root.AddCommand(update)
 	// run the app
 	err := fleek.Run()
 	if err != nil {

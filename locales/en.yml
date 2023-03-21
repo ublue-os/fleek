@@ -93,3 +93,11 @@ repoadd:
   long: "Configure fleek to use a remote git repository"
   short: "Configure fleek to use a remote git repository"
   name: "git reference name of the remote"
+update:
+  use: "update"
+  long: "Update installed packages and programs"
+  short: "Update installed packages and programs"
+  start: "Updating available packages and programs"
+  apply: "Applying updates."
+  needApply: "Run the `apply` command to apply these updates"
+  done: "Update complete."
