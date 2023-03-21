@@ -72,7 +72,7 @@ func InitFlake(force bool) error {
 		return err
 	}
 	for _, sys := range data.Config.Systems {
-		err = writeSystem(sys, t, true, force)
+		err = writeSystem(sys, t, force)
 		if err != nil {
 			return err
 		}
@@ -138,7 +138,7 @@ func WriteFlake() error {
 		return err
 	}
 	for _, sys := range data.Config.Systems {
-		err = writeSystem(sys, t, false, true)
+		err = writeSystem(sys, t, true)
 		if err != nil {
 			return err
 		}
@@ -237,7 +237,7 @@ func writeFile(fname string, t *template.Template, d Data, force bool) error {
 	}
 	return nil
 }
-func writeSystem(sys System, t *template.Template, user, force bool) error {
+func writeSystem(sys System, t *template.Template, force bool) error {
 	fleekPath, err := FlakeLocation()
 	if err != nil {
 		return err
@@ -263,22 +263,18 @@ func writeSystem(sys System, t *template.Template, user, force bool) error {
 	} else {
 		return errors.New("cowardly refusing to overwrite existing file without --force flag")
 	}
-	if user {
-		upath := filepath.Join(hostPath, "user.nix")
-		_, err = os.Stat(upath)
-		if force || os.IsNotExist(err) {
+	upath := filepath.Join(hostPath, "user.nix")
+	_, err = os.Stat(upath)
+	if force || os.IsNotExist(err) {
 
-			f, err := os.Create(upath)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-			tmplName := "user.nix.tmpl"
-			if err = t.ExecuteTemplate(f, tmplName, sys); err != nil {
-				return err
-			}
-		} else {
-			return errors.New("cowardly refusing to overwrite existing file without --force flag")
+		f, err := os.Create(upath)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		tmplName := "user.nix.tmpl"
+		if err = t.ExecuteTemplate(f, tmplName, sys); err != nil {
+			return err
 		}
 	}
 	return nil
