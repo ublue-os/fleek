@@ -63,7 +63,15 @@ listPackages:
   defaultBling: "Default Bling Packages:"
   highBling: "High Bling Packages:"
   userInstalled: "User Selected Packages:"
-
+listPrograms:
+  use: "programs"
+  long: "List installed programs"
+  short: "List installed programs"
+  userBling: "Your Bling Level:"
+  lowBling: "Low Bling Programs:"
+  defaultBling: "Default Bling Programs:"
+  highBling: "High Bling Programs:"
+  userInstalled: "User Selected Programs:"
 remove:
   use: "remove [package] [package] ..."
   long: "Remove a package or program from your configuration.\n Use the `--program` flag to specify a program which can also be configured by nix."
