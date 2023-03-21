@@ -56,7 +56,6 @@ func initialize(cmd *cobra.Command, args []string) {
 			// only re-apply the templates if not `ejected`
 			if ejected, _ := core.Ejected(); !ejected {
 				if verbose {
-
 					cmdr.Info.Println(fleek.Trans("apply.checkingSystem"))
 				}
 				// check to see if the current machine (system) is in the existing
@@ -66,7 +65,7 @@ func initialize(cmd *cobra.Command, args []string) {
 					if strings.Contains(err.Error(), "not") {
 						cmdr.Info.Println(fleek.Trans("apply.newSystem"))
 
-						//make a new system
+						// make a new system
 
 						// prompt for git configuration
 						email, err := cmdr.Prompt.Show("Git Config - enter your email address")
@@ -78,7 +77,7 @@ func initialize(cmd *cobra.Command, args []string) {
 						// create new system struct
 						sys, err := core.NewSystem(email, name)
 						cobra.CheckErr(err)
-						cmdr.Info.Println("New System: %s@%s", sys.Username, sys.Hostname)
+						cmdr.Info.Printfln("New System: %s@%s", sys.Username, sys.Hostname)
 						// get current config
 						conf, err := core.ReadConfig()
 						cobra.CheckErr(err)
