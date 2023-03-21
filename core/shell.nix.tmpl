@@ -1,5 +1,9 @@
 { pkgs, misc, ... }: {
 
+  {{ if eq .Config.Bling "high" }}
+  programs.exa.enableAliases = true;
+  {{ end }}
+
     # {{ .Config.Shell }}
     {{ if eq .Config.Shell "bash" }}
     programs.bash.profileExtra = ". ~/.nix-profile/etc/profile.d/nix.sh";
