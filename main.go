@@ -43,6 +43,8 @@ func main() {
 	repo.AddCommand(repoadd)
 
 	list := cmd.NewListCommand()
+	listPkgs := cmd.NewListPackagesCommand()
+	list.AddCommand(listPkgs)
 	root.AddCommand(list)
 	// run the app
 	err := fleek.Run()
