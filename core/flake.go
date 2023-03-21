@@ -214,6 +214,24 @@ func CheckFlake() error {
 	}
 	return nil
 }
+func UpdateFlake() error {
+	workdir, err := FlakeLocation()
+	if err != nil {
+		return err
+	}
+	apply := exec.Command("nix", "flake", "update")
+	apply.Stderr = os.Stderr
+	apply.Stdin = os.Stdin
+	apply.Stdout = os.Stdout
+	apply.Dir = workdir
+	apply.Env = os.Environ()
+
+	err = apply.Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func writeFile(fname string, t *template.Template, d Data, force bool) error {
 	fleekPath, err := FlakeLocation()
 	if err != nil {
