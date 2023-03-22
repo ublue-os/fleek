@@ -2,6 +2,8 @@ name: snapshot
 
 on:
   push:
+    branches:
+      - main
 
 
 permissions:
