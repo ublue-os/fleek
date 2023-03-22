@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"embed"
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -71,13 +70,11 @@ func NewRootCommand(version string) *cmdr.Command {
 
 		cmdr.Info.Println(fleek.Trans("fleek.gitStatus"))
 
-		fmt.Println("dirty")
 		dirty, err := repo.Dirty()
 		cobra.CheckErr(err)
 		if dirty {
 			cmdr.Warning.Println(fleek.Trans("fleek.dirty"))
 		}
-		fmt.Println("ahead behind")
 		ahead, behind, err = repo.AheadBehind()
 		cobra.CheckErr(err)
 		if ahead {
@@ -86,7 +83,6 @@ func NewRootCommand(version string) *cmdr.Command {
 		if behind {
 			cmdr.Warning.Println(fleek.Trans("fleek.behind"))
 		}
-		fmt.Println("pull")
 		if cmd.Flag("sync").Changed && behind {
 			cmdr.Info.Println(fleek.Trans("fleek.pull"))
 			err = repo.Pull()
@@ -101,13 +97,11 @@ func NewRootCommand(version string) *cmdr.Command {
 
 		cmdr.Info.Println(fleek.Trans("fleek.gitStatus"))
 
-		fmt.Println("dirty")
 		dirty, err := repo.Dirty()
 		cobra.CheckErr(err)
 		if dirty {
 			cmdr.Warning.Println(fleek.Trans("fleek.dirty"))
 		}
-		fmt.Println("ahead behind")
 		ahead, behind, err = repo.AheadBehind()
 		cobra.CheckErr(err)
 		if ahead {
@@ -116,7 +110,6 @@ func NewRootCommand(version string) *cmdr.Command {
 		if behind {
 			cmdr.Warning.Println(fleek.Trans("fleek.behind"))
 		}
-		fmt.Println("push")
 		if cmd.Flag("sync").Changed && ahead {
 			cmdr.Info.Println(fleek.Trans("fleek.push"))
 			err = repo.Push()
