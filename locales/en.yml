@@ -3,6 +3,7 @@ fleek:
   long: "Fleek installs and manages packages in your nix installation with a \nfriendly and approachable config file."
   short: "Fleek makes nix friendly"
   verboseFlag: "show more detailed output"
+  syncFlag: "synchronize git repository before and after command"
   installNix: "No nix installation found! We recommend starting at https://zero-to-nix.com/"
 
 eject:

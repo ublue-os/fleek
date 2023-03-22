@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/core"
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
@@ -29,12 +28,12 @@ func NewUpdateCommand() *cmdr.Command {
 func update(cmd *cobra.Command, args []string) {
 	cmdr.Info.Println(fleek.Trans("update.start"))
 
-	err := core.UpdateFlake()
+	err := flake.Update()
 	cobra.CheckErr(err)
 	if cmd.Flag("apply").Changed {
 		cmdr.Info.Println(fleek.Trans("update.apply"))
 
-		err = core.ApplyFlake()
+		err = flake.Apply()
 		cobra.CheckErr(err)
 	} else {
 		cmdr.Info.Println(fleek.Trans("update.needApply"))

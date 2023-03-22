@@ -1,16 +1,19 @@
-package core
+package nix
 
 import (
 	"embed"
 	"errors"
+	"fmt"
 	"html/template"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/ublue-os/fleek/core"
 )
 
 type Data struct {
-	Config          *Config
+	Config          *core.Config
 	UserName        string
 	Home            string
 	LowPackages     []string
@@ -21,154 +24,132 @@ type Data struct {
 	HighPrograms    []string
 }
 
-// InitFlake writes the first flake configuration
-func InitFlake(force bool) error {
+type Flake struct {
+	RootDir   string
+	Templates *template.Template
+	Config    *core.Config
+}
+
+func NewFlake(root string, config *core.Config) (*Flake, error) {
 	t, err := template.ParseFS(content, "*.tmpl")
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("parsing templates: %s", err)
 	}
-	conf, err := ReadConfig()
-	if err != nil {
-		return err
+	f := &Flake{
+		Templates: t,
+		Config:    config,
+		RootDir:   root,
 	}
-	err = conf.Validate()
+	return f, nil
+
+}
+
+// Init writes the first flake configuration
+func (f *Flake) Init(force bool) error {
+
+	err := f.Config.Validate()
 	if err != nil {
 		return err
 	}
 
 	data := Data{
-		Config:          conf,
-		LowPackages:     LowPackages,
-		DefaultPackages: DefaultPackages,
-		HighPackages:    HighPackages,
-		LowPrograms:     LowPrograms,
-		DefaultPrograms: DefaultPrograms,
-		HighPrograms:    HighPrograms,
+		Config:          f.Config,
+		LowPackages:     core.LowPackages,
+		DefaultPackages: core.DefaultPackages,
+		HighPackages:    core.HighPackages,
+		LowPrograms:     core.LowPrograms,
+		DefaultPrograms: core.DefaultPrograms,
+		HighPrograms:    core.HighPrograms,
 	}
 
-	err = writeFile("flake.nix", t, data, force)
+	err = f.writeFile("flake.nix", data, force)
 	if err != nil {
 		return err
 	}
 
-	err = writeFile("home.nix", t, data, force)
+	err = f.writeFile("home.nix", data, force)
 	if err != nil {
 		return err
 	}
-	err = writeFile("aliases.nix", t, data, force)
+	err = f.writeFile("aliases.nix", data, force)
 	if err != nil {
 		return err
 	}
-	err = writeFile("path.nix", t, data, force)
+	err = f.writeFile("path.nix", data, force)
 	if err != nil {
 		return err
 	}
-	err = writeFile("programs.nix", t, data, force)
+	err = f.writeFile("programs.nix", data, force)
 	if err != nil {
 		return err
 	}
-	err = writeFile("shell.nix", t, data, force)
+	err = f.writeFile("shell.nix", data, force)
 	if err != nil {
 		return err
 	}
 	for _, sys := range data.Config.Systems {
-		err = writeSystem(sys, t, force)
+		err = f.writeSystem(sys, force)
 		if err != nil {
 			return err
 		}
 	}
-	err = writeFile("user.nix", t, data, force)
-	if err != nil {
-		return err
-	}
+	return f.writeFile("user.nix", data, force)
 
-	err = CreateRepo()
-	if err != nil {
-		return err
-	}
-	err = Commit()
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
-// WriteFlake writes the applied flake configuration
-func WriteFlake() error {
-	t, err := template.ParseFS(content, "*.tmpl")
-	if err != nil {
-		return err
-	}
-	conf, err := ReadConfig()
-	if err != nil {
-		return err
-	}
-	err = conf.Validate()
-	if err != nil {
-		return err
-	}
+// Write writes the applied flake configuration
+func (f *Flake) Write() error {
 
 	data := Data{
-		Config:          conf,
-		LowPackages:     LowPackages,
-		DefaultPackages: DefaultPackages,
-		HighPackages:    HighPackages,
-		LowPrograms:     LowPrograms,
-		DefaultPrograms: DefaultPrograms,
-		HighPrograms:    HighPrograms,
+		Config:          f.Config,
+		LowPackages:     core.LowPackages,
+		DefaultPackages: core.DefaultPackages,
+		HighPackages:    core.HighPackages,
+		LowPrograms:     core.LowPrograms,
+		DefaultPrograms: core.DefaultPrograms,
+		HighPrograms:    core.HighPrograms,
 	}
-	err = writeFile("flake.nix", t, data, true)
+	err := f.writeFile("flake.nix", data, true)
 	if err != nil {
 		return err
 	}
-	err = writeFile("home.nix", t, data, true)
+	err = f.writeFile("home.nix", data, true)
 	if err != nil {
 		return err
 	}
-	err = writeFile("aliases.nix", t, data, true)
+	err = f.writeFile("aliases.nix", data, true)
 	if err != nil {
 		return err
 	}
-	err = writeFile("path.nix", t, data, true)
+	err = f.writeFile("path.nix", data, true)
 	if err != nil {
 		return err
 	}
-	err = writeFile("programs.nix", t, data, true)
+	err = f.writeFile("programs.nix", data, true)
 	if err != nil {
 		return err
 	}
 	for _, sys := range data.Config.Systems {
-		err = writeSystem(sys, t, true)
+		err = f.writeSystem(sys, true)
 		if err != nil {
 			return err
 		}
 	}
-	err = writeFile("shell.nix", t, data, true)
-	if err != nil {
-		return err
-	}
-	return Commit()
+	return f.writeFile("shell.nix", data, true)
 
 }
 
-func ApplyFlake() error {
-	conf, err := ReadConfig()
+func (f *Flake) Apply() error {
+
+	workdir, err := core.FlakeLocation()
 	if err != nil {
 		return err
 	}
-	err = conf.Validate()
+	user, err := core.Username()
 	if err != nil {
 		return err
 	}
-	workdir, err := FlakeLocation()
-	if err != nil {
-		return err
-	}
-	user, err := Username()
-	if err != nil {
-		return err
-	}
-	host, err := Hostname()
+	host, err := core.Hostname()
 	if err != nil {
 		return err
 	}
@@ -179,7 +160,7 @@ func ApplyFlake() error {
 	apply.Dir = workdir
 	apply.Env = os.Environ()
 
-	if conf.Unfree {
+	if f.Config.Unfree {
 		apply.Env = append(apply.Env, "NIXPKGS_ALLOW_UNFREE=1")
 	}
 
@@ -189,12 +170,9 @@ func ApplyFlake() error {
 	}
 	return nil
 }
-func CheckFlake() error {
-	conf, err := ReadConfig()
-	if err != nil {
-		return err
-	}
-	workdir, err := FlakeLocation()
+func (f *Flake) Check() error {
+
+	workdir, err := core.FlakeLocation()
 	if err != nil {
 		return err
 	}
@@ -204,7 +182,7 @@ func CheckFlake() error {
 	apply.Stdout = os.Stdout
 	apply.Dir = workdir
 	apply.Env = os.Environ()
-	if conf.Unfree {
+	if f.Config.Unfree {
 		apply.Env = append(apply.Env, "NIXPKGS_ALLOW_UNFREE=1")
 	}
 
@@ -214,8 +192,8 @@ func CheckFlake() error {
 	}
 	return nil
 }
-func UpdateFlake() error {
-	workdir, err := FlakeLocation()
+func (f *Flake) Update() error {
+	workdir, err := core.FlakeLocation()
 	if err != nil {
 		return err
 	}
@@ -232,8 +210,8 @@ func UpdateFlake() error {
 	}
 	return nil
 }
-func writeFile(fname string, t *template.Template, d Data, force bool) error {
-	fleekPath, err := FlakeLocation()
+func (f *Flake) writeFile(fname string, d Data, force bool) error {
+	fleekPath, err := core.FlakeLocation()
 	if err != nil {
 		return err
 	}
@@ -241,13 +219,13 @@ func writeFile(fname string, t *template.Template, d Data, force bool) error {
 	_, err = os.Stat(fpath)
 	if force || os.IsNotExist(err) {
 
-		f, err := os.Create(fpath)
+		file, err := os.Create(fpath)
 		if err != nil {
 			return err
 		}
-		defer f.Close()
+		defer file.Close()
 		tmplName := fname + ".tmpl"
-		if err = t.ExecuteTemplate(f, tmplName, d); err != nil {
+		if err = f.Templates.ExecuteTemplate(file, tmplName, d); err != nil {
 			return err
 		}
 	} else {
@@ -255,8 +233,8 @@ func writeFile(fname string, t *template.Template, d Data, force bool) error {
 	}
 	return nil
 }
-func writeSystem(sys System, t *template.Template, force bool) error {
-	fleekPath, err := FlakeLocation()
+func (f *Flake) writeSystem(sys core.System, force bool) error {
+	fleekPath, err := core.FlakeLocation()
 	if err != nil {
 		return err
 	}
@@ -269,13 +247,13 @@ func writeSystem(sys System, t *template.Template, force bool) error {
 	_, err = os.Stat(fpath)
 	if force || os.IsNotExist(err) {
 
-		f, err := os.Create(fpath)
+		file, err := os.Create(fpath)
 		if err != nil {
 			return err
 		}
-		defer f.Close()
+		defer file.Close()
 		tmplName := "host.nix.tmpl"
-		if err = t.ExecuteTemplate(f, tmplName, sys); err != nil {
+		if err = f.Templates.ExecuteTemplate(file, tmplName, sys); err != nil {
 			return err
 		}
 	} else {
@@ -285,13 +263,13 @@ func writeSystem(sys System, t *template.Template, force bool) error {
 	_, err = os.Stat(upath)
 	if force || os.IsNotExist(err) {
 
-		f, err := os.Create(upath)
+		file, err := os.Create(upath)
 		if err != nil {
 			return err
 		}
-		defer f.Close()
+		defer file.Close()
 		tmplName := "user.nix.tmpl"
-		if err = t.ExecuteTemplate(f, tmplName, sys); err != nil {
+		if err = f.Templates.ExecuteTemplate(file, tmplName, sys); err != nil {
 			return err
 		}
 	}

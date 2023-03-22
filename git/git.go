@@ -1,4 +1,4 @@
-package core
+package git
 
 import (
 	"fmt"
@@ -10,30 +10,45 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing/cache"
+	"github.com/ublue-os/fleek/core"
 
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/storage/filesystem"
 )
 
-func Worktree() (*git.Worktree, error) {
-	flake, err := FlakeLocation()
-	if err != nil {
-		return nil, err
-	}
-	r, err := git.PlainOpen(flake)
-	if err != nil {
-		return nil, fmt.Errorf("opening repository: %s", err)
-	}
+type FlakeRepo struct {
+	RootDir string
+	repo    *git.Repository
+}
 
-	w, err := r.Worktree()
+func (fr *FlakeRepo) open() error {
+	var err error
+	fr.repo, err = git.PlainOpen(fr.RootDir)
+	return err
+
+}
+func NewFlakeRepo(root string) *FlakeRepo {
+	frepo := &FlakeRepo{}
+	frepo.RootDir = root
+
+	return frepo
+}
+
+func (fr *FlakeRepo) Worktree() (*git.Worktree, error) {
+	var err error
+	err = fr.open()
+	if err != nil {
+		return nil, fmt.Errorf("opening worktree: %s", err)
+	}
+	w, err := fr.repo.Worktree()
 	if err != nil {
 		return nil, fmt.Errorf("opening worktree: %s", err)
 	}
 	return w, err
 }
 
-func Commit() error {
-	w, err := Worktree()
+func (fr *FlakeRepo) Commit() error {
+	w, err := fr.Worktree()
 	if err != nil {
 		return fmt.Errorf("unable to open git worktree")
 	}
@@ -43,7 +58,7 @@ func Commit() error {
 
 	}
 
-	sys, err := CurrentSystem()
+	sys, err := core.CurrentSystem()
 	if err != nil {
 		return fmt.Errorf("can't commit without system config: %s", err)
 	}
@@ -62,18 +77,15 @@ func Commit() error {
 	return nil
 }
 
-func CreateRepo() error {
-	floc, err := FlakeLocation()
-	if err != nil {
-		return err
-	}
-	dotGit := filepath.Join(floc, ".git")
+func (fr *FlakeRepo) CreateRepo() error {
+	var err error
+	dotGit := filepath.Join(fr.RootDir, ".git")
 	store := osfs.New(dotGit)
 	_, err = git.Init(filesystem.NewStorage(store, cache.NewObjectLRUDefault()), store)
 	if err != nil {
 		return err
 	}
-	gitIgnore, err := os.Create(filepath.Join(floc, ".gitignore"))
+	gitIgnore, err := os.Create(filepath.Join(fr.RootDir, ".gitignore"))
 	if err != nil {
 		return err
 	}
@@ -82,30 +94,24 @@ func CreateRepo() error {
 
 	return err
 }
-func Push() error {
-	flake, err := FlakeLocation()
-	if err != nil {
-		return err
-	}
-	r, err := git.PlainOpen(flake)
+func (fr *FlakeRepo) Push() error {
+	var err error
+	err = fr.open()
 	if err != nil {
 		return fmt.Errorf("opening repository: %s", err)
 	}
-	return r.Push(&git.PushOptions{})
+	return fr.repo.Push(&git.PushOptions{})
 
 }
 
-func Dirty() (bool, error) {
-	flake, err := FlakeLocation()
-	if err != nil {
-		return false, err
-	}
-	r, err := git.PlainOpen(flake)
+func (fr *FlakeRepo) Dirty() (bool, error) {
+
+	var err error
+	err = fr.open()
 	if err != nil {
 		return false, fmt.Errorf("opening repository: %s", err)
 	}
-
-	w, err := r.Worktree()
+	w, err := fr.Worktree()
 	if err != nil {
 		return false, fmt.Errorf("unable to open git worktree")
 	}
@@ -128,33 +134,27 @@ func Dirty() (bool, error) {
 	return false, nil
 }
 
-func RemoteAdd(remote string, name string) error {
-	flake, err := FlakeLocation()
+func (fr *FlakeRepo) RemoteAdd(remote string, name string) error {
+	var err error
+	err = fr.open()
 	if err != nil {
 		return err
 	}
-	r, err := git.PlainOpen(flake)
-	if err != nil {
-		return fmt.Errorf("opening repository: %s", err)
-	}
-	_, err = r.CreateRemote(&config.RemoteConfig{
+	_, err = fr.repo.CreateRemote(&config.RemoteConfig{
 		Name: name,
 		URLs: []string{remote},
 	})
 	return err
 }
 
-func Remote() (string, error) {
-	flake, err := FlakeLocation()
-	if err != nil {
-		return "", err
-	}
-	r, err := git.PlainOpen(flake)
+func (fr *FlakeRepo) Remote() (string, error) {
+	var err error
+	err = fr.open()
 	if err != nil {
 		return "", fmt.Errorf("opening repository: %s", err)
 	}
 
-	list, err := r.Remotes()
+	list, err := fr.repo.Remotes()
 	if err != nil {
 		return "", fmt.Errorf("getting remotes	: %s", err)
 	}

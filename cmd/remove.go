@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/core"
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
@@ -47,20 +46,20 @@ func remove(cmd *cobra.Command, args []string) {
 		cmdr.Info.Println(fleek.Trans("remove.applying"))
 	}
 
-	conf, err := core.ReadConfig()
-	cobra.CheckErr(err)
+	var err error
+
 	for _, p := range args {
 		if cmd.Flag("program").Changed {
-			err = conf.RemoveProgram(p)
+			err = config.RemoveProgram(p)
 			cobra.CheckErr(err)
 		} else {
-			err = conf.RemovePackage(p)
+			err = config.RemovePackage(p)
 			cobra.CheckErr(err)
 		}
 
 	}
 	if apply {
-		err = core.ApplyFlake()
+		err = flake.Apply()
 		cobra.CheckErr(err)
 	}
 

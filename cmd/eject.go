@@ -27,7 +27,7 @@ func eject(cmd *cobra.Command, args []string) {
 
 	if ok {
 		cmdr.Info.Println(fleek.Trans("eject.start"))
-		err := core.WriteFlake()
+		err := flake.Write()
 		cobra.CheckErr(err)
 		err = core.WriteEjectConfig()
 		cobra.CheckErr(err)

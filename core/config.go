@@ -221,14 +221,6 @@ func ReadConfig() (*Config, error) {
 	return c, nil
 }
 
-func Ejected() (bool, error) {
-	conf, err := ReadConfig()
-	if err != nil {
-		return false, err
-	}
-	return conf.Ejected, nil
-}
-
 func Clone(repo string) error {
 	location, err := FlakeLocation()
 	if err != nil {
