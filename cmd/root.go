@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"embed"
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -16,6 +17,8 @@ var flake *nix.Flake
 var config *core.Config
 var repo *git.FlakeRepo
 var flakeLocation string
+var ahead bool
+var behind bool
 
 const (
 	verboseFlag string = "verbose"
@@ -65,6 +68,61 @@ func NewRootCommand(version string) *cmdr.Command {
 		cobra.CheckErr(err)
 
 		repo = git.NewFlakeRepo(flakeLocation)
+
+		cmdr.Info.Println(fleek.Trans("fleek.gitStatus"))
+
+		fmt.Println("dirty")
+		dirty, err := repo.Dirty()
+		cobra.CheckErr(err)
+		if dirty {
+			cmdr.Warning.Println(fleek.Trans("fleek.dirty"))
+		}
+		fmt.Println("ahead behind")
+		ahead, behind, err = repo.AheadBehind()
+		cobra.CheckErr(err)
+		if ahead {
+			cmdr.Warning.Println(fleek.Trans("fleek.ahead"))
+		}
+		if behind {
+			cmdr.Warning.Println(fleek.Trans("fleek.behind"))
+		}
+		fmt.Println("pull")
+		if cmd.Flag("sync").Changed {
+			cmdr.Info.Println(fleek.Trans("fleek.pull"))
+			err = repo.Pull()
+			cobra.CheckErr(err)
+			behind = false
+		}
+
+	}
+	root.PersistentPostRun = func(cmd *cobra.Command, args []string) {
+
+		repo = git.NewFlakeRepo(flakeLocation)
+
+		cmdr.Info.Println(fleek.Trans("fleek.gitStatus"))
+
+		fmt.Println("dirty")
+		dirty, err := repo.Dirty()
+		cobra.CheckErr(err)
+		if dirty {
+			cmdr.Warning.Println(fleek.Trans("fleek.dirty"))
+		}
+		fmt.Println("ahead behind")
+		ahead, behind, err = repo.AheadBehind()
+		cobra.CheckErr(err)
+		if ahead {
+			cmdr.Warning.Println(fleek.Trans("fleek.ahead"))
+		}
+		if behind {
+			cmdr.Warning.Println(fleek.Trans("fleek.behind"))
+		}
+		fmt.Println("push")
+		if cmd.Flag("sync").Changed {
+			cmdr.Info.Println(fleek.Trans("fleek.push"))
+			err = repo.Push()
+			cobra.CheckErr(err)
+
+		}
 
 	}
 	return root

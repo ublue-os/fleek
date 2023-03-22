@@ -3,18 +3,15 @@ package git
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"time"
+	"strings"
 
-	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
-	"github.com/go-git/go-git/v5/plumbing/cache"
-	"github.com/ublue-os/fleek/core"
-
-	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/go-git/go-git/v5/storage/filesystem"
 )
+
+const gitbin = "git"
 
 type FlakeRepo struct {
 	RootDir string
@@ -34,56 +31,47 @@ func NewFlakeRepo(root string) *FlakeRepo {
 	return frepo
 }
 
-func (fr *FlakeRepo) Worktree() (*git.Worktree, error) {
-	var err error
-	err = fr.open()
-	if err != nil {
-		return nil, fmt.Errorf("opening worktree: %s", err)
-	}
-	w, err := fr.repo.Worktree()
-	if err != nil {
-		return nil, fmt.Errorf("opening worktree: %s", err)
-	}
-	return w, err
+func (fr *FlakeRepo) runGit(cmd string, cmdLine []string) ([]byte, error) {
+	command := exec.Command(cmd, cmdLine...)
+	command.Stdin = os.Stdin
+	command.Dir = fr.RootDir
+	command.Env = os.Environ()
+
+	return command.Output()
+
 }
 
 func (fr *FlakeRepo) Commit() error {
-	w, err := fr.Worktree()
+
+	addCmdline := []string{"add", "--all"}
+	_, err := fr.runGit(gitbin, addCmdline)
 	if err != nil {
-		return fmt.Errorf("unable to open git worktree")
+		return fmt.Errorf("git add: %s", err)
 	}
-	err = w.AddGlob("*")
-	if err != nil {
-		return fmt.Errorf("add glob: %s", err)
-
+	commitCmdLine := []string{"commit", "-m", "fleek: commit"}
+	out, err := fr.runGit(gitbin, commitCmdLine)
+	outStr := string(out)
+	if strings.Contains(outStr, "working tree clean") {
+		return nil
 	}
+	return err
 
-	sys, err := core.CurrentSystem()
+}
+
+func (fr *FlakeRepo) Pull() error {
+	pullCmdline := []string{"pull"}
+	_, err := fr.runGit(gitbin, pullCmdline)
 	if err != nil {
-		return fmt.Errorf("can't commit without system config: %s", err)
-	}
-
-	_, err = w.Commit("fleek: update configs", &git.CommitOptions{
-		Author: &object.Signature{
-			Name:  sys.GitConfig.Name,
-			Email: sys.GitConfig.Email,
-			When:  time.Now(),
-		},
-	})
-	if err != nil {
-		return fmt.Errorf("commit repository: %s", err)
-
+		return fmt.Errorf("git add: %s", err)
 	}
 	return nil
 }
 
 func (fr *FlakeRepo) CreateRepo() error {
-	var err error
-	dotGit := filepath.Join(fr.RootDir, ".git")
-	store := osfs.New(dotGit)
-	_, err = git.Init(filesystem.NewStorage(store, cache.NewObjectLRUDefault()), store)
+	initCmdLine := []string{"init"}
+	_, err := fr.runGit(gitbin, initCmdLine)
 	if err != nil {
-		return err
+		return fmt.Errorf("git init: %s", err)
 	}
 	gitIgnore, err := os.Create(filepath.Join(fr.RootDir, ".gitignore"))
 	if err != nil {
@@ -95,43 +83,105 @@ func (fr *FlakeRepo) CreateRepo() error {
 	return err
 }
 func (fr *FlakeRepo) Push() error {
-	var err error
-	err = fr.open()
+	pushCmdline := []string{"push"}
+	_, err := fr.runGit(gitbin, pushCmdline)
 	if err != nil {
-		return fmt.Errorf("opening repository: %s", err)
+		return fmt.Errorf("git push: %s", err)
 	}
-	return fr.repo.Push(&git.PushOptions{})
+	return nil
 
 }
 
 func (fr *FlakeRepo) Dirty() (bool, error) {
 
-	var err error
-	err = fr.open()
+	var dirty bool
+
+	cmd := exec.Command(gitbin, "status", "--porcelain")
+	cmd.Dir = fr.RootDir
+	cmd.Env = os.Environ()
+	out, err := cmd.Output()
 	if err != nil {
-		return false, fmt.Errorf("opening repository: %s", err)
-	}
-	w, err := fr.Worktree()
-	if err != nil {
-		return false, fmt.Errorf("unable to open git worktree")
+		return false, fmt.Errorf("git status: %s", err)
 	}
 
-	status, err := w.Status()
+	outString := string(out)
+
+	if len(outString) > 0 {
+		fmt.Println("debug: ", outString)
+		lines := strings.Split(outString, "\n")
+		for _, line := range lines {
+			cleanLine := strings.TrimSpace(line)
+			if cleanLine != "" {
+				parts := strings.Split(cleanLine, " ")
+				var local string
+				var remote string
+				if len(parts[0]) == 1 {
+					local = parts[0]
+				}
+				if len(parts[0]) == 2 {
+					remote = parts[0][:1]
+				}
+				fmt.Printf("file: %s\n", parts[1])
+
+				fmt.Printf("\tlocal: %s\n", local)
+				if len(remote) > 0 {
+					fmt.Printf("\tremote: %s\n", remote)
+				}
+				dirty = true
+			}
+		}
+
+	}
+
+	return dirty, nil
+}
+func (fr *FlakeRepo) AheadBehind() (bool, bool, error) {
+
+	var ahead bool
+	var behind bool
+
+	cmd := exec.Command(gitbin, "status", "--ahead-behind")
+	cmd.Env = os.Environ()
+	cmd.Dir = fr.RootDir
+	out, err := cmd.Output()
 	if err != nil {
-		return false, fmt.Errorf("status: %s", err)
-
-	}
-	for f, s := range status {
-		fmt.Println("file: ", f)
-		fmt.Println("staging: ", s.Staging)
-		fmt.Println("worktree: ", s.Worktree)
-		fmt.Println("extra: ", s.Extra)
-	}
-	if len(status) > 0 {
-		return true, nil
+		return false, false, fmt.Errorf("git status: %s", err)
 	}
 
-	return false, nil
+	outString := string(out)
+	cleanOut := strings.TrimSpace(outString)
+
+	if len(cleanOut) > 0 {
+		if strings.Contains(cleanOut, "ahead") {
+			ahead = true
+		}
+	}
+	fetch := exec.Command(gitbin, "fetch")
+	fetch.Dir = fr.RootDir
+	fetch.Env = os.Environ()
+
+	err = fetch.Run()
+	if err != nil {
+		return false, false, fmt.Errorf("git fetch: %s", err)
+	}
+	pfcmd := exec.Command(gitbin, "status", "--ahead-behind")
+	pfcmd.Dir = fr.RootDir
+	pfcmd.Env = os.Environ()
+
+	postFetchout, err := pfcmd.Output()
+	if err != nil {
+		return false, false, fmt.Errorf("git status: %s", err)
+	}
+
+	foutString := string(postFetchout)
+	cleanFetchOut := strings.TrimSpace(foutString)
+
+	if len(cleanFetchOut) > 0 {
+		if strings.Contains(cleanOut, "behind") {
+			behind = true
+		}
+	}
+	return ahead, behind, nil
 }
 
 func (fr *FlakeRepo) RemoteAdd(remote string, name string) error {
@@ -168,3 +218,51 @@ func (fr *FlakeRepo) Remote() (string, error) {
 	}
 	return urls, nil
 }
+
+/*
+from git-scm.com git-status docs
+
+' ' = unmodified
+
+M = modified
+
+T = file type changed (regular file, symbolic link or submodule)
+
+A = added
+
+D = deleted
+
+R = renamed
+
+C = copied (if config option status.renames is set to "copies")
+
+U = updated but unmerged
+
+X          Y     Meaning
+-------------------------------------------------
+	 [AMD]   not updated
+M        [ MTD]  updated in index
+T        [ MTD]  type changed in index
+A        [ MTD]  added to index
+D                deleted from index
+R        [ MTD]  renamed in index
+C        [ MTD]  copied in index
+[MTARC]          index and work tree matches
+[ MTARC]    M    work tree changed since index
+[ MTARC]    T    type changed in work tree since index
+[ MTARC]    D    deleted in work tree
+	    R    renamed in work tree
+	    C    copied in work tree
+-------------------------------------------------
+D           D    unmerged, both deleted
+A           U    unmerged, added by us
+U           D    unmerged, deleted by them
+U           A    unmerged, added by them
+D           U    unmerged, deleted by us
+A           A    unmerged, both added
+U           U    unmerged, both modified
+-------------------------------------------------
+?           ?    untracked
+!           !    ignored
+-------------------------------------------------
+*/

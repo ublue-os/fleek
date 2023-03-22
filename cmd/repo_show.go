@@ -23,7 +23,7 @@ func show(cmd *cobra.Command, args []string) {
 
 	urls, err := repo.Remote()
 	cobra.CheckErr(err)
-	cmdr.Info.Println("config file says:", config.Repository)
-	cmdr.Info.Println("git says:", urls)
+	cmdr.Info.Println("configured:", config.Repository)
+	cmdr.Info.Println("actual:", urls)
 
 }

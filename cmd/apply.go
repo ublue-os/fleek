@@ -41,6 +41,11 @@ func apply(cmd *cobra.Command, args []string) {
 	if cmd.Flag("push").Changed {
 		push = true
 	}
+	if behind {
+		cmdr.Error.Println(fleek.Trans("apply.behind"))
+		return
+
+	}
 	if verbose {
 		cmdr.Info.Println(fleek.Trans("apply.writingConfig"))
 	}
@@ -52,6 +57,9 @@ func apply(cmd *cobra.Command, args []string) {
 		err := flake.Write()
 		cobra.CheckErr(err)
 		err = repo.Commit()
+		if err != nil {
+			cmdr.Error.Println(fleek.Trans("apply.commitError"), err)
+		}
 		cobra.CheckErr(err)
 
 	}
