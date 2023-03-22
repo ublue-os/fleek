@@ -59,7 +59,7 @@ func (fr *FlakeRepo) Commit() error {
 }
 
 func (fr *FlakeRepo) Pull() error {
-	pullCmdline := []string{"pull"}
+	pullCmdline := []string{"pull", "origin", "main"}
 	_, err := fr.runGit(gitbin, pullCmdline)
 	if err != nil {
 		return fmt.Errorf("git add: %s", err)
