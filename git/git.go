@@ -140,7 +140,6 @@ func (fr *FlakeRepo) AheadBehind() (bool, bool, error) {
 	var ahead bool
 	var behind bool
 
-	fmt.Println("status")
 	cmd := exec.Command(gitbin, "status", "--ahead-behind")
 	cmd.Env = os.Environ()
 	cmd.Dir = fr.RootDir
@@ -157,19 +156,15 @@ func (fr *FlakeRepo) AheadBehind() (bool, bool, error) {
 			ahead = true
 		}
 	}
-	fmt.Println("fetch")
 	fetch := exec.Command(gitbin, "fetch", "origin", "main")
 	fetch.Dir = fr.RootDir
-	fetch.Stderr = os.Stderr
-	fetch.Stdin = os.Stdin
-	fetch.Stderr = os.Stderr
+
 	fetch.Env = os.Environ()
 
 	err = fetch.Run()
 	if err != nil {
 		return false, false, fmt.Errorf("git fetch: %s", err)
 	}
-	fmt.Println("ahead behind")
 	pfcmd := exec.Command(gitbin, "status", "--ahead-behind")
 	pfcmd.Dir = fr.RootDir
 	pfcmd.Env = os.Environ()
