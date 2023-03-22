@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/core"
+	"github.com/ublue-os/fleek/git"
 	"github.com/ublue-os/fleek/nix"
 	"github.com/vanilla-os/orchid/cmdr"
 )
@@ -54,6 +55,15 @@ func initialize(cmd *cobra.Command, args []string) {
 		err := core.Clone(upstream)
 		cobra.CheckErr(err)
 		if cmd.Flag("apply").Changed {
+			// load the new config
+			config, err = core.ReadConfig()
+			cobra.CheckErr(err)
+			flakeLocation, err = core.FlakeLocation()
+			cobra.CheckErr(err)
+
+			flake, err = nix.NewFlake(flakeLocation, config)
+			cobra.CheckErr(err)
+			repo = git.NewFlakeRepo(flakeLocation)
 			// only re-apply the templates if not `ejected`
 			if !config.Ejected {
 				if verbose {
