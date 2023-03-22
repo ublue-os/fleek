@@ -57,9 +57,13 @@ func NewRootCommand(version string) *cmdr.Command {
 		var err error
 		config, err = core.ReadConfig()
 		cobra.CheckErr(err)
+
 		flakeLocation, err = core.FlakeLocation()
+		cobra.CheckErr(err)
+
 		flake, err = nix.NewFlake(flakeLocation, config)
 		cobra.CheckErr(err)
+
 		repo = git.NewFlakeRepo(flakeLocation)
 
 	}
