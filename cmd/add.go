@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/core"
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
@@ -47,21 +46,20 @@ func add(cmd *cobra.Command, args []string) {
 		cmdr.Info.Println(fleek.Trans("add.applying"))
 	}
 
-	conf, err := core.ReadConfig()
-	cobra.CheckErr(err)
+	var err error
 
 	for _, p := range args {
 		if cmd.Flag("program").Changed {
-			err = conf.AddProgram(p)
+			err = config.AddProgram(p)
 			cobra.CheckErr(err)
 		} else {
-			err = conf.AddPackage(p)
+			err = config.AddPackage(p)
 			cobra.CheckErr(err)
 		}
 
 	}
 	if apply {
-		err = core.ApplyFlake()
+		err = flake.Apply()
 		cobra.CheckErr(err)
 	}
 

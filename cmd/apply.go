@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/core"
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
@@ -42,16 +41,27 @@ func apply(cmd *cobra.Command, args []string) {
 	if cmd.Flag("push").Changed {
 		push = true
 	}
+	if behind {
+		cmdr.Error.Println(fleek.Trans("apply.behind"))
+		return
+
+	}
 	if verbose {
 		cmdr.Info.Println(fleek.Trans("apply.writingConfig"))
 	}
 	// only re-apply the templates if not `ejected`
-	if ejected, _ := core.Ejected(); !ejected {
+	if !config.Ejected {
 		if verbose {
 			cmdr.Info.Println(fleek.Trans("apply.writingFlake"))
 		}
-		err := core.WriteFlake()
+		err := flake.Write()
 		cobra.CheckErr(err)
+		err = repo.Commit()
+		if err != nil {
+			cmdr.Error.Println(fleek.Trans("apply.commitError"), err)
+		}
+		cobra.CheckErr(err)
+
 	}
 
 	var dry bool
@@ -60,20 +70,20 @@ func apply(cmd *cobra.Command, args []string) {
 	}
 	if !dry {
 		cmdr.Info.Println(fleek.Trans("apply.applyingConfig"))
-		err := core.ApplyFlake()
+		err := flake.Apply()
 		cobra.CheckErr(err)
-		err = core.Commit()
+		err = repo.Commit()
 		if err != nil {
 			cmdr.Error.Println(fleek.Trans("apply.commitError"), err)
 		}
 	} else {
 		cmdr.Info.Println(fleek.Trans("apply.dryApplyingConfig"))
-		err := core.CheckFlake()
+		err := flake.Check()
 		cobra.CheckErr(err)
 	}
 	if push {
 		cmdr.Info.Println(fleek.Trans("apply.pushing"))
-		err := core.Push()
+		err := repo.Push()
 		cobra.CheckErr(err)
 	}
 

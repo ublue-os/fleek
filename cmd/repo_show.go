@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/core"
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
@@ -22,11 +21,9 @@ func NewRepoShowCommand() *cmdr.Command {
 // initCmd represents the init command
 func show(cmd *cobra.Command, args []string) {
 
-	conf, err := core.ReadConfig()
+	urls, err := repo.Remote()
 	cobra.CheckErr(err)
-	urls, err := core.Remote()
-	cobra.CheckErr(err)
-	cmdr.Info.Println("config file says:", conf.Repository)
-	cmdr.Info.Println("git says:", urls)
+	cmdr.Info.Println("configured:", config.Repository)
+	cmdr.Info.Println("actual:", urls)
 
 }

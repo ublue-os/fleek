@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/core"
+	"github.com/ublue-os/fleek/nix"
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
@@ -45,16 +46,16 @@ func initialize(cmd *cobra.Command, args []string) {
 	if cmd.Flag("verbose").Changed {
 		verbose = true
 	}
-	var repo string
+	var upstream string
 	if cmd.Flag("clone").Changed {
-		repo = cmd.Flag("clone").Value.String()
+		upstream = cmd.Flag("clone").Value.String()
 
 		// clone it
-		err := core.Clone(repo)
+		err := core.Clone(upstream)
 		cobra.CheckErr(err)
 		if cmd.Flag("apply").Changed {
 			// only re-apply the templates if not `ejected`
-			if ejected, _ := core.Ejected(); !ejected {
+			if !config.Ejected {
 				if verbose {
 					cmdr.Info.Println(fleek.Trans("apply.checkingSystem"))
 				}
@@ -87,27 +88,25 @@ func initialize(cmd *cobra.Command, args []string) {
 						// save it
 						err = conf.Save()
 						cobra.CheckErr(err)
-
 					}
 				}
 
 				if verbose {
 					cmdr.Info.Println(fleek.Trans("apply.writingFlake"))
 				}
-				err = core.WriteFlake()
+				err = flake.Write()
+				cobra.CheckErr(err)
+				err = repo.Commit()
 				cobra.CheckErr(err)
 
 			}
 			cmdr.Info.Println(fleek.Trans("apply.applyingConfig"))
-			err := core.ApplyFlake()
+			err := flake.Apply()
 			cobra.CheckErr(err)
 			cmdr.Success.Println(fleek.Trans("apply.done"))
-
 			return
 		}
-
 		return
-
 	}
 	cmdr.Info.Println(fleek.Trans("init.start"))
 	var force bool
@@ -118,7 +117,7 @@ func initialize(cmd *cobra.Command, args []string) {
 		cmdr.Info.Println(fleek.Trans("init.checkNix"))
 	}
 
-	ok := core.CheckNix()
+	ok := nix.CheckNix()
 	if ok {
 		email, err := cmdr.Prompt.Show("Git Config - enter your email address")
 		cobra.CheckErr(err)
@@ -133,7 +132,11 @@ func initialize(cmd *cobra.Command, args []string) {
 		err = core.WriteSampleConfig(email, name, force)
 		cobra.CheckErr(err)
 
-		err = core.InitFlake(force)
+		err = flake.Init(force)
+		cobra.CheckErr(err)
+		err = repo.CreateRepo()
+		cobra.CheckErr(err)
+		err = repo.Commit()
 		cobra.CheckErr(err)
 	} else {
 		cmdr.Error.Println(fleek.Trans("init.nixNotFound"))

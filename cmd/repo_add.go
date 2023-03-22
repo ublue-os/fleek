@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/core"
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
@@ -28,16 +27,14 @@ func NewRepoAddCommand() *cmdr.Command {
 // initCmd represents the init command
 func remoteadd(cmd *cobra.Command, args []string) {
 
-	conf, err := core.ReadConfig()
-	cobra.CheckErr(err)
-	conf.Repository = args[0]
-	err = conf.Save()
+	config.Repository = args[0]
+	err := config.Save()
 	cobra.CheckErr(err)
 	// now actually add the remote
 	name := cmd.Flag("name").Value.String()
-	core.RemoteAdd(args[0], name)
-	err = core.Commit()
+	repo.RemoteAdd(args[0], name)
+	err = repo.Commit()
 	cobra.CheckErr(err)
 
-	cmdr.Info.Println(conf.Repository)
+	cmdr.Info.Println(config.Repository)
 }
