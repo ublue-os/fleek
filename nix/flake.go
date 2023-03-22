@@ -261,7 +261,7 @@ func (f *Flake) writeSystem(sys core.System, force bool) error {
 	}
 	upath := filepath.Join(hostPath, "user.nix")
 	_, err = os.Stat(upath)
-	if force || os.IsNotExist(err) {
+	if os.IsNotExist(err) {
 
 		file, err := os.Create(upath)
 		if err != nil {

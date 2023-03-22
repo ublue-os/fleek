@@ -87,7 +87,7 @@ func NewRootCommand(version string) *cmdr.Command {
 			cmdr.Warning.Println(fleek.Trans("fleek.behind"))
 		}
 		fmt.Println("pull")
-		if cmd.Flag("sync").Changed {
+		if cmd.Flag("sync").Changed && behind {
 			cmdr.Info.Println(fleek.Trans("fleek.pull"))
 			err = repo.Pull()
 			cobra.CheckErr(err)
@@ -117,7 +117,7 @@ func NewRootCommand(version string) *cmdr.Command {
 			cmdr.Warning.Println(fleek.Trans("fleek.behind"))
 		}
 		fmt.Println("push")
-		if cmd.Flag("sync").Changed {
+		if cmd.Flag("sync").Changed && ahead {
 			cmdr.Info.Println(fleek.Trans("fleek.push"))
 			err = repo.Push()
 			cobra.CheckErr(err)
