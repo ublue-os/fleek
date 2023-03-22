@@ -3,8 +3,6 @@ module github.com/ublue-os/fleek
 go 1.20
 
 require (
-	github.com/go-git/go-billy/v5 v5.4.1
-	github.com/go-git/go-git v4.7.0+incompatible
 	github.com/go-git/go-git/v5 v5.6.1
 	github.com/spf13/cobra v1.6.1
 	github.com/vanilla-os/orchid v0.4.0
@@ -24,6 +22,7 @@ require (
 	github.com/fitv/go-i18n v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
+	github.com/go-git/go-billy/v5 v5.4.1 // indirect
 	github.com/gookit/color v1.5.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
@@ -55,6 +54,5 @@ require (
 	golang.org/x/term v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
