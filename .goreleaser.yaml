@@ -15,6 +15,11 @@ builds:
     goarch:
       - amd64
       - arm64
+    ldflags:
+      - -w -extldflags "-static"
+    flags:
+      - -tags=netgo
+      - -a
 
 archives:
   - format: tar.gz
