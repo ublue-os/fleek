@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"embed"
+	"errors"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -15,6 +16,7 @@ var fleek *cmdr.App
 var flake *nix.Flake
 var config *core.Config
 var repo *git.FlakeRepo
+var firstrun bool
 var flakeLocation string
 var ahead bool
 var behind bool
@@ -58,7 +60,10 @@ func NewRootCommand(version string) *cmdr.Command {
 		// set up config and flake before each command
 		var err error
 		config, err = core.ReadConfig()
-		cobra.CheckErr(err)
+		if errors.Is(err, os.ErrNotExist) {
+			firstrun = true
+			return
+		}
 
 		flakeLocation, err = core.FlakeLocation()
 		cobra.CheckErr(err)
