@@ -88,11 +88,8 @@ func initFleek() (*fleek, error) {
 				if errors.Is(err, core.ErrMissingFlakeDir) {
 					cmdr.Info.Println("Migrating .fleek.yml to current version")
 					// get previous default flake location
-					home, hErr := os.UserHomeDir()
-					if hErr != nil {
-						return f, hErr
-					}
-					defaultFlakeDir := filepath.Join(home, ".config", "home-manager")
+
+					defaultFlakeDir := filepath.Join( ".config", "home-manager")
 					config.FlakeDir = defaultFlakeDir
 					// now save the config
 					err2 := config.Save()
@@ -106,7 +103,7 @@ func initFleek() (*fleek, error) {
 				}
 			}
 			f.config = config
-			f.flakeLocation = f.config.FlakeDir
+			f.flakeLocation = f.config.UserFlakeDir()
 
 			// setup flake
 			flake, err := nix.NewFlake(f.flakeLocation, f.config)

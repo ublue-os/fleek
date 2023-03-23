@@ -127,6 +127,11 @@ func isValueInList(value string, list []string) bool {
 	return false
 }
 
+func (c *Config) UserFlakeDir() string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home,c.FlakeDir)
+}
+
 func (c *Config) AddPackage(pack string) error {
 	c.Packages = append(c.Packages, pack)
 	err := c.Validate()
@@ -239,7 +244,7 @@ func ReadConfig() (*Config, error) {
 
 func (c *Config) Clone(repo string) error {
 
-	clone := exec.Command("git", "clone", repo, c.FlakeDir)
+	clone := exec.Command("git", "clone", repo, c.UserFlakeDir())
 	clone.Stderr = os.Stderr
 	clone.Stdin = os.Stdin
 	clone.Stdout = os.Stdout
@@ -253,7 +258,7 @@ func (c *Config) Clone(repo string) error {
 	if err != nil {
 		return err
 	}
-	yamlPath := filepath.Join(c.FlakeDir, ".fleek.yml")
+	yamlPath := filepath.Join(c.UserFlakeDir(), ".fleek.yml")
 	csym := filepath.Join(home, ".fleek.yml")
 	return os.Symlink(yamlPath, csym)
 
