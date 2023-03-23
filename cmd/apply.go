@@ -54,9 +54,13 @@ func apply(cmd *cobra.Command, args []string) {
 		if verbose {
 			cmdr.Info.Println(app.Trans("apply.writingFlake"))
 		}
-		err := f.flake.Write()
+		flake, err := f.Flake()
 		cobra.CheckErr(err)
-		err = f.repo.Commit()
+		err = flake.Write()
+		cobra.CheckErr(err)
+		repo, err := f.Repo()
+		cobra.CheckErr(err)
+		err = repo.Commit()
 		if err != nil {
 			cmdr.Error.Println(app.Trans("apply.commitError"), err)
 		}
@@ -70,20 +74,28 @@ func apply(cmd *cobra.Command, args []string) {
 	}
 	if !dry {
 		cmdr.Info.Println(app.Trans("apply.applyingConfig"))
-		err := f.flake.Apply()
+		flake, err := f.Flake()
 		cobra.CheckErr(err)
-		err = f.repo.Commit()
+		err = flake.Apply()
+		cobra.CheckErr(err)
+		r, err := f.Repo()
+		cobra.CheckErr(err)
+		err = r.Commit()
 		if err != nil {
 			cmdr.Error.Println(app.Trans("apply.commitError"), err)
 		}
 	} else {
 		cmdr.Info.Println(app.Trans("apply.dryApplyingConfig"))
-		err := f.flake.Check()
+		flake, err := f.Flake()
+		cobra.CheckErr(err)
+		err = flake.Check()
 		cobra.CheckErr(err)
 	}
 	if push {
 		cmdr.Info.Println(app.Trans("apply.pushing"))
-		err := f.repo.Push()
+		repo, err := f.Repo()
+		cobra.CheckErr(err)
+		err = repo.Push()
 		cobra.CheckErr(err)
 	}
 

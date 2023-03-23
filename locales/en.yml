@@ -57,7 +57,7 @@ add:
   long: "Add a new package or program to your configuration.\n Use the `--program` flag to specify a program which can also be configured by nix."
   short: "Add a new package or program to your configuration"
   program: "add a program instead of package"
-  apply: "apply configs after adding"
+  apply: "apply configuration after adding"
   applying: "Adding package and applying configuration"
   done: "Complete!"
 
