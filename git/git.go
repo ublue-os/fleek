@@ -71,10 +71,32 @@ func (fr *FlakeRepo) Commit() error {
 }
 
 func (fr *FlakeRepo) Pull() error {
+	remote, err := fr.Remote()
+	if err != nil {
+		return err
+	}
+	// if no remote, no need to push
+	if remote == "" {
+		return nil
+	}
 	pullCmdline := []string{"pull", "origin", "main"}
-	_, err := fr.runGit(gitbin, pullCmdline)
+	_, err = fr.runGit(gitbin, pullCmdline)
 	if err != nil {
 		return fmt.Errorf("git add: %s", err)
+	}
+	return nil
+}
+
+func (fr *FlakeRepo) LocalConfig(user, email string) error {
+	userCmdline := []string{"config", "user.name", user}
+	_, err := fr.runGit(gitbin, userCmdline)
+	if err != nil {
+		return fmt.Errorf("git config: %s", err)
+	}
+	emailCmdline := []string{"config", "user.email", email}
+	_, err = fr.runGit(gitbin, emailCmdline)
+	if err != nil {
+		return fmt.Errorf("git config: %s", err)
 	}
 	return nil
 }
@@ -95,8 +117,16 @@ func (fr *FlakeRepo) CreateRepo() error {
 	return err
 }
 func (fr *FlakeRepo) Push() error {
+	remote, err := fr.Remote()
+	if err != nil {
+		return err
+	}
+	// if no remote, no need to push
+	if remote == "" {
+		return nil
+	}
 	pushCmdline := []string{"push", "origin", "main"}
-	_, err := fr.runGit(gitbin, pushCmdline)
+	_, err = fr.runGit(gitbin, pushCmdline)
 	if err != nil {
 		return fmt.Errorf("git push: %s", err)
 	}
@@ -148,6 +178,14 @@ func (fr *FlakeRepo) Dirty() (bool, error) {
 }
 func (fr *FlakeRepo) AheadBehind() (bool, bool, error) {
 
+	remote, err := fr.Remote()
+	if err != nil {
+		return false, false, err
+	}
+	// if no remote, not ahead or behind
+	if remote == "" {
+		return false, false, nil
+	}
 	var ahead bool
 	var behind bool
 

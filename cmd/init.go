@@ -171,6 +171,8 @@ func initialize(cmd *cobra.Command, args []string) {
 		cobra.CheckErr(err)
 		err = repo.CreateRepo()
 		cobra.CheckErr(err)
+		err = repo.LocalConfig(name, email)
+		cobra.CheckErr(err)
 		err = repo.Commit()
 		cobra.CheckErr(err)
 	} else {

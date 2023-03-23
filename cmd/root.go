@@ -95,6 +95,7 @@ func NewRootCommand(version string) *cmdr.Command {
 			f.flakeStatus = FlakeDirty
 			cmdr.Warning.Println(app.Trans("fleek.dirty"))
 		}
+
 		ahead, behind, err := f.repo.AheadBehind()
 		cobra.CheckErr(err)
 		if ahead {
