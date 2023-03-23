@@ -2,6 +2,8 @@ package core
 
 import (
 	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -27,7 +29,8 @@ var (
 // Config holds the options that will be
 // merged into the home-manager flake.
 type Config struct {
-	Unfree bool `yaml:"unfree"`
+	FlakeDir string `yaml:"flakedir"`
+	Unfree   bool   `yaml:"unfree"`
 	// bash or zsh
 	Shell string `yaml:"shell"`
 	// low, default, high
@@ -83,20 +86,31 @@ func NewSystem(name, email string) (*System, error) {
 	}, nil
 }
 
-func (c Config) Validate() error {
+var (
+	ErrMissingFlakeDir        = errors.New("fleek.yml: missing `flakedir`")
+	ErrInvalidShell           = errors.New("fleek.yml: invalid shell, valid shells are: " + strings.Join(shells, ", "))
+	ErrInvalidBling           = errors.New("fleek.yml: invalid bling level, valid levels are: " + strings.Join(blingLevels, ", "))
+	ErrorInvalidArch          = errors.New("fleek.yml: invalid architecture, valid architectures are: " + strings.Join(architectures, ", "))
+	ErrInvalidOperatingSystem = errors.New("fleek.yml: invalid OS, valid operating systems are: " + strings.Join(operatingSystems, ", "))
+)
+
+func (c *Config) Validate() error {
+	if c.FlakeDir == "" {
+		return ErrMissingFlakeDir
+	}
 	if !isValueInList(c.Shell, shells) {
-		return errors.New("fleek.yml: invalid shell, valid shells are: " + strings.Join(shells, ", "))
+		return ErrInvalidShell
 	}
 	if !isValueInList(c.Bling, blingLevels) {
-		return errors.New("fleek.yml: invalid bling level, valid levels are: " + strings.Join(blingLevels, ", "))
+		return ErrInvalidBling
 	}
 	for _, sys := range c.Systems {
 		if !isValueInList(sys.Arch, architectures) {
-			return errors.New("fleek.yml: invalid architecture, valid architectures are: " + strings.Join(architectures, ", "))
+			return ErrorInvalidArch
 		}
 
 		if !isValueInList(sys.OS, operatingSystems) {
-			return errors.New("fleek.yml: invalid OS, valid operating systems are: " + strings.Join(operatingSystems, ", "))
+			return ErrInvalidOperatingSystem
 		}
 	}
 	return nil
@@ -171,7 +185,7 @@ func (c *Config) AddProgram(prog string) error {
 }
 
 func (c *Config) Save() error {
-	cfile, err := ConfigLocation()
+	cfile, err := c.Location()
 	if err != nil {
 		return err
 	}
@@ -205,35 +219,34 @@ func (c *Config) Save() error {
 // stored in $HOME/.fleek.yml
 func ReadConfig() (*Config, error) {
 	c := &Config{}
-	cfile, err := ConfigLocation()
+	home, err := os.UserHomeDir()
 	if err != nil {
+		fmt.Println("error getting home dir")
 		return c, err
 	}
-
-	bb, err := os.ReadFile(cfile)
+	csym := filepath.Join(home, ".fleek.yml")
+	bb, err := os.ReadFile(csym)
 	if err != nil {
+		fmt.Println("error reading file", err)
 		return c, err
 	}
 	err = yaml.Unmarshal(bb, c)
 	if err != nil {
+		fmt.Println("yaml unmarshal err")
 		return c, err
 	}
 	return c, nil
 }
 
-func Clone(repo string) error {
-	location, err := FlakeLocation()
-	if err != nil {
-		return err
-	}
+func (c *Config) Clone(repo string) error {
 
-	clone := exec.Command("git", "clone", repo, location)
+	clone := exec.Command("git", "clone", repo, c.FlakeDir)
 	clone.Stderr = os.Stderr
 	clone.Stdin = os.Stdin
 	clone.Stdout = os.Stdout
 	clone.Env = os.Environ()
 
-	err = clone.Run()
+	err := clone.Run()
 	if err != nil {
 		return err
 	}
@@ -241,7 +254,7 @@ func Clone(repo string) error {
 	if err != nil {
 		return err
 	}
-	yamlPath := filepath.Join(location, ".fleek.yml")
+	yamlPath := filepath.Join(c.FlakeDir, ".fleek.yml")
 	csym := filepath.Join(home, ".fleek.yml")
 	return os.Symlink(yamlPath, csym)
 
@@ -249,19 +262,20 @@ func Clone(repo string) error {
 
 // WriteSampleConfig creates the first fleek
 // configuration file
-func WriteSampleConfig(email, name string, force bool) error {
-
+func WriteSampleConfig(location, email, name string, force bool) error {
+	fmt.Println("write sample config")
 	aliases := make(map[string]string)
 	aliases["cdfleek"] = "cd ~/.config/home-manager"
 	sys, err := NewSystem(name, email)
 	if err != nil {
 		return err
 	}
-	c := Config{
-		Unfree: true,
-		Shell:  "bash",
-		Bling:  "default",
-		Name:   "My Fleek Configuration",
+	c := &Config{
+		FlakeDir: location,
+		Unfree:   true,
+		Shell:    "bash",
+		Bling:    "default",
+		Name:     "My Fleek Configuration",
 		Packages: []string{
 			"helix",
 		},
@@ -275,13 +289,20 @@ func WriteSampleConfig(email, name string, force bool) error {
 		},
 		Systems: []System{*sys},
 	}
-	cfile, err := ConfigLocation()
+	cfile, err := c.Location()
 	if err != nil {
 		return err
 	}
+	fmt.Println("cfile", cfile)
+	fmt.Println("location:", location)
+	err = c.MakeFlakeDir()
+	if err != nil {
+		return fmt.Errorf("making flake dir: %s", err)
+	}
 	_, err = os.Stat(cfile)
+	fmt.Println("stat cfile", err)
 
-	if force || os.IsNotExist(err) {
+	if force || errors.Is(err, fs.ErrNotExist) {
 
 		cfg, err := os.Create(cfile)
 		if err != nil {
@@ -323,12 +344,11 @@ func WriteSampleConfig(email, name string, force bool) error {
 
 // WriteEjectConfig updates the .fleek.yml file
 // to indicated ejected status
-func WriteEjectConfig() error {
+func (c *Config) Eject() error {
 
-	c := Config{
-		Ejected: true,
-	}
-	cfile, err := ConfigLocation()
+	c.Ejected = true
+
+	cfile, err := c.Location()
 	if err != nil {
 		return err
 	}

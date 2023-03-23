@@ -10,21 +10,21 @@ import (
 
 func NewRemoveCommand() *cmdr.Command {
 	cmd := cmdr.NewCommandRun(
-		fleek.Trans("remove.use"),
-		fleek.Trans("remove.long"),
-		fleek.Trans("remove.short"),
+		app.Trans("remove.use"),
+		app.Trans("remove.long"),
+		app.Trans("remove.short"),
 		remove,
 	).WithBoolFlag(
 		cmdr.NewBoolFlag(
 			"program",
 			"p",
-			fleek.Trans("remove.program"),
+			app.Trans("remove.program"),
 			false,
 		)).WithBoolFlag(
 		cmdr.NewBoolFlag(
 			"apply",
 			"a",
-			fleek.Trans("remove.apply"),
+			app.Trans("remove.apply"),
 			false,
 		))
 	cmd.Args = cobra.MinimumNArgs(1)
@@ -43,25 +43,25 @@ func remove(cmd *cobra.Command, args []string) {
 		apply = true
 	}
 	if verbose {
-		cmdr.Info.Println(fleek.Trans("remove.applying"))
+		cmdr.Info.Println(app.Trans("remove.applying"))
 	}
 
 	var err error
 
 	for _, p := range args {
 		if cmd.Flag("program").Changed {
-			err = config.RemoveProgram(p)
+			err = f.config.RemoveProgram(p)
 			cobra.CheckErr(err)
 		} else {
-			err = config.RemovePackage(p)
+			err = f.config.RemovePackage(p)
 			cobra.CheckErr(err)
 		}
 
 	}
 	if apply {
-		err = flake.Apply()
+		err = f.flake.Apply()
 		cobra.CheckErr(err)
 	}
 
-	cmdr.Info.Println(fleek.Trans("remove.done"))
+	cmdr.Info.Println(app.Trans("remove.done"))
 }

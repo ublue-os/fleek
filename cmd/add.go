@@ -10,21 +10,21 @@ import (
 
 func NewAddCommand() *cmdr.Command {
 	cmd := cmdr.NewCommandRun(
-		fleek.Trans("add.use"),
-		fleek.Trans("add.long"),
-		fleek.Trans("add.short"),
+		app.Trans("add.use"),
+		app.Trans("add.long"),
+		app.Trans("add.short"),
 		add,
 	).WithBoolFlag(
 		cmdr.NewBoolFlag(
 			"program",
 			"p",
-			fleek.Trans("add.program"),
+			app.Trans("add.program"),
 			false,
 		)).WithBoolFlag(
 		cmdr.NewBoolFlag(
 			"apply",
 			"a",
-			fleek.Trans("add.apply"),
+			app.Trans("add.apply"),
 			false,
 		))
 	cmd.Args = cobra.MinimumNArgs(1)
@@ -43,25 +43,25 @@ func add(cmd *cobra.Command, args []string) {
 		apply = true
 	}
 	if verbose {
-		cmdr.Info.Println(fleek.Trans("add.applying"))
+		cmdr.Info.Println(app.Trans("add.applying"))
 	}
 
 	var err error
 
 	for _, p := range args {
 		if cmd.Flag("program").Changed {
-			err = config.AddProgram(p)
+			err = f.config.AddProgram(p)
 			cobra.CheckErr(err)
 		} else {
-			err = config.AddPackage(p)
+			err = f.config.AddPackage(p)
 			cobra.CheckErr(err)
 		}
 
 	}
 	if apply {
-		err = flake.Apply()
+		err = f.flake.Apply()
 		cobra.CheckErr(err)
 	}
 
-	cmdr.Info.Println(fleek.Trans("add.done"))
+	cmdr.Info.Println(app.Trans("add.done"))
 }

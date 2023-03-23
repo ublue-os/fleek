@@ -10,21 +10,21 @@ import (
 
 func NewApplyCommand() *cmdr.Command {
 	cmd := cmdr.NewCommandRun(
-		fleek.Trans("apply.use"),
-		fleek.Trans("apply.long"),
-		fleek.Trans("apply.short"),
+		app.Trans("apply.use"),
+		app.Trans("apply.long"),
+		app.Trans("apply.short"),
 		apply,
 	).WithBoolFlag(
 		cmdr.NewBoolFlag(
 			"dry-run",
 			"d",
-			fleek.Trans("apply.dryRun"),
+			app.Trans("apply.dryRun"),
 			false,
 		)).WithBoolFlag(
 		cmdr.NewBoolFlag(
 			"push",
 			"p",
-			fleek.Trans("apply.push"),
+			app.Trans("apply.push"),
 			false,
 		))
 	return cmd
@@ -41,24 +41,24 @@ func apply(cmd *cobra.Command, args []string) {
 	if cmd.Flag("push").Changed {
 		push = true
 	}
-	if behind {
-		cmdr.Error.Println(fleek.Trans("apply.behind"))
+	if f.flakeStatus == FlakeBehind {
+		cmdr.Error.Println(app.Trans("apply.behind"))
 		return
 
 	}
 	if verbose {
-		cmdr.Info.Println(fleek.Trans("apply.writingConfig"))
+		cmdr.Info.Println(app.Trans("apply.writingConfig"))
 	}
 	// only re-apply the templates if not `ejected`
-	if !config.Ejected {
+	if !f.config.Ejected {
 		if verbose {
-			cmdr.Info.Println(fleek.Trans("apply.writingFlake"))
+			cmdr.Info.Println(app.Trans("apply.writingFlake"))
 		}
-		err := flake.Write()
+		err := f.flake.Write()
 		cobra.CheckErr(err)
-		err = repo.Commit()
+		err = f.repo.Commit()
 		if err != nil {
-			cmdr.Error.Println(fleek.Trans("apply.commitError"), err)
+			cmdr.Error.Println(app.Trans("apply.commitError"), err)
 		}
 		cobra.CheckErr(err)
 
@@ -69,24 +69,24 @@ func apply(cmd *cobra.Command, args []string) {
 		dry = true
 	}
 	if !dry {
-		cmdr.Info.Println(fleek.Trans("apply.applyingConfig"))
-		err := flake.Apply()
+		cmdr.Info.Println(app.Trans("apply.applyingConfig"))
+		err := f.flake.Apply()
 		cobra.CheckErr(err)
-		err = repo.Commit()
+		err = f.repo.Commit()
 		if err != nil {
-			cmdr.Error.Println(fleek.Trans("apply.commitError"), err)
+			cmdr.Error.Println(app.Trans("apply.commitError"), err)
 		}
 	} else {
-		cmdr.Info.Println(fleek.Trans("apply.dryApplyingConfig"))
-		err := flake.Check()
+		cmdr.Info.Println(app.Trans("apply.dryApplyingConfig"))
+		err := f.flake.Check()
 		cobra.CheckErr(err)
 	}
 	if push {
-		cmdr.Info.Println(fleek.Trans("apply.pushing"))
-		err := repo.Push()
+		cmdr.Info.Println(app.Trans("apply.pushing"))
+		err := f.repo.Push()
 		cobra.CheckErr(err)
 	}
 
-	cmdr.Success.Println(fleek.Trans("apply.done"))
+	cmdr.Success.Println(app.Trans("apply.done"))
 
 }

@@ -10,9 +10,9 @@ import (
 
 func NewListCommand() *cmdr.Command {
 	cmd := &cobra.Command{
-		Use:   fleek.Trans("list.use"),
-		Long:  fleek.Trans("list.long"),
-		Short: fleek.Trans("list.short"),
+		Use:   app.Trans("list.use"),
+		Long:  app.Trans("list.long"),
+		Short: app.Trans("list.short"),
 	}
 	cmdrcmd := &cmdr.Command{Command: cmd}
 	return cmdrcmd

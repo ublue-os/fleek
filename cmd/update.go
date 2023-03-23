@@ -10,15 +10,15 @@ import (
 
 func NewUpdateCommand() *cmdr.Command {
 	cmd := cmdr.NewCommandRun(
-		fleek.Trans("update.use"),
-		fleek.Trans("update.long"),
-		fleek.Trans("update.short"),
+		app.Trans("update.use"),
+		app.Trans("update.long"),
+		app.Trans("update.short"),
 		update,
 	).WithBoolFlag(
 		cmdr.NewBoolFlag(
 			"apply",
 			"a",
-			fleek.Trans("update.apply"),
+			app.Trans("update.apply"),
 			false,
 		))
 	return cmd
@@ -26,18 +26,19 @@ func NewUpdateCommand() *cmdr.Command {
 
 // initCmd represents the init command
 func update(cmd *cobra.Command, args []string) {
-	cmdr.Info.Println(fleek.Trans("update.start"))
+	cmdr.Info.Println(app.Trans("update.start"))
 
-	err := flake.Update()
+	flake, err := f.Flake()
 	cobra.CheckErr(err)
+	flake.Update()
 	if cmd.Flag("apply").Changed {
-		cmdr.Info.Println(fleek.Trans("update.apply"))
+		cmdr.Info.Println(app.Trans("update.apply"))
 
 		err = flake.Apply()
 		cobra.CheckErr(err)
 	} else {
-		cmdr.Info.Println(fleek.Trans("update.needApply"))
+		cmdr.Info.Println(app.Trans("update.needApply"))
 
 	}
-	cmdr.Success.Println(fleek.Trans("update.done"))
+	cmdr.Success.Println(app.Trans("update.done"))
 }

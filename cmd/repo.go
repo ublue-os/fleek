@@ -10,9 +10,9 @@ import (
 
 func NewRepoCommand() *cmdr.Command {
 	cmd := &cobra.Command{
-		Use:   fleek.Trans("repo.use"),
-		Long:  fleek.Trans("repo.long"),
-		Short: fleek.Trans("repo.short"),
+		Use:   app.Trans("repo.use"),
+		Long:  app.Trans("repo.long"),
+		Short: app.Trans("repo.short"),
 	}
 	cmdrcmd := &cmdr.Command{Command: cmd}
 	return cmdrcmd

@@ -10,14 +10,14 @@ import (
 
 func NewRepoAddCommand() *cmdr.Command {
 	cmd := cmdr.NewCommandRun(
-		fleek.Trans("repoadd.use"),
-		fleek.Trans("repoadd.long"),
-		fleek.Trans("repoadd.short"),
+		app.Trans("repoadd.use"),
+		app.Trans("repoadd.long"),
+		app.Trans("repoadd.short"),
 		remoteadd,
 	).WithStringFlag(cmdr.NewStringFlag(
 		"name",
 		"n",
-		fleek.Trans("repoadd.name"),
+		app.Trans("repoadd.name"),
 		"origin",
 	))
 	cmd.Args = cobra.ExactArgs(1)
@@ -27,14 +27,14 @@ func NewRepoAddCommand() *cmdr.Command {
 // initCmd represents the init command
 func remoteadd(cmd *cobra.Command, args []string) {
 
-	config.Repository = args[0]
-	err := config.Save()
+	f.config.Repository = args[0]
+	err := f.config.Save()
 	cobra.CheckErr(err)
 	// now actually add the remote
 	name := cmd.Flag("name").Value.String()
-	repo.RemoteAdd(args[0], name)
-	err = repo.Commit()
+	f.repo.RemoteAdd(args[0], name)
+	err = f.repo.Commit()
 	cobra.CheckErr(err)
 
-	cmdr.Info.Println(config.Repository)
+	cmdr.Info.Println(f.config.Repository)
 }

@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -29,6 +30,17 @@ func NewFlakeRepo(root string) *FlakeRepo {
 	frepo.RootDir = root
 
 	return frepo
+}
+
+func (fr *FlakeRepo) IsValid() bool {
+	var err error
+	_, err = git.PlainOpen(fr.RootDir)
+	if err != nil {
+		if errors.Is(err, git.ErrRepositoryNotExists) {
+			return false
+		}
+	}
+	return true
 }
 
 func (fr *FlakeRepo) runGit(cmd string, cmdLine []string) ([]byte, error) {
@@ -107,7 +119,6 @@ func (fr *FlakeRepo) Dirty() (bool, error) {
 	outString := string(out)
 
 	if len(outString) > 0 {
-		fmt.Println("debug: ", outString)
 		lines := strings.Split(outString, "\n")
 		for _, line := range lines {
 			cleanLine := strings.TrimSpace(line)
@@ -121,7 +132,7 @@ func (fr *FlakeRepo) Dirty() (bool, error) {
 				if len(parts[0]) == 2 {
 					remote = parts[0][:1]
 				}
-				fmt.Printf("file: %s\n", parts[1])
+				fmt.Printf("git status: %s\n", parts[1])
 
 				fmt.Printf("\tlocal: %s\n", local)
 				if len(remote) > 0 {

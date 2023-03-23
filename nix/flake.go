@@ -44,6 +44,15 @@ func NewFlake(root string, config *core.Config) (*Flake, error) {
 
 }
 
+// Exist verifies that the Flake directory exists
+func (f *Flake) Exists() (bool, error) {
+	_, err := os.Stat(f.RootDir)
+	if err != nil {
+		return true, nil
+	}
+	return false, err
+}
+
 // Init writes the first flake configuration
 func (f *Flake) Init(force bool) error {
 
@@ -141,10 +150,6 @@ func (f *Flake) Write() error {
 
 func (f *Flake) Apply() error {
 
-	workdir, err := core.FlakeLocation()
-	if err != nil {
-		return err
-	}
 	user, err := core.Username()
 	if err != nil {
 		return err
@@ -157,7 +162,7 @@ func (f *Flake) Apply() error {
 	apply.Stderr = os.Stderr
 	apply.Stdin = os.Stdin
 	apply.Stdout = os.Stdout
-	apply.Dir = workdir
+	apply.Dir = f.RootDir
 	apply.Env = os.Environ()
 
 	if f.Config.Unfree {
@@ -165,6 +170,24 @@ func (f *Flake) Apply() error {
 	}
 
 	err = apply.Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (f *Flake) GC() error {
+
+	gc := exec.Command("nix-collect-garbage", "-d")
+	gc.Stderr = os.Stderr
+	gc.Stdin = os.Stdin
+	gc.Stdout = os.Stdout
+	gc.Dir = f.RootDir
+	gc.Env = os.Environ()
+	if f.Config.Unfree {
+		gc.Env = append(gc.Env, "NIXPKGS_ALLOW_UNFREE=1")
+	}
+
+	err := gc.Run()
 	if err != nil {
 		return err
 	}
@@ -172,51 +195,41 @@ func (f *Flake) Apply() error {
 }
 func (f *Flake) Check() error {
 
-	workdir, err := core.FlakeLocation()
-	if err != nil {
-		return err
-	}
 	apply := exec.Command("nix", "run", "--impure", "home-manager/master", "build", "--impure", "--", "--flake", ".")
 	apply.Stderr = os.Stderr
 	apply.Stdin = os.Stdin
 	apply.Stdout = os.Stdout
-	apply.Dir = workdir
+	apply.Dir = f.RootDir
 	apply.Env = os.Environ()
 	if f.Config.Unfree {
 		apply.Env = append(apply.Env, "NIXPKGS_ALLOW_UNFREE=1")
 	}
 
-	err = apply.Run()
+	err := apply.Run()
 	if err != nil {
 		return err
 	}
 	return nil
 }
 func (f *Flake) Update() error {
-	workdir, err := core.FlakeLocation()
-	if err != nil {
-		return err
-	}
+
 	apply := exec.Command("nix", "flake", "update")
 	apply.Stderr = os.Stderr
 	apply.Stdin = os.Stdin
 	apply.Stdout = os.Stdout
-	apply.Dir = workdir
+	apply.Dir = f.RootDir
 	apply.Env = os.Environ()
 
-	err = apply.Run()
+	err := apply.Run()
 	if err != nil {
 		return err
 	}
 	return nil
 }
 func (f *Flake) writeFile(fname string, d Data, force bool) error {
-	fleekPath, err := core.FlakeLocation()
-	if err != nil {
-		return err
-	}
-	fpath := filepath.Join(fleekPath, fname)
-	_, err = os.Stat(fpath)
+
+	fpath := filepath.Join(f.RootDir, fname)
+	_, err := os.Stat(fpath)
 	if force || os.IsNotExist(err) {
 
 		file, err := os.Create(fpath)
@@ -234,12 +247,9 @@ func (f *Flake) writeFile(fname string, d Data, force bool) error {
 	return nil
 }
 func (f *Flake) writeSystem(sys core.System, force bool) error {
-	fleekPath, err := core.FlakeLocation()
-	if err != nil {
-		return err
-	}
-	hostPath := filepath.Join(fleekPath, sys.Hostname)
-	err = os.MkdirAll(hostPath, 0755)
+
+	hostPath := filepath.Join(f.RootDir, sys.Hostname)
+	err := os.MkdirAll(hostPath, 0755)
 	if err != nil {
 		return err
 	}
