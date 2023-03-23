@@ -16,7 +16,6 @@ var fleek *cmdr.App
 var flake *nix.Flake
 var config *core.Config
 var repo *git.FlakeRepo
-var firstrun bool
 var flakeLocation string
 var ahead bool
 var behind bool

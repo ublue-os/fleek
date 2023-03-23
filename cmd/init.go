@@ -106,8 +106,6 @@ func initialize(cmd *cobra.Command, args []string) {
 				}
 				err = flake.Write()
 				cobra.CheckErr(err)
-				err = repo.Commit()
-				cobra.CheckErr(err)
 
 			}
 			cmdr.Info.Println(fleek.Trans("apply.applyingConfig"))
