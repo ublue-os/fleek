@@ -65,9 +65,9 @@ func initialize(cmd *cobra.Command, args []string) {
 	// hack!
 	floc := filepath.Join(home, loc)
 	f.config = &core.Config{
-		FlakeDir: floc,
+		FlakeDir: loc,
 	}
-	f.flakeLocation = f.config.FlakeDir
+	f.flakeLocation = f.config.UserFlakeDir()
 
 	if cmd.Flag("clone").Changed {
 		upstream = cmd.Flag("clone").Value.String()
