@@ -14,9 +14,9 @@ import (
 
 func NewListProgramsCommand() *cmdr.Command {
 	cmd := cmdr.NewCommandRun(
-		fleek.Trans("listPrograms.use"),
-		fleek.Trans("listPrograms.long"),
-		fleek.Trans("listPrograms.short"),
+		app.Trans("listPrograms.use"),
+		app.Trans("listPrograms.long"),
+		app.Trans("listPrograms.short"),
 		listPrograms,
 	)
 	return cmd
@@ -24,26 +24,22 @@ func NewListProgramsCommand() *cmdr.Command {
 
 // initCmd represents the init command
 func listPrograms(cmd *cobra.Command, args []string) {
-
-	conf, err := core.ReadConfig()
-	cobra.CheckErr(err)
-
-	cmdr.Info.Println(fleek.Trans("listPrograms.userBling"), strings.ToUpper(conf.Bling))
-	switch conf.Bling {
+	cmdr.Info.Println(app.Trans("listPrograms.userBling"), strings.ToUpper(f.config.Bling))
+	switch f.config.Bling {
 	case "high":
-		cmdr.Info.Println(fleek.Trans("listPrograms.highBling"))
+		cmdr.Info.Println(app.Trans("listPrograms.highBling"))
 	case "default":
-		cmdr.Info.Println(fleek.Trans("listPrograms.defaultBling"))
+		cmdr.Info.Println(app.Trans("listPrograms.defaultBling"))
 	case "low":
-		cmdr.Info.Println(fleek.Trans("listPrograms.lowBling"))
+		cmdr.Info.Println(app.Trans("listPrograms.lowBling"))
 
 	}
-	if conf.Bling == "high" {
+	if f.config.Bling == "high" {
 		for _, pkg := range core.HighPrograms {
 			fmt.Printf("\t%s\n", pkg)
 		}
 	}
-	if conf.Bling == "default" || conf.Bling == "high" {
+	if f.config.Bling == "default" || f.config.Bling == "high" {
 
 		for _, pkg := range core.DefaultPrograms {
 			fmt.Printf("\t%s\n", pkg)
@@ -53,9 +49,9 @@ func listPrograms(cmd *cobra.Command, args []string) {
 		fmt.Printf("\t%s\n", pkg)
 	}
 
-	cmdr.Info.Println(fleek.Trans("listPrograms.userInstalled"))
+	cmdr.Info.Println(app.Trans("listPrograms.userInstalled"))
 
-	for _, pkg := range conf.Programs {
+	for _, pkg := range f.config.Programs {
 		fmt.Printf("\t%s\n", pkg)
 	}
 

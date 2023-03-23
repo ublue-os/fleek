@@ -33,3 +33,10 @@ Fleek is a user-friendly wrapper around Nix and Nix Home Manager, but the friend
 You need `nix`. We love the [Determinate Systems Installer](https://zero-to-nix.com/), but any `nix` is good. If you're on Fedora Silverblue [this script](https://github.com/dnkmmr69420/nix-with-selinux/blob/main/silverblue-installer.sh) is the good stuff.
 
 Next you'll need `fleek`. Download from the releases link.
+
+
+## Shoulders
+
+Standing on the shoulders of giants:
+
+- [flake template](https://github.com/Misterio77/nix-starter-configs)

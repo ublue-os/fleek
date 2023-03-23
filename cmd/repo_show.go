@@ -10,9 +10,9 @@ import (
 
 func NewRepoShowCommand() *cmdr.Command {
 	cmd := cmdr.NewCommandRun(
-		fleek.Trans("reposhow.use"),
-		fleek.Trans("reposhow.long"),
-		fleek.Trans("reposhow.short"),
+		app.Trans("reposhow.use"),
+		app.Trans("reposhow.long"),
+		app.Trans("reposhow.short"),
 		show,
 	)
 	return cmd
@@ -21,9 +21,11 @@ func NewRepoShowCommand() *cmdr.Command {
 // initCmd represents the init command
 func show(cmd *cobra.Command, args []string) {
 
+	repo, err := f.Repo()
+	cobra.CheckErr(err)
 	urls, err := repo.Remote()
 	cobra.CheckErr(err)
-	cmdr.Info.Println("configured:", config.Repository)
+	cmdr.Info.Println("configured:", f.config.Repository)
 	cmdr.Info.Println("actual:", urls)
 
 }

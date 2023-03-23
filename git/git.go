@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -31,6 +32,17 @@ func NewFlakeRepo(root string) *FlakeRepo {
 	return frepo
 }
 
+func (fr *FlakeRepo) IsValid() bool {
+	var err error
+	_, err = git.PlainOpen(fr.RootDir)
+	if err != nil {
+		if errors.Is(err, git.ErrRepositoryNotExists) {
+			return false
+		}
+	}
+	return true
+}
+
 func (fr *FlakeRepo) runGit(cmd string, cmdLine []string) ([]byte, error) {
 	command := exec.Command(cmd, cmdLine...)
 	command.Stdin = os.Stdin
@@ -59,10 +71,32 @@ func (fr *FlakeRepo) Commit() error {
 }
 
 func (fr *FlakeRepo) Pull() error {
+	remote, err := fr.Remote()
+	if err != nil {
+		return err
+	}
+	// if no remote, no need to push
+	if remote == "" {
+		return nil
+	}
 	pullCmdline := []string{"pull", "origin", "main"}
-	_, err := fr.runGit(gitbin, pullCmdline)
+	_, err = fr.runGit(gitbin, pullCmdline)
 	if err != nil {
 		return fmt.Errorf("git add: %s", err)
+	}
+	return nil
+}
+
+func (fr *FlakeRepo) LocalConfig(user, email string) error {
+	userCmdline := []string{"config", "user.name", user}
+	_, err := fr.runGit(gitbin, userCmdline)
+	if err != nil {
+		return fmt.Errorf("git config: %s", err)
+	}
+	emailCmdline := []string{"config", "user.email", email}
+	_, err = fr.runGit(gitbin, emailCmdline)
+	if err != nil {
+		return fmt.Errorf("git config: %s", err)
 	}
 	return nil
 }
@@ -83,8 +117,16 @@ func (fr *FlakeRepo) CreateRepo() error {
 	return err
 }
 func (fr *FlakeRepo) Push() error {
+	remote, err := fr.Remote()
+	if err != nil {
+		return err
+	}
+	// if no remote, no need to push
+	if remote == "" {
+		return nil
+	}
 	pushCmdline := []string{"push", "origin", "main"}
-	_, err := fr.runGit(gitbin, pushCmdline)
+	_, err = fr.runGit(gitbin, pushCmdline)
 	if err != nil {
 		return fmt.Errorf("git push: %s", err)
 	}
@@ -107,7 +149,6 @@ func (fr *FlakeRepo) Dirty() (bool, error) {
 	outString := string(out)
 
 	if len(outString) > 0 {
-		fmt.Println("debug: ", outString)
 		lines := strings.Split(outString, "\n")
 		for _, line := range lines {
 			cleanLine := strings.TrimSpace(line)
@@ -121,7 +162,7 @@ func (fr *FlakeRepo) Dirty() (bool, error) {
 				if len(parts[0]) == 2 {
 					remote = parts[0][:1]
 				}
-				fmt.Printf("file: %s\n", parts[1])
+				fmt.Printf("git status: %s\n", parts[1])
 
 				fmt.Printf("\tlocal: %s\n", local)
 				if len(remote) > 0 {
@@ -137,6 +178,14 @@ func (fr *FlakeRepo) Dirty() (bool, error) {
 }
 func (fr *FlakeRepo) AheadBehind() (bool, bool, error) {
 
+	remote, err := fr.Remote()
+	if err != nil {
+		return false, false, err
+	}
+	// if no remote, not ahead or behind
+	if remote == "" {
+		return false, false, nil
+	}
 	var ahead bool
 	var behind bool
 

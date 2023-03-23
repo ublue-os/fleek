@@ -5,15 +5,14 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/core"
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
 func NewEjectCommand() *cmdr.Command {
 	cmd := cmdr.NewCommandRun(
-		fleek.Trans("eject.use"),
-		fleek.Trans("eject.long"),
-		fleek.Trans("eject.short"),
+		app.Trans("eject.use"),
+		app.Trans("eject.long"),
+		app.Trans("eject.short"),
 		eject,
 	)
 	return cmd
@@ -22,16 +21,18 @@ func NewEjectCommand() *cmdr.Command {
 // initCmd represents the init command
 func eject(cmd *cobra.Command, args []string) {
 
-	ok, err := cmdr.Confirm.Show(fleek.Trans("eject.confirm"))
+	ok, err := cmdr.Confirm.Show(app.Trans("eject.confirm"))
 	cobra.CheckErr(err)
 
 	if ok {
-		cmdr.Info.Println(fleek.Trans("eject.start"))
-		err := flake.Write()
+		cmdr.Info.Println(app.Trans("eject.start"))
+		flake, err := f.Flake()
 		cobra.CheckErr(err)
-		err = core.WriteEjectConfig()
+		err = flake.Write(true)
 		cobra.CheckErr(err)
-		cmdr.Info.Println(fleek.Trans("eject.complete"))
+		err = f.config.Eject()
+		cobra.CheckErr(err)
+		cmdr.Info.Println(app.Trans("eject.complete"))
 	}
 
 }

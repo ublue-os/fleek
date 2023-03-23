@@ -72,5 +72,5 @@ func CurrentSystem() (*System, error) {
 			}
 		}
 	}
-	return nil, fmt.Errorf("system not found")
+	return nil, ErrSysNotFound
 }

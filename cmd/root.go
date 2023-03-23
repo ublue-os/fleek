@@ -2,125 +2,154 @@ package cmd
 
 import (
 	"embed"
-	"errors"
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/core"
-	"github.com/ublue-os/fleek/git"
 	"github.com/ublue-os/fleek/nix"
 	"github.com/vanilla-os/orchid/cmdr"
 )
 
-var fleek *cmdr.App
-var flake *nix.Flake
-var config *core.Config
-var repo *git.FlakeRepo
-var firstrun bool
-var flakeLocation string
-var ahead bool
-var behind bool
+var app *cmdr.App
+var f *fleek
 
 const (
 	verboseFlag string = "verbose"
 	syncFlag    string = "sync"
+	nixGC       string = "garbage-collect"
 )
 
 func New(version string, fs embed.FS) *cmdr.App {
-	fleek = cmdr.NewApp("fleek", version, fs)
-	return fleek
+	app = cmdr.NewApp("fleek", version, fs)
+	return app
 }
 func NewRootCommand(version string) *cmdr.Command {
 	root := cmdr.NewCommand(
-		fleek.Trans("fleek.use"),
-		fleek.Trans("fleek.long"),
-		fleek.Trans("fleek.short"),
+		app.Trans("fleek.use"),
+		app.Trans("fleek.long"),
+		app.Trans("fleek.short"),
 		nil).
 		WithPersistentBoolFlag(
 			cmdr.NewBoolFlag(
 				verboseFlag,
 				"v",
-				fleek.Trans("fleek.verboseFlag"),
+				app.Trans("fleek.verboseFlag"),
 				false)).
 		WithPersistentBoolFlag(
 			cmdr.NewBoolFlag(
 				syncFlag,
 				"s",
-				fleek.Trans("fleek.syncFlag"),
+				app.Trans("fleek.syncFlag"),
+				false)).
+		WithPersistentBoolFlag(
+			cmdr.NewBoolFlag(
+				nixGC,
+				"g",
+				app.Trans("fleek.nixGarbage"),
 				false))
 
 	root.Version = version
 	root.PersistentPreRun = func(cmd *cobra.Command, args []string) {
 		ok := nix.CheckNix()
 		if !ok {
-			cmdr.Error.Println(fleek.Trans("fleek.installNix"))
+			cmdr.Error.Println(app.Trans("fleek.installNix"))
 			os.Exit(1)
 		}
 
-		// set up config and flake before each command
 		var err error
-		config, err = core.ReadConfig()
-		if errors.Is(err, os.ErrNotExist) {
-			firstrun = true
-			return
-		}
-
-		flakeLocation, err = core.FlakeLocation()
+		f, err = initFleek()
 		cobra.CheckErr(err)
 
-		flake, err = nix.NewFlake(flakeLocation, config)
-		cobra.CheckErr(err)
-
-		repo = git.NewFlakeRepo(flakeLocation)
-
-		cmdr.Info.Println(fleek.Trans("fleek.gitStatus"))
-
-		dirty, err := repo.Dirty()
-		cobra.CheckErr(err)
-		if dirty {
-			cmdr.Warning.Println(fleek.Trans("fleek.dirty"))
-		}
-		ahead, behind, err = repo.AheadBehind()
-		cobra.CheckErr(err)
-		if ahead {
-			cmdr.Warning.Println(fleek.Trans("fleek.ahead"))
-		}
-		if behind {
-			cmdr.Warning.Println(fleek.Trans("fleek.behind"))
-		}
-		if cmd.Flag("sync").Changed && behind {
-			cmdr.Info.Println(fleek.Trans("fleek.pull"))
-			err = repo.Pull()
+		/*
+			dirty, err := repo.Dirty()
 			cobra.CheckErr(err)
-			behind = false
+			if dirty {
+				cmdr.Warning.Println(app.Trans("fleek.dirty"))
+			}
+			ahead, behind, err = repo.AheadBehind()
+			cobra.CheckErr(err)
+			if ahead {
+				cmdr.Warning.Println(app.Trans("fleek.ahead"))
+			}
+			if behind {
+				cmdr.Warning.Println(app.Trans("fleek.behind"))
+			}
+
+		*/
+		if cmd.Flag(syncFlag).Changed && f.flakeStatus == FlakeBehind {
+			cmdr.Info.Println(app.Trans("fleek.pull"))
+			r, err := f.Repo()
+			cobra.CheckErr(err)
+			r.Pull()
+			cobra.CheckErr(err)
+			f.flakeStatus = FlakeExists
+
 		}
 
 	}
 	root.PersistentPostRun = func(cmd *cobra.Command, args []string) {
-
-		repo = git.NewFlakeRepo(flakeLocation)
-
-		cmdr.Info.Println(fleek.Trans("fleek.gitStatus"))
-
+		repo, err := f.Repo()
+		cobra.CheckErr(err)
 		dirty, err := repo.Dirty()
 		cobra.CheckErr(err)
 		if dirty {
-			cmdr.Warning.Println(fleek.Trans("fleek.dirty"))
+			f.flakeStatus = FlakeDirty
+			cmdr.Warning.Println(app.Trans("fleek.dirty"))
 		}
-		ahead, behind, err = repo.AheadBehind()
+
+		ahead, behind, err := f.repo.AheadBehind()
 		cobra.CheckErr(err)
 		if ahead {
-			cmdr.Warning.Println(fleek.Trans("fleek.ahead"))
+			f.flakeStatus = FlakeAhead
+			// only show the warning if we're not already
+			// planning to sync
+			if !cmd.Flag("sync").Changed {
+				cmdr.Warning.Println(app.Trans("fleek.ahead"))
+			}
 		}
 		if behind {
-			cmdr.Warning.Println(fleek.Trans("fleek.behind"))
+			f.flakeStatus = FlakeBehind
+			cmdr.Warning.Println(app.Trans("fleek.behind"))
 		}
-		if cmd.Flag("sync").Changed && ahead {
-			cmdr.Info.Println(fleek.Trans("fleek.push"))
+		if cmd.Flag(nixGC).Changed {
+			f, err := f.Flake()
+			cobra.CheckErr(err)
+			err = f.GC()
+			cobra.CheckErr(err)
+
+		}
+		if cmd.Flag("sync").Changed && f.flakeStatus == FlakeAhead {
+			cmdr.Info.Println(app.Trans("fleek.push"))
+			repo, err := f.Repo()
+			cobra.CheckErr(err)
 			err = repo.Push()
 			cobra.CheckErr(err)
 
 		}
+		/*
+			repo = git.NewFlakeRepo(flakeLocation)
+
+			cmdr.Info.Println(app.Trans("fleek.gitStatus"))
+
+			dirty, err := repo.Dirty()
+			cobra.CheckErr(err)
+			if dirty {
+				cmdr.Warning.Println(app.Trans("fleek.dirty"))
+			}
+			ahead, behind, err = repo.AheadBehind()
+			cobra.CheckErr(err)
+			if ahead {
+				cmdr.Warning.Println(app.Trans("fleek.ahead"))
+			}
+			if behind {
+				cmdr.Warning.Println(app.Trans("fleek.behind"))
+			}
+			if cmd.Flag("sync").Changed && ahead {
+				cmdr.Info.Println(app.Trans("fleek.push"))
+				err = repo.Push()
+				cobra.CheckErr(err)
+
+			}
+		*/
 
 	}
 	return root
