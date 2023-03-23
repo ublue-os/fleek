@@ -25,11 +25,8 @@ func NewListPackagesCommand() *cmdr.Command {
 // initCmd represents the init command
 func list(cmd *cobra.Command, args []string) {
 
-	conf, err := core.ReadConfig()
-	cobra.CheckErr(err)
-
-	cmdr.Info.Println(app.Trans("listPackages.userBling"), strings.ToUpper(conf.Bling))
-	switch conf.Bling {
+	cmdr.Info.Println(app.Trans("listPackages.userBling"), strings.ToUpper(f.config.Bling))
+	switch f.config.Bling {
 	case "high":
 		cmdr.Info.Println(app.Trans("listPackages.highBling"))
 	case "default":
@@ -38,12 +35,12 @@ func list(cmd *cobra.Command, args []string) {
 		cmdr.Info.Println(app.Trans("listPackages.lowBling"))
 
 	}
-	if conf.Bling == "high" {
+	if f.config.Bling == "high" {
 		for _, pkg := range core.HighPackages {
 			fmt.Printf("\t%s\n", pkg)
 		}
 	}
-	if conf.Bling == "default" || conf.Bling == "high" {
+	if f.config.Bling == "default" || f.config.Bling == "high" {
 
 		for _, pkg := range core.DefaultPackages {
 			fmt.Printf("\t%s\n", pkg)
@@ -55,7 +52,7 @@ func list(cmd *cobra.Command, args []string) {
 
 	cmdr.Info.Println(app.Trans("listPackages.userInstalled"))
 
-	for _, pkg := range conf.Packages {
+	for _, pkg := range f.config.Packages {
 		fmt.Printf("\t%s\n", pkg)
 	}
 

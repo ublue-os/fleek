@@ -32,8 +32,10 @@ func remoteadd(cmd *cobra.Command, args []string) {
 	cobra.CheckErr(err)
 	// now actually add the remote
 	name := cmd.Flag("name").Value.String()
-	f.repo.RemoteAdd(args[0], name)
-	err = f.repo.Commit()
+	repo, err := f.Repo()
+	cobra.CheckErr(err)
+	repo.RemoteAdd(args[0], name)
+	err = repo.Commit()
 	cobra.CheckErr(err)
 
 	cmdr.Info.Println(f.config.Repository)

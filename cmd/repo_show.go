@@ -21,7 +21,9 @@ func NewRepoShowCommand() *cmdr.Command {
 // initCmd represents the init command
 func show(cmd *cobra.Command, args []string) {
 
-	urls, err := f.repo.Remote()
+	repo, err := f.Repo()
+	cobra.CheckErr(err)
+	urls, err := repo.Remote()
 	cobra.CheckErr(err)
 	cmdr.Info.Println("configured:", f.config.Repository)
 	cmdr.Info.Println("actual:", urls)

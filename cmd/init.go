@@ -4,7 +4,6 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,7 +58,6 @@ func initialize(cmd *cobra.Command, args []string) {
 	if cmd.Flag("verbose").Changed {
 		verbose = true
 	}
-	fmt.Println("init start")
 	var upstream string
 	loc := cmd.Flag(locationFlag).Value.String()
 	home, err := os.UserHomeDir()
@@ -157,26 +155,21 @@ func initialize(cmd *cobra.Command, args []string) {
 		if verbose {
 			cmdr.Info.Println(app.Trans("init.writingConfigs"))
 		}
-		fmt.Println("make flake dir")
 		err = f.config.MakeFlakeDir()
 		cobra.CheckErr(err)
 
-		fmt.Println("writing sample config")
 		err = core.WriteSampleConfig(floc, email, name, force)
 		cobra.CheckErr(err)
 		f.config, err = core.ReadConfig()
 		cobra.CheckErr(err)
-		fmt.Println("flake init")
 		flake, err := f.Flake()
 		cobra.CheckErr(err)
 		err = flake.Init(force)
 		cobra.CheckErr(err)
-		fmt.Println("create repo")
 		repo, err := f.Repo()
 		cobra.CheckErr(err)
 		err = repo.CreateRepo()
 		cobra.CheckErr(err)
-		fmt.Println("commit")
 		err = repo.Commit()
 		cobra.CheckErr(err)
 	} else {

@@ -59,7 +59,9 @@ func remove(cmd *cobra.Command, args []string) {
 
 	}
 	if apply {
-		err = f.flake.Apply()
+		flake, err := f.Flake()
+		cobra.CheckErr(err)
+		err = flake.Apply()
 		cobra.CheckErr(err)
 	}
 
