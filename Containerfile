@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . ./
 
-RUN ./build.sh
+RUN ./prep.sh
 
 ENTRYPOINT ["/app/fleek"]
