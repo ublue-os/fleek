@@ -99,7 +99,11 @@ func NewRootCommand(version string) *cmdr.Command {
 		cobra.CheckErr(err)
 		if ahead {
 			f.flakeStatus = FlakeAhead
-			cmdr.Warning.Println(app.Trans("fleek.ahead"))
+			// only show the warning if we're not already
+			// planning to sync
+			if !cmd.Flag("sync").Changed {
+				cmdr.Warning.Println(app.Trans("fleek.ahead"))
+			}
 		}
 		if behind {
 			f.flakeStatus = FlakeBehind
@@ -109,6 +113,14 @@ func NewRootCommand(version string) *cmdr.Command {
 			f, err := f.Flake()
 			cobra.CheckErr(err)
 			err = f.GC()
+			cobra.CheckErr(err)
+
+		}
+		if cmd.Flag("sync").Changed && f.flakeStatus == FlakeAhead {
+			cmdr.Info.Println(app.Trans("fleek.push"))
+			repo, err := f.Repo()
+			cobra.CheckErr(err)
+			err = repo.Push()
 			cobra.CheckErr(err)
 
 		}

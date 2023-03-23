@@ -28,7 +28,7 @@ func eject(cmd *cobra.Command, args []string) {
 		cmdr.Info.Println(app.Trans("eject.start"))
 		flake, err := f.Flake()
 		cobra.CheckErr(err)
-		err = flake.Write()
+		err = flake.Write(true)
 		cobra.CheckErr(err)
 		err = f.config.Eject()
 		cobra.CheckErr(err)

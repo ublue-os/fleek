@@ -89,6 +89,7 @@ func initialize(cmd *cobra.Command, args []string) {
 				if verbose {
 					cmdr.Info.Println(app.Trans("apply.checkingSystem"))
 				}
+				var includeSystems bool
 				// check to see if the current machine (system) is in the existing
 				// configs. If not, create a new one and add it.
 				_, err := core.CurrentSystem()
@@ -110,7 +111,7 @@ func initialize(cmd *cobra.Command, args []string) {
 						cobra.CheckErr(err)
 						cmdr.Info.Printfln("New System: %s@%s", sys.Username, sys.Hostname)
 						// get current config
-
+						includeSystems = true
 						// append new(current) system
 						f.config.Systems = append(f.config.Systems, *sys)
 						// save it
@@ -122,7 +123,7 @@ func initialize(cmd *cobra.Command, args []string) {
 				if verbose {
 					cmdr.Info.Println(app.Trans("apply.writingFlake"))
 				}
-				err = f.flake.Write()
+				err = f.flake.Write(includeSystems)
 				cobra.CheckErr(err)
 
 			}

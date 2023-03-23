@@ -56,6 +56,10 @@ func remove(cmd *cobra.Command, args []string) {
 			err = f.config.RemovePackage(p)
 			cobra.CheckErr(err)
 		}
+		repo, err := f.Repo()
+		cobra.CheckErr(err)
+		err = repo.Commit()
+		cobra.CheckErr(err)
 
 	}
 	if apply {

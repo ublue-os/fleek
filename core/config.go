@@ -92,6 +92,8 @@ var (
 	ErrInvalidBling           = errors.New("fleek.yml: invalid bling level, valid levels are: " + strings.Join(blingLevels, ", "))
 	ErrorInvalidArch          = errors.New("fleek.yml: invalid architecture, valid architectures are: " + strings.Join(architectures, ", "))
 	ErrInvalidOperatingSystem = errors.New("fleek.yml: invalid OS, valid operating systems are: " + strings.Join(operatingSystems, ", "))
+	ErrPackageNotFound        = errors.New("package not found in configuration file")
+	ErrProgramNotFound        = errors.New("program not found in configuration file")
 )
 
 func (c *Config) Validate() error {
@@ -146,7 +148,7 @@ func (c *Config) RemovePackage(pack string) error {
 	if found {
 		c.Packages = append(c.Packages[:index], c.Packages[index+1:]...)
 	} else {
-		return errors.New("not found")
+		return ErrPackageNotFound
 	}
 	err := c.Validate()
 	if err != nil {
@@ -167,7 +169,7 @@ func (c *Config) RemoveProgram(prog string) error {
 	if found {
 		c.Programs = append(c.Programs[:index], c.Programs[index+1:]...)
 	} else {
-		return errors.New("not found")
+		return ErrProgramNotFound
 	}
 	err := c.Validate()
 	if err != nil {
@@ -221,18 +223,15 @@ func ReadConfig() (*Config, error) {
 	c := &Config{}
 	home, err := os.UserHomeDir()
 	if err != nil {
-		fmt.Println("error getting home dir")
 		return c, err
 	}
 	csym := filepath.Join(home, ".fleek.yml")
 	bb, err := os.ReadFile(csym)
 	if err != nil {
-		fmt.Println("error reading file", err)
 		return c, err
 	}
 	err = yaml.Unmarshal(bb, c)
 	if err != nil {
-		fmt.Println("yaml unmarshal err")
 		return c, err
 	}
 	return c, nil
@@ -263,7 +262,6 @@ func (c *Config) Clone(repo string) error {
 // WriteSampleConfig creates the first fleek
 // configuration file
 func WriteSampleConfig(location, email, name string, force bool) error {
-	fmt.Println("write sample config")
 	aliases := make(map[string]string)
 	aliases["cdfleek"] = "cd ~/.config/home-manager"
 	sys, err := NewSystem(name, email)
@@ -293,14 +291,11 @@ func WriteSampleConfig(location, email, name string, force bool) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("cfile", cfile)
-	fmt.Println("location:", location)
 	err = c.MakeFlakeDir()
 	if err != nil {
 		return fmt.Errorf("making flake dir: %s", err)
 	}
 	_, err = os.Stat(cfile)
-	fmt.Println("stat cfile", err)
 
 	if force || errors.Is(err, fs.ErrNotExist) {
 

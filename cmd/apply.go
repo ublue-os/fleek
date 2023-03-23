@@ -56,7 +56,7 @@ func apply(cmd *cobra.Command, args []string) {
 		}
 		flake, err := f.Flake()
 		cobra.CheckErr(err)
-		err = flake.Write()
+		err = flake.Write(false)
 		cobra.CheckErr(err)
 		repo, err := f.Repo()
 		cobra.CheckErr(err)

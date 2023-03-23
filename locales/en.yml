@@ -23,8 +23,8 @@ eject:
   confirm: "Are you sure you want to manage your home configuration files directly?"
 apply:
   use: "apply"
-  long: "Apply fleek profile by reading the ~/.fleek.yml file and updating \nthe flake templates."
-  short: "Apply fleek profile"
+  long: "Apply fleek configuration by reading the ~/.fleek.yml file and updating \nthe flake templates."
+  short: "Apply fleek configuration"
   behind: "Can't apply with unmerged remote changes. Use `--sync` flag to pull remote changes."
   dryRun: "dry run - don't apply configuration"
   push: "push modified configuration to git remote"

@@ -107,7 +107,7 @@ func (f *Flake) Init(force bool) error {
 }
 
 // Write writes the applied flake configuration
-func (f *Flake) Write() error {
+func (f *Flake) Write(includeSystems bool) error {
 
 	data := Data{
 		Config:          f.Config,
@@ -138,10 +138,12 @@ func (f *Flake) Write() error {
 	if err != nil {
 		return err
 	}
-	for _, sys := range data.Config.Systems {
-		err = f.writeSystem(sys, true)
-		if err != nil {
-			return err
+	if includeSystems {
+		for _, sys := range data.Config.Systems {
+			err = f.writeSystem(sys, true)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return f.writeFile("shell.nix", data, true)

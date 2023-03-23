@@ -56,7 +56,10 @@ func add(cmd *cobra.Command, args []string) {
 			err = f.config.AddPackage(p)
 			cobra.CheckErr(err)
 		}
-
+		repo, err := f.Repo()
+		cobra.CheckErr(err)
+		err = repo.Commit()
+		cobra.CheckErr(err)
 	}
 	if apply {
 		flake, err := f.Flake()
