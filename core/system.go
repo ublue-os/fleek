@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 
 	"os/user"
 )
@@ -73,4 +74,39 @@ func CurrentSystem() (*System, error) {
 		}
 	}
 	return nil, ErrSysNotFound
+}
+
+func UserShell() (string, error) {
+	// modified from https://github.com/captainsafia/go-user-shell/blob/master/user_shell.go
+	// MIT License
+	// Copyright (c) 2017 Safia Abdalla
+	var shell string
+	switch runtime.GOOS {
+	case "windows":
+		if os.Getenv("COMSPEC") != "" {
+			shell = os.Getenv("COMSPEC")
+		} else {
+			shell = "/cmd.exe"
+		}
+	case "darwin":
+		if os.Getenv("SHELL") != "" {
+			shell = os.Getenv("SHELL")
+		} else {
+			shell = "/bin/zsh"
+		}
+	default:
+		if os.Getenv("SHELL") != "" {
+			shell = os.Getenv("SHELL")
+		} else {
+			shell = "/bin/sh"
+		}
+	}
+	if strings.Contains(shell, "zsh") {
+		shell = "zsh"
+	}
+	if strings.Contains(shell, "bash") {
+		shell = "bash"
+	}
+	return shell, nil
+
 }

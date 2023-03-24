@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"path/filepath"
 
 	"io/fs"
@@ -229,5 +230,17 @@ func (f *fleek) Repo() (*git.FlakeRepo, error) {
 func (f *fleek) Sanity() ([]string, error) {
 	// check nix
 	// check flakes
-	return []string{}, nil
+	msgs := []string{}
+	shell, err := core.UserShell()
+	if err != nil {
+		return []string{}, err
+	}
+	configuredShell := f.config.Shell
+	if shell != configuredShell {
+		msgs = append(msgs, "----Configuration Mismatch----")
+		msgs = append(msgs, fmt.Sprintf("~/.fleek.yml configured shell is %s, but user configured shell is %s", configuredShell, shell))
+		msgs = append(msgs, "Consult your operating system documentation on how to change your login shell")
+
+	}
+	return msgs, nil
 }
