@@ -120,6 +120,11 @@ func NewRootCommand(version string) *cmdr.Command {
 			cobra.CheckErr(err)
 
 		}
+		msgs, err := f.Sanity()
+		cobra.CheckErr(err)
+		for _, msg := range msgs {
+			cmdr.Warning.Println("System Check:", msg)
+		}
 		/*
 			repo = git.NewFlakeRepo(flakeLocation)
 
