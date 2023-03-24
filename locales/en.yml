@@ -12,7 +12,17 @@ fleek:
   nixGarbage: "run garbage collection to remove unused items"
   syncFlag: "synchronize git repository before and after command"
   installNix: "No nix installation found! We recommend starting at https://zero-to-nix.com/"
-
+  noConfigFound: "Configuration file does not exist."
+  noFlakeFound: "Fleek configuration directory does not exist."
+  validRepository: "Fleek configuration directory is a git repository."
+  notValidRepository: "Fleek configuration directory is not a git repository."
+  remoteFound: "Found git remote: "
+  noRemote: "Fleek configuration directory has no configured git remotes."
+  gettingStatus: "Getting git remote status"
+  skippingStatus: "Skipping git remote status"
+  aheadStatus: "Local fleek repository is ahead of remote."
+  behindStatus: "Local fleek repository is behind remote."
+  divergedStatus: "Both local and remote repositories have changes."
 eject:
   use: "eject"
   long: "Eject writes your current configuration to disk and removes Fleek's templates.\n\nChanges to .fleek.yml will be ignored; you will modify your Nix configurations directly."
@@ -91,15 +101,15 @@ remove:
   apply: "apply configs after adding"
   applying: "Removing package and applying configuration"
   done: "Complete!"
-repo:
+remote:
   use: "remote"
   long: "Manage or show the remote git repository"
   short: "Manage or show the remote git repository"
-reposhow:
+remoteshow:
   use: "show"
   long: "Show the remote git repository"
   short: "Show the remote git repository"
-repoadd:
+remoteadd:
   use: "add"
   long: "Configure fleek to use a remote git repository"
   short: "Configure fleek to use a remote git repository"

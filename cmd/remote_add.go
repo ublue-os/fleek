@@ -10,14 +10,14 @@ import (
 
 func NewRepoAddCommand() *cmdr.Command {
 	cmd := cmdr.NewCommandRun(
-		app.Trans("repoadd.use"),
-		app.Trans("repoadd.long"),
-		app.Trans("repoadd.short"),
+		app.Trans("remoteadd.use"),
+		app.Trans("remoteadd.long"),
+		app.Trans("remoteadd.short"),
 		remoteadd,
 	).WithStringFlag(cmdr.NewStringFlag(
 		"name",
 		"n",
-		app.Trans("repoadd.name"),
+		app.Trans("reemoteadd.name"),
 		"origin",
 	))
 	cmd.Args = cobra.ExactArgs(1)
