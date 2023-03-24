@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"path/filepath"
 
 	"io/fs"
 	"os"
 
+	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/core"
 	"github.com/ublue-os/fleek/git"
 	"github.com/ublue-os/fleek/nix"
@@ -22,10 +22,11 @@ const (
 	FlakeDirty
 	FlakeBehind
 	FlakeAhead
+	FlakeDiverged
 )
 
 func (f FlakeStatus) String() string {
-	return [...]string{"None", "Dirty", "Behind", "Ahead"}[f]
+	return [...]string{"None", "Dirty", "Behind", "Ahead", "Diverged"}[f]
 }
 
 type ConfigStatus int
@@ -64,7 +65,7 @@ type fleek struct {
 	flakeLocation string
 }
 
-func initFleek() (*fleek, error) {
+func initFleek(verbose bool) (*fleek, error) {
 	f := &fleek{}
 	// set up config
 	var err error
@@ -72,6 +73,9 @@ func initFleek() (*fleek, error) {
 
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
+			if verbose {
+				cmdr.Info.Println(app.Trans("fleek.noConfigFound"))
+			}
 			f.configStatus = ConfigNone
 		} else {
 			return f, err
@@ -89,7 +93,7 @@ func initFleek() (*fleek, error) {
 					cmdr.Info.Println("Migrating .fleek.yml to current version")
 					// get previous default flake location
 
-					defaultFlakeDir := filepath.Join( ".config", "home-manager")
+					defaultFlakeDir := filepath.Join(".config", "home-manager")
 					config.FlakeDir = defaultFlakeDir
 					// now save the config
 					err2 := config.Save()
@@ -113,6 +117,9 @@ func initFleek() (*fleek, error) {
 			exists, err := flake.Exists()
 			if err != nil {
 				if errors.Is(err, fs.ErrNotExist) {
+					if verbose {
+						cmdr.Info.Println(app.Trans("fleek.noFlakeFound"))
+					}
 					f.flakeStatus = FlakeNone
 				}
 			}
@@ -125,18 +132,59 @@ func initFleek() (*fleek, error) {
 			f.repo = git.NewFlakeRepo(f.flakeLocation)
 			exists = f.repo.IsValid()
 			if exists {
+				if verbose {
+					cmdr.Info.Println(app.Trans("fleek.validRepository"))
+				}
 				f.gitStatus = GitExists
+			} else {
+				if verbose {
+					cmdr.Info.Println(app.Trans("fleek.notValidRepository"))
+				}
 			}
-			ahead, behind, err := f.repo.AheadBehind()
-			if err != nil {
-				fmt.Println(err)
-				return f, err
+
+			remote, err := f.repo.Remote()
+			cobra.CheckErr(err)
+			if remote != "" {
+				f.gitStatus = GitHasRemote
+				if verbose {
+					cmdr.Info.Println(app.Trans("fleek.remoteFound"), remote)
+				}
+			} else {
+				if verbose {
+					cmdr.Info.Println(app.Trans("fleek.noRemote"))
+				}
 			}
-			if ahead {
-				f.flakeStatus = FlakeAhead
-			}
-			if behind {
-				f.flakeStatus = FlakeBehind
+			if f.gitStatus == GitHasRemote {
+				if verbose {
+					cmdr.Info.Println(app.Trans("fleek.gettingStatus"), remote)
+				}
+				ahead, behind, err := f.repo.AheadBehind(verbose)
+				if err != nil {
+					return f, err
+				}
+				if ahead {
+					if verbose {
+						cmdr.Info.Println(app.Trans("fleek.aheadStatus"))
+					}
+					f.flakeStatus = FlakeAhead
+				}
+				if behind {
+					if verbose {
+						cmdr.Info.Println(app.Trans("fleek.behindStatus"))
+					}
+					f.flakeStatus = FlakeBehind
+				}
+				if ahead && behind {
+					if verbose {
+						cmdr.Info.Println(app.Trans("fleek.divergedStatus"))
+					}
+					f.flakeStatus = FlakeDiverged
+				}
+
+			} else {
+				if verbose {
+					cmdr.Info.Println(app.Trans("fleek.skippingStatus"), remote)
+				}
 			}
 		}
 	}

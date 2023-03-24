@@ -113,7 +113,14 @@ func (fr *FlakeRepo) CreateRepo() error {
 	}
 	defer gitIgnore.Close()
 	_, err = gitIgnore.WriteString("result")
-
+	if err != nil {
+		return err
+	}
+	configCmdLine := []string{"config", "pull.rebase", "true"}
+	_, err = fr.runGit(gitbin, configCmdLine)
+	if err != nil {
+		return fmt.Errorf("git config: %s", err)
+	}
 	return err
 }
 func (fr *FlakeRepo) Push() error {
@@ -134,7 +141,7 @@ func (fr *FlakeRepo) Push() error {
 
 }
 
-func (fr *FlakeRepo) Dirty() (bool, error) {
+func (fr *FlakeRepo) Dirty(verbose bool) (bool, error) {
 
 	var dirty bool
 
@@ -162,11 +169,14 @@ func (fr *FlakeRepo) Dirty() (bool, error) {
 				if len(parts[0]) == 2 {
 					remote = parts[0][:1]
 				}
-				fmt.Printf("git status: %s\n", parts[1])
+				if verbose {
 
-				fmt.Printf("\tlocal: %s\n", local)
-				if len(remote) > 0 {
-					fmt.Printf("\tremote: %s\n", remote)
+					fmt.Printf("git status: %s\n", parts[1])
+
+					fmt.Printf("\tlocal: %s\n", local)
+					if len(remote) > 0 {
+						fmt.Printf("\tremote: %s\n", remote)
+					}
 				}
 				dirty = true
 			}
@@ -176,7 +186,7 @@ func (fr *FlakeRepo) Dirty() (bool, error) {
 
 	return dirty, nil
 }
-func (fr *FlakeRepo) AheadBehind() (bool, bool, error) {
+func (fr *FlakeRepo) AheadBehind(verbose bool) (bool, bool, error) {
 
 	remote, err := fr.Remote()
 	if err != nil {
@@ -184,11 +194,22 @@ func (fr *FlakeRepo) AheadBehind() (bool, bool, error) {
 	}
 	// if no remote, not ahead or behind
 	if remote == "" {
+		if verbose {
+			fmt.Println("flake repo: no remote")
+		}
 		return false, false, nil
 	}
 	var ahead bool
 	var behind bool
+	fetch := exec.Command(gitbin, "fetch", "origin", "main")
+	fetch.Dir = fr.RootDir
 
+	fetch.Env = os.Environ()
+
+	err = fetch.Run()
+	if err != nil {
+		return false, false, fmt.Errorf("git fetch: %s", err)
+	}
 	cmd := exec.Command(gitbin, "status", "--ahead-behind")
 	cmd.Env = os.Environ()
 	cmd.Dir = fr.RootDir
@@ -199,38 +220,22 @@ func (fr *FlakeRepo) AheadBehind() (bool, bool, error) {
 
 	outString := string(out)
 	cleanOut := strings.TrimSpace(outString)
-
+	if verbose {
+		fmt.Println(cleanOut)
+	}
 	if len(cleanOut) > 0 {
 		if strings.Contains(cleanOut, "ahead") {
 			ahead = true
 		}
-	}
-	fetch := exec.Command(gitbin, "fetch", "origin", "main")
-	fetch.Dir = fr.RootDir
-
-	fetch.Env = os.Environ()
-
-	err = fetch.Run()
-	if err != nil {
-		return false, false, fmt.Errorf("git fetch: %s", err)
-	}
-	pfcmd := exec.Command(gitbin, "status", "--ahead-behind")
-	pfcmd.Dir = fr.RootDir
-	pfcmd.Env = os.Environ()
-
-	postFetchout, err := pfcmd.Output()
-	if err != nil {
-		return false, false, fmt.Errorf("git status: %s", err)
-	}
-
-	foutString := string(postFetchout)
-	cleanFetchOut := strings.TrimSpace(foutString)
-
-	if len(cleanFetchOut) > 0 {
 		if strings.Contains(cleanOut, "behind") {
 			behind = true
 		}
+		if strings.Contains(cleanOut, "diverged") {
+			behind = true
+			ahead = true
+		}
 	}
+
 	return ahead, behind, nil
 }
 

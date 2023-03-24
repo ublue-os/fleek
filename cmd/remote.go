@@ -10,9 +10,9 @@ import (
 
 func NewRepoCommand() *cmdr.Command {
 	cmd := &cobra.Command{
-		Use:   app.Trans("repo.use"),
-		Long:  app.Trans("repo.long"),
-		Short: app.Trans("repo.short"),
+		Use:   app.Trans("remote.use"),
+		Long:  app.Trans("remote.long"),
+		Short: app.Trans("remote.short"),
 	}
 	cmdrcmd := &cmdr.Command{Command: cmd}
 	return cmdrcmd

@@ -54,28 +54,19 @@ func NewRootCommand(version string) *cmdr.Command {
 			cmdr.Error.Println(app.Trans("fleek.installNix"))
 			os.Exit(1)
 		}
+		var verbose bool
+		if cmd.Flag("verbose").Changed {
+			verbose = true
+		}
 
 		var err error
-		f, err = initFleek()
+		f, err = initFleek(verbose)
 		cobra.CheckErr(err)
-
-		/*
-			dirty, err := repo.Dirty()
-			cobra.CheckErr(err)
-			if dirty {
-				cmdr.Warning.Println(app.Trans("fleek.dirty"))
-			}
-			ahead, behind, err = repo.AheadBehind()
-			cobra.CheckErr(err)
-			if ahead {
-				cmdr.Warning.Println(app.Trans("fleek.ahead"))
-			}
-			if behind {
-				cmdr.Warning.Println(app.Trans("fleek.behind"))
-			}
-
-		*/
-		if cmd.Flag(syncFlag).Changed && f.flakeStatus == FlakeBehind {
+		var behindOrDiverged bool
+		if f.flakeStatus == FlakeBehind || f.flakeStatus == FlakeDiverged {
+			behindOrDiverged = true
+		}
+		if cmd.Flag(syncFlag).Changed && behindOrDiverged {
 			cmdr.Info.Println(app.Trans("fleek.pull"))
 			r, err := f.Repo()
 			cobra.CheckErr(err)
@@ -87,16 +78,20 @@ func NewRootCommand(version string) *cmdr.Command {
 
 	}
 	root.PersistentPostRun = func(cmd *cobra.Command, args []string) {
+		var verbose bool
+		if cmd.Flag("verbose").Changed {
+			verbose = true
+		}
 		repo, err := f.Repo()
 		cobra.CheckErr(err)
-		dirty, err := repo.Dirty()
+		dirty, err := repo.Dirty(verbose)
 		cobra.CheckErr(err)
 		if dirty {
 			f.flakeStatus = FlakeDirty
 			cmdr.Warning.Println(app.Trans("fleek.dirty"))
 		}
 
-		ahead, behind, err := f.repo.AheadBehind()
+		ahead, behind, err := f.repo.AheadBehind(verbose)
 		cobra.CheckErr(err)
 		if ahead {
 			f.flakeStatus = FlakeAhead
