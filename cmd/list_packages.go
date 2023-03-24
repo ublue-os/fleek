@@ -43,7 +43,7 @@ func list(cmd *cobra.Command, args []string) {
 	if f.config.Bling == "default" || f.config.Bling == "high" {
 
 		for _, pkg := range core.DefaultPackages {
-			f("\t%s\n", pkg)
+			fmt.Printf("\t%s\n", pkg)
 		}
 	}
 	for _, pkg := range core.LowPackages {
