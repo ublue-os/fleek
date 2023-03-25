@@ -4,3 +4,5 @@ fleek.1.*
 fleek.1.gz
 
 dist/
+.env
+man/
