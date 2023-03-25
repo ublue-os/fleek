@@ -1,7 +1,7 @@
 set dotenv-load
 CONTAINER_RUNNER := "podman"
 CONTAINER_BUILDER := "buildah"
-  
+
 
 default: build
 
@@ -58,4 +58,4 @@ mkman lang:
 
 push: man (cleanup "fleek" "fleek.1" "fleek.1.gz")
   {{CONTAINER_BUILDER}} build --no-cache -t docker.io/bketelsen/fleek .
-  #"$CONTAINER_RUNNER" push docker.io/bketelsen/fleek
+  {{CONTAINER_RUNNER}} push docker.io/bketelsen/fleek
