@@ -33,14 +33,14 @@ default-env:
   cp .env.template .env
 
 build:
-  . .env
+  source ./.env
   go build -a -tags netgo -ldflags '-w -extldflags "-static"'
 
 apply: 
   [ -e "./fleek" ] || just build
   ./fleek apply --push
 
-man: 
+man: build
   #!/bin/bash
   rm -rf man/
   for i in `find ./locales -type f`
