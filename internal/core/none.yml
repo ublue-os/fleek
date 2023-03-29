@@ -1,0 +1,4 @@
+name: None
+description: Bare-bones terminal experience
+packages:
+  - git

@@ -1,0 +1,6 @@
+{ pkgs, misc, ... }: {
+ home.sessionPath = [ {{ range .Config.Paths }}
+    "{{.}}"
+ {{- end}}
+ ];
+}

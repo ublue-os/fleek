@@ -33,8 +33,8 @@ default-env:
   cp .env.template .env
 
 build:
-  source ./.env
-  go build -a -tags netgo -ldflags '-w -extldflags "-static"'
+  @source ./.env
+  @go build -a -tags netgo -ldflags '-w -extldflags "-static"' github.com/ublue-os/fleek/cmd/fleek
 
 apply: 
   [ -e "./fleek" ] || just build
@@ -43,7 +43,7 @@ apply:
 man: build
   #!/bin/bash
   rm -rf man/
-  for i in `find ./locales -type f`
+  for i in `find ./cmd/fleek/locales -type f`
   do
       file=$(basename "$i" .yml)
       echo "$file"

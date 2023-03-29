@@ -1,0 +1,12 @@
+{ pkgs, misc, ... }: {
+   home.shellAliases = {
+    {{range $index, $element := .Config.Aliases}}
+    {{$index}} = "{{$element}}";
+    {{end}}
+    {{ if eq .Config.Bling "high" }}
+    cat = "bat";
+    catp = "bat -p";
+    cd = "z";
+    {{ end }}
+  };
+}

@@ -1,0 +1,24 @@
+{ pkgs, misc, ... }: {
+  {{- if eq .Config.Bling "high" }}
+  programs.exa.enableAliases = true;
+  programs.exa.extraOptions = [
+    "--group-directories-first"
+    "--header"
+  ];
+  programs.bat.config = {
+    theme = "TwoDark";
+  };
+  {{ end -}}
+# {{ .Config.Shell }}
+{{- if eq .Config.Shell "bash" }}
+  programs.bash.profileExtra = "[ -r ~/.nix-profile/etc/profile.d/nix.sh ] && source  ~/.nix-profile/etc/profile.d/nix.sh";
+  programs.bash.enableCompletion = true;
+  programs.bash.enableVteIntegration = true;
+  programs.bash.enable = true;
+{{ end -}}
+{{- if eq .Config.Shell "zsh" }}
+  programs.zsh.profileExtra = "[ -r ~/.nix-profile/etc/profile.d/nix.sh ] && source  ~/.nix-profile/etc/profile.d/nix.sh";
+  programs.zsh.enableCompletion = true;
+  programs.zsh.enable = true;
+{{ end -}}
+}

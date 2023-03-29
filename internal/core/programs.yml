@@ -1,0 +1,48 @@
+  - name: bat
+    description: | 
+      A cat(1) clone with wings. 
+
+      https://github.com/sharkdp/bat
+    aliases:
+    - key: catp
+      value: "bat -p"
+      description: bat --plain for unformatted cat
+    - key: cat
+      value: "bat"
+      description: replace cat with bat
+    config_lines:
+    - key: "programs.bat.config"
+      value: |
+        '{
+        theme = "TwoDark";
+        }'
+  - name: starship
+    description: | 
+      The minimal, blazing-fast, and infinitely customizable prompt for any shell!
+
+      https://starship.rs/
+  - name: direnv
+    description: | 
+      unclutter your .profile
+      direnv is an extension for your shell. It augments existing shells with a new feature that can load and unload environment variables depending on the current directory.
+
+      https://starship.rs/
+  - name: atuin
+    description:  | 
+      Magical Shell History
+      Atuin replaces your existing shell history with a SQLite database, and records additional context for your commands. Additionally, it provides optional and fully encrypted synchronisation of your history between machines, via an Atuin server.
+      Tip: toggle between directory, global and host history with CTRL-R
+      https://atuin.sh
+  - name: exa
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
+    config_lines:
+      - key: programs.exa.enableAliases
+        value:  true
+      - key: programs.exa.extraOptions
+        value:  |
+         [
+         "--group-directories-first" 
+         "--header"
+         ];

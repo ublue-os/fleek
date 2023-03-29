@@ -1,0 +1,62 @@
+  - name: htop
+    description: | 
+      A cat(1) clone with wings. 
+
+      https://github.com/sharkdp/bat
+  - name: git
+    description: | 
+      The minimal, blazing-fast, and infinitely customizable prompt for any shell!
+
+      https://starship.rs/
+  - name: github-cli
+    description: | 
+      unclutter your .profile
+      direnv is an extension for your shell. It augments existing shells with a new feature that can load and unload environment variables depending on the current directory.
+
+      https://starship.rs/
+  - name: glab
+    description:  | 
+      Magical Shell History
+      Atuin replaces your existing shell history with a SQLite database, and records additional context for your commands. Additionally, it provides optional and fully encrypted synchronisation of your history between machines, via an Atuin server.
+      Tip: toggle between directory, global and host history with CTRL-R
+      https://atuin.sh
+  - name: fzf
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
+  - name: ripgrep
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
+  - name: vscode
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
+  - name: lazygit
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
+  - name: yq
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
+  - name: jq
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
+  - name: neovim
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
+  - name: neofetch
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
+  - name: btop
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
+  - name: cheat
+    description: | 
+      A modern replacement for ‘ls’.
+      https://the.exa.website/
