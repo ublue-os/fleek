@@ -170,6 +170,6 @@ global:
   initGroup: "Getting Started"
   fleekGroup: "Configuration Commands"
   packageGroup: "Package Management Commands"
-  gitGroup: 
+  gitGroup: "Repository Management Commands"
 
   
