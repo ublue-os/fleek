@@ -1,62 +1,56 @@
   - name: htop
     description: | 
-      A cat(1) clone with wings. 
-
-      https://github.com/sharkdp/bat
+      an interactive process viewer
+      https://htop.dev/
   - name: git
     description: | 
-      The minimal, blazing-fast, and infinitely customizable prompt for any shell!
-
-      https://starship.rs/
+      Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
+      https://git-scm.com/
   - name: github-cli
     description: | 
-      unclutter your .profile
-      direnv is an extension for your shell. It augments existing shells with a new feature that can load and unload environment variables depending on the current directory.
-
-      https://starship.rs/
+      GitHub CLI brings GitHub to your terminal. Free and open source.
+      https://cli.github.com/
   - name: glab
     description:  | 
-      Magical Shell History
-      Atuin replaces your existing shell history with a SQLite database, and records additional context for your commands. Additionally, it provides optional and fully encrypted synchronisation of your history between machines, via an Atuin server.
-      Tip: toggle between directory, global and host history with CTRL-R
-      https://atuin.sh
+      GitLab cli
+      https://docs.gitlab.com/ee/integration/glab/
   - name: fzf
     description: | 
-      A modern replacement for ‘ls’.
-      https://the.exa.website/
+      A command-line fuzzy finder
+      https://github.com/junegunn/fzf
   - name: ripgrep
     description: | 
-      A modern replacement for ‘ls’.
-      https://the.exa.website/
+      ripgrep recursively searches directories for a regex pattern while respecting your gitignore
+      https://github.com/BurntSushi/ripgrep
   - name: vscode
     description: | 
-      A modern replacement for ‘ls’.
-      https://the.exa.website/
+      Code editing. Redefined.
+      https://code.visualstudio.com/
   - name: lazygit
     description: | 
-      A modern replacement for ‘ls’.
-      https://the.exa.website/
+      simple terminal UI for git commands
+      https://github.com/jesseduffield/lazygit
   - name: yq
     description: | 
-      A modern replacement for ‘ls’.
-      https://the.exa.website/
+      a lightweight and portable command-line YAML processor. 
+      https://mikefarah.gitbook.io/yq/
   - name: jq
     description: | 
-      A modern replacement for ‘ls’.
-      https://the.exa.website/
+      jq is a lightweight and flexible command-line JSON processor.
+      https://stedolan.github.io/jq/
   - name: neovim
     description: | 
-      A modern replacement for ‘ls’.
-      https://the.exa.website/
+      hyperextensible Vim-based text editor
+      http://neovim.io/
   - name: neofetch
     description: | 
-      A modern replacement for ‘ls’.
-      https://the.exa.website/
+      A command-line system information tool written in bash 3.2+
+      https://github.com/dylanaraps/neofetch
   - name: btop
     description: | 
-      A modern replacement for ‘ls’.
-      https://the.exa.website/
+      A monitor of resources
+      https://github.com/aristocratos/btop
   - name: cheat
     description: | 
-      A modern replacement for ‘ls’.
-      https://the.exa.website/
+      cheat allows you to create and view interactive cheatsheets on the command-line. It was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.
+      https://github.com/cheat/cheat
