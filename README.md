@@ -41,7 +41,13 @@ Standing on the shoulders of giants:
 
 This flake template was the thing that got everything started!
 - [flake template](https://github.com/Misterio77/nix-starter-configs)
+- [template license](https://github.com/Misterio77/nix-starter-configs/blob/main/LICENSE)
 
-In my third rewrite, I looked at devbox and loved how they organized everything. I *borrowed* a LOT from this.
-
+In my third rewrite, I looked at devbox and loved how they organized everything. I *borrowed* a LOT from this. And by *borrowed* I mean outright copy & pasted. Many supporting functions in this code were written by the JetPack team, and very lightly modified by me.
 - [devbox](https://github.com/jetpack-io/devbox)
+- [devbox license](https://github.com/jetpack-io/devbox/blob/main/LICENSE)
+
+None of this is possible without Nix and Nix Home Manager:
+
+- [nix](https://nixos.org/)
+- [home manager](https://github.com/nix-community/home-manager)
