@@ -4,8 +4,6 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate
-    - go generate ./...
 builds:
   - env:
       - CGO_ENABLED=0
@@ -20,6 +18,8 @@ builds:
     flags:
       - -tags=netgo
       - -a
+    main: ./cmd/fleek/main.go
+
 
 archives:
   - format: tar.gz
