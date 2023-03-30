@@ -33,8 +33,8 @@ default-env:
   cp .env.template .env
 
 build:
-  source ./.env
-  go build -a -tags netgo -ldflags '-w -extldflags "-static"'
+  @source ./.env
+  @go build -a -tags netgo -ldflags '-w -extldflags "-static"' github.com/ublue-os/fleek/cmd/fleek
 
 apply: 
   [ -e "./fleek" ] || just build

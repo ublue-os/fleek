@@ -1,0 +1,56 @@
+  - name: htop
+    description: | 
+      an interactive process viewer
+      https://htop.dev/
+  - name: git
+    description: | 
+      Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
+      https://git-scm.com/
+  - name: github-cli
+    description: | 
+      GitHub CLI brings GitHub to your terminal. Free and open source.
+      https://cli.github.com/
+  - name: glab
+    description:  | 
+      GitLab cli
+      https://docs.gitlab.com/ee/integration/glab/
+  - name: fzf
+    description: | 
+      A command-line fuzzy finder
+      https://github.com/junegunn/fzf
+  - name: ripgrep
+    description: | 
+      ripgrep recursively searches directories for a regex pattern while respecting your gitignore
+      https://github.com/BurntSushi/ripgrep
+  - name: vscode
+    description: | 
+      Code editing. Redefined.
+      https://code.visualstudio.com/
+  - name: lazygit
+    description: | 
+      simple terminal UI for git commands
+      https://github.com/jesseduffield/lazygit
+  - name: yq
+    description: | 
+      a lightweight and portable command-line YAML processor. 
+      https://mikefarah.gitbook.io/yq/
+  - name: jq
+    description: | 
+      jq is a lightweight and flexible command-line JSON processor.
+      https://stedolan.github.io/jq/
+  - name: neovim
+    description: | 
+      hyperextensible Vim-based text editor
+      http://neovim.io/
+  - name: neofetch
+    description: | 
+      A command-line system information tool written in bash 3.2+
+      https://github.com/dylanaraps/neofetch
+  - name: btop
+    description: | 
+      A monitor of resources
+      https://github.com/aristocratos/btop
+  - name: cheat
+    description: | 
+      cheat allows you to create and view interactive cheatsheets on the command-line. It was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.
+      https://github.com/cheat/cheat

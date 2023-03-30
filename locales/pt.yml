@@ -122,3 +122,7 @@ update:
   apply: "Aplicando atualizações."
   needApply: "Execute o commando `apply` para aplicar estas atualizações"
   done: "Atualização completa."
+show:
+  use: "show"
+  long: "Show packages, programs, and aliases added in your current configuration level."
+  short: "Show packages, programs, and aliases added in your current configuration level."
