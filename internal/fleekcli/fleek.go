@@ -101,7 +101,7 @@ func initFleek(verbose bool) (*Fleek, error) {
 			if err != nil {
 				debug.Log("config validation error: %s", err)
 				if errors.Is(err, core.ErrMissingFlakeDir) {
-					ux.Info.Println("Migrating .fleek.yml to current version")
+					ux.Info.Println(app.Trans("fleek.migrating"))
 					// get previous default flake location
 
 					defaultFlakeDir := filepath.Join(".config", "home-manager")
@@ -113,7 +113,7 @@ func initFleek(verbose bool) (*Fleek, error) {
 						debug.Log("error saving fixed config: %s", err)
 						return f, err2
 					}
-					ux.Success.Println("Migrated .fleek.yml ")
+					ux.Success.Println(app.Trans("fleek.migrated"))
 
 				} else {
 					debug.Log("error validating config: %s", err)

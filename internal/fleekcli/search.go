@@ -61,7 +61,7 @@ func search(cmd *cobra.Command, args []string) error {
 	pc, err := cache.New()
 	if err != nil {
 		spinner.Stop()
-		ux.Error.Println("Error reading package cache")
+		ux.Error.Println(app.Trans("search.cacheError"))
 		return err
 	}
 	spinner.Success()
@@ -73,7 +73,7 @@ func search(cmd *cobra.Command, args []string) error {
 		err = pc.Update()
 		if err != nil {
 			spinner.Stop()
-			ux.Error.Println("Error updating package cache")
+			ux.Error.Println(app.Trans("search.cacheError"))
 			return err
 		}
 		spinner.Success()
@@ -126,7 +126,7 @@ func search(cmd *cobra.Command, args []string) error {
 	if len(exactHits) > 0 {
 		for _, h := range exactHits {
 			// TODO: i18n
-			ux.Info.Printfln("Try `fleek add %s` to install %s", h.Name, h.Name)
+			ux.Info.Printfln(app.Trans("search.try", h.Name, h.Name))
 		}
 	}
 
@@ -137,7 +137,7 @@ func search(cmd *cobra.Command, args []string) error {
 func toTableDataWithHeader(pp []cache.Package) pterm.TableData {
 	var table pterm.TableData
 
-	header := []string{"Package", "Version", "Description"}
+	header := []string{app.Trans("search.package"), app.Trans("search.version"), app.Trans("search.description")}
 	table = append(table, header)
 
 	for _, p := range pp {

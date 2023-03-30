@@ -28,6 +28,8 @@ fleek:
   aheadStatus: "Local fleek repository is ahead of remote. Run `fleek sync` to push changes."
   behindStatus: "Local fleek repository is behind remote. Run `fleek sync` to pull changes."
   divergedStatus: "Both local and remote repositories have changes. Run `fleek sync` to reconcile changes."
+  migrating: "Migrating .fleek.yml to current version"
+  migrated: "Migrated .fleek.yml"
 eject:
   use: "eject"
   long: "Eject writes your current configuration to disk and removes Fleek's templates.\n\nChanges to .fleek.yml will be ignored; you will modify your Nix configurations directly."
@@ -60,6 +62,7 @@ init:
   short: "Initialize fleek"
   forceFlag: "force"
   forceFlagDescription: "overwrite existing configuration files"
+  flakeLocation: "Flake Location"
   start: "initializing fleek"
   apply: "apply configuration immediately after cloning"
   clone: "address of existing fleek repository"
@@ -70,6 +73,9 @@ init:
   complete: "Done. \n\nEdit ~/.fleek.yml to your taste and run `fleek apply`"
   locationFlag: "location"
   locationFlagDescription: "location of fleek repository, relative to home"
+  gitEmail: "Git Config - enter your email address"
+  gitName: "Git Config - enter your full name"
+  newSystem: "New System: %s@%s"
 add:
   use: "add [package] [package] ..."
   long: "Add a new package or program to your configuration.\n Use the `--program` flag to specify a program which can also be configured by nix."
@@ -98,6 +104,9 @@ remoteshow:
   use: "show"
   long: "Show the remote git repository"
   short: "Show the remote git repository"
+  configured: "Fleek Configured: "
+  actual: "Git Configured: "
+  done: "Command completed."
 remoteadd:
   use: "add"
   long: "Configure fleek to use a remote git repository"
@@ -137,6 +146,7 @@ search:
   exactMatches: "Exact Matches"
   fuzzyMatches: "Fuzzy Matches"
   openingCache: "Reading package cache"
+  cacheError: "Error reading package cache"
   noResults: "No matching packages found"
   noResultsExact: "No matching packages found, try `--fuzzy`"
   updatingCache: "Updating package cache"
@@ -145,10 +155,18 @@ search:
   fuzzyFlag: "fuzzy"
   fuzzyFlagDescription: "search name and description"
   fuzzyEnabled: "Fuzzy search enabled"
+  try: "Try `fleek add %s` to install %s"
+  package: "Package"
+  version: "Version"
+  description: "Description"
 global:
   completed: "Operation completed successfully"
   failed: "Operation failed"
   applying: "Applying configuration"
   commit: "Commiting git changes"
+  initGroup: "Getting Started"
+  fleekGroup: "Configuration Commands"
+  packageGroup: "Package Management Commands"
+  gitGroup: 
 
   

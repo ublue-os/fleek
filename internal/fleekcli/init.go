@@ -64,7 +64,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 	}
 	f.flakeLocation = f.config.UserFlakeDir()
 	if verbose {
-		ux.Info.Println("Flake Location", f.flakeLocation)
+		ux.Info.Println(app.Trans("init.flakeLocation"), f.flakeLocation)
 	}
 	if cmd.Flag(app.Trans("init.cloneFlag")).Changed {
 		upstream = cmd.Flag(app.Trans("init.cloneFlag")).Value.String()
@@ -128,12 +128,12 @@ func initialize(cmd *cobra.Command, args []string) error {
 						// make a new system
 
 						// prompt for git configuration
-						email, err := cmdr.Prompt.Show("Git Config - enter your email address")
+						email, err := cmdr.Prompt.Show(app.Trans("init.gitEmail"))
 						if err != nil {
 							return err
 						}
 
-						name, err := cmdr.Prompt.Show("Git Config - enter your full name")
+						name, err := cmdr.Prompt.Show(app.Trans("init.gitName"))
 						if err != nil {
 							return err
 						}
@@ -143,7 +143,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 						if err != nil {
 							return err
 						}
-						ux.Info.Printfln("New System: %s@%s", sys.Username, sys.Hostname)
+						ux.Info.Printfln(app.Trans("init.newSystem", sys.Username, sys.Hostname))
 						// get current config
 						includeSystems = true
 						// append new(current) system
@@ -192,12 +192,12 @@ func initialize(cmd *cobra.Command, args []string) error {
 
 	ok := nix.CheckNix()
 	if ok {
-		email, err := cmdr.Prompt.Show("Git Config - enter your email address")
+		email, err := cmdr.Prompt.Show(app.Trans("init.gitEmail"))
 		if err != nil {
 			return err
 		}
 
-		name, err := cmdr.Prompt.Show("Git Config - enter your full name")
+		name, err := cmdr.Prompt.Show(app.Trans("init.gitName"))
 		if err != nil {
 			return err
 		}

@@ -39,7 +39,7 @@ func remove(cmd *cobra.Command, args []string) error {
 	}
 	ux.Description.Println(cmd.Short)
 	var apply bool
-	if cmd.Flag("apply").Changed {
+	if cmd.Flag(app.Trans("remove.applyFlag")).Changed {
 		apply = true
 	}
 

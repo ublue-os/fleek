@@ -5,7 +5,7 @@ package fleekcli
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/vanilla-os/orchid/cmdr"
+	"github.com/ublue-os/fleek/internal/ux"
 )
 
 func RepoShowCmd() *cobra.Command {
@@ -22,11 +22,19 @@ func RepoShowCmd() *cobra.Command {
 
 // initCmd represents the init command
 func show(cmd *cobra.Command, args []string) error {
+	ux.Description.Println(cmd.Short)
+
 	repo, err := f.Repo()
-	cobra.CheckErr(err)
+	if err != nil {
+		return err
+	}
 	urls, err := repo.Remote()
-	cobra.CheckErr(err)
-	cmdr.Info.Println("configured:", f.config.Repository)
-	cmdr.Info.Println("actual:", urls)
+	if err != nil {
+		return err
+	}
+	ux.Info.Println(app.Trans("remoteshow.configured"), f.config.Repository)
+	ux.Info.Println(app.Trans("remoteshow.actual"), urls)
+	ux.Description.Println(app.Trans("remoteshow.done"))
+
 	return nil
 }

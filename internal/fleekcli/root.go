@@ -71,20 +71,20 @@ func RootCmd() *cobra.Command {
 	}
 	initGroup := &cobra.Group{
 		ID:    "init",
-		Title: "Getting Started",
+		Title: app.Trans("global.initGroup"),
 	}
 	fleekGroup := &cobra.Group{
 		ID:    "fleek",
-		Title: "Configuration Commands",
+		Title: app.Trans("global.fleekGroup"),
 	}
 
 	packageGroup := &cobra.Group{
 		ID:    "package",
-		Title: "Package Management Commands",
+		Title: app.Trans("global.packageGroup"),
 	}
 	gitGroup := &cobra.Group{
 		ID:    "gitgroup",
-		Title: "Git Commands",
+		Title: app.Trans("global.gitGroup"),
 	}
 	command.AddGroup(initGroup, packageGroup, gitGroup, fleekGroup)
 	addCmd := AddCommand()

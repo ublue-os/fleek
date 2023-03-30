@@ -58,9 +58,9 @@ func showFleek(cmd *cobra.Command) error {
 	}
 
 	ux.ThreeColumnList(
-		"["+b.Name+"] Packages", packages,
-		"["+b.Name+"] Managed Packages", programs,
-		"User Packages", f.config.Packages,
+		"["+b.Name+"] "+app.Trans("show.packages"), packages,
+		"["+b.Name+"] "+app.Trans("show.managedPackages"), programs,
+		app.Trans("show.userPackages"), f.config.Packages,
 	)
 	return nil
 }
