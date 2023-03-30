@@ -117,6 +117,9 @@ func RootCmd() *cobra.Command {
 	ejectCmd := EjectCommand()
 	ejectCmd.GroupID = fleekGroup.ID
 
+	searchCmd := SearchCommand()
+	searchCmd.GroupID = packageGroup.ID
+
 	command.AddCommand(showCmd)
 	command.AddCommand(syncCmd)
 	command.AddCommand(addCmd)
@@ -126,6 +129,7 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(repoCmd)
 	command.AddCommand(initCmd)
 	command.AddCommand(ejectCmd)
+	command.AddCommand(searchCmd)
 
 	command.PersistentFlags().BoolVarP(
 		&flags.quiet, app.Trans("fleek.quietFlag"), "q", false, app.Trans("fleek.quietFlagDescription"))

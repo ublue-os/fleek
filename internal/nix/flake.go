@@ -55,6 +55,17 @@ func (f *Flake) runNix(cmd string, cmdLine []string) ([]byte, error) {
 
 }
 
+func (f *Flake) PackageIndex() ([]byte, error) {
+	// nix search nixpkgs --json
+	indexCmdLine := []string{"search", "nixpkgs", "--json"}
+	out, err := f.runNix(nixbin, indexCmdLine)
+	if err != nil {
+		return out, fmt.Errorf("nix search: %s", err)
+	}
+
+	return out, nil
+}
+
 // Exist verifies that the Flake directory exists
 func (f *Flake) Exists() (bool, error) {
 	_, err := os.Stat(f.RootDir)

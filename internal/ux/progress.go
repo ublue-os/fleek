@@ -6,7 +6,6 @@ import (
 
 func Progress() *pterm.ProgressbarPrinter {
 	progressBar := pterm.DefaultProgressbar
-	// Replace the InfoPrinter with a custom "NOCHG" one
 	return &progressBar
 }
 

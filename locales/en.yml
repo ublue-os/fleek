@@ -130,7 +130,21 @@ sync:
   flakeStatus: "Flake Status: "
   gettingRemoteStatus: "Getting git remote status"
   gettingLocalStatus: "Getting git local status"
-
+search:
+  use: "search <package?"
+  long: "Search the package repository"
+  short: "Search the package repository"
+  exactMatches: "Exact Matches"
+  fuzzyMatches: "Fuzzy Matches"
+  openingCache: "Reading package cache"
+  noResults: "No matching packages found"
+  noResultsExact: "No matching packages found, try `--fuzzy`"
+  updatingCache: "Updating package cache"
+  updateFlag: "update"
+  updateFlagDescription: "update the package cache"
+  fuzzyFlag: "fuzzy"
+  fuzzyFlagDescription: "search name and description"
+  fuzzyEnabled: "Fuzzy search enabled"
 global:
   completed: "Operation completed successfully"
   failed: "Operation failed"

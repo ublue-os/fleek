@@ -110,3 +110,7 @@ func UserShell() (string, error) {
 	return shell, nil
 
 }
+
+func MkdirAll(path string) error {
+	return os.Mkdir(path, 0755)
+}
