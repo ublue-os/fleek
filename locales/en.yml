@@ -127,6 +127,9 @@ show:
   use: "show"
   long: "Show packages, managed packages, and aliases added in your current configuration level."
   short: "Show current configuration details"
+  packages: "Packages"
+  managedPackages: "Managed Packages"
+  userPackages: "User Packages"
 sync:
   use: "sync"
   long: "Synchronize local configuration with remote git repository"

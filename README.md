@@ -39,4 +39,9 @@ Next you'll need `fleek`. Download from the releases link.
 
 Standing on the shoulders of giants:
 
+This flake template was the thing that got everything started!
 - [flake template](https://github.com/Misterio77/nix-starter-configs)
+
+In my third rewrite, I looked at devbox and loved how they organized everything. I *borrowed* a LOT from this.
+
+- [devbox](https://github.com/jetpack-io/devbox)
