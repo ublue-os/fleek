@@ -3,6 +3,7 @@ package core
 import (
 	_ "embed"
 
+	"github.com/ublue-os/fleek/internal/debug"
 	"gopkg.in/yaml.v3"
 )
 
@@ -49,6 +50,7 @@ func loadBling(bytes []byte) (*Bling, error) {
 	}
 	for _, prog := range progs {
 		b.ProgramMap[prog.Name] = prog
+		debug.Log("%v", prog)
 	}
 	return &b, nil
 }

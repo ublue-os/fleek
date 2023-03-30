@@ -26,7 +26,7 @@ type Program struct {
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 
-	ConfigLines []ConfigLine `yaml:",flow"`
+	ConfigLines []ConfigLine `yaml:"config_lines,flow"`
 	Aliases     []Alias      `yaml:",flow"`
 }
 

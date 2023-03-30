@@ -12,10 +12,10 @@
       description: replace cat with bat
     config_lines:
     - key: "programs.bat.config"
-      value: |
-        '{
-        theme = "TwoDark";
-        }'
+      value: |-
+        {
+          theme = "TwoDark";
+        }
   - name: starship
     description: | 
       The minimal, blazing-fast, and infinitely customizable prompt for any shell!
@@ -41,8 +41,8 @@
       - key: programs.exa.enableAliases
         value:  true
       - key: programs.exa.extraOptions
-        value:  |
+        value:  |-
          [
-         "--group-directories-first" 
-         "--header"
-         ];
+            "--group-directories-first"
+            "--header"
+         ]

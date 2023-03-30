@@ -4,24 +4,19 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"html/template"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"text/template"
 
 	"github.com/ublue-os/fleek/internal/core"
 )
 
 type Data struct {
-	Config          *core.Config
-	UserName        string
-	Home            string
-	LowPackages     []string
-	DefaultPackages []string
-	HighPackages    []string
-	LowPrograms     []string
-	DefaultPrograms []string
-	HighPrograms    []string
+	Config   *core.Config
+	UserName string
+	Home     string
+	Bling    *core.Bling
 }
 
 type Flake struct {
@@ -33,10 +28,12 @@ type Flake struct {
 const nixbin = "nix"
 
 func NewFlake(root string, config *core.Config) (*Flake, error) {
+
 	t, err := template.ParseFS(content, "*.tmpl")
 	if err != nil {
 		return nil, fmt.Errorf("parsing templates: %s", err)
 	}
+
 	f := &Flake{
 		Templates: t,
 		Config:    config,
@@ -74,15 +71,27 @@ func (f *Flake) Init(force bool) error {
 	if err != nil {
 		return err
 	}
+	var bling *core.Bling
+
+	switch f.Config.Bling {
+	case "high":
+		bling, err = core.HighBling()
+	case "default":
+		bling, err = core.DefaultBling()
+	case "low":
+		bling, err = core.LowBling()
+	case "none":
+		bling, err = core.NoBling()
+	default:
+		bling, err = core.DefaultBling()
+	}
+	if err != nil {
+		return err
+	}
 
 	data := Data{
-		Config:          f.Config,
-		LowPackages:     core.LowPackages,
-		DefaultPackages: core.DefaultPackages,
-		HighPackages:    core.HighPackages,
-		LowPrograms:     core.LowPrograms,
-		DefaultPrograms: core.DefaultPrograms,
-		HighPrograms:    core.HighPrograms,
+		Config: f.Config,
+		Bling:  bling,
 	}
 
 	err = f.writeFile("flake.nix", data, force)
@@ -122,17 +131,28 @@ func (f *Flake) Init(force bool) error {
 
 // Write writes the applied flake configuration
 func (f *Flake) Write(includeSystems bool) error {
-
-	data := Data{
-		Config:          f.Config,
-		LowPackages:     core.LowPackages,
-		DefaultPackages: core.DefaultPackages,
-		HighPackages:    core.HighPackages,
-		LowPrograms:     core.LowPrograms,
-		DefaultPrograms: core.DefaultPrograms,
-		HighPrograms:    core.HighPrograms,
+	var bling *core.Bling
+	var err error
+	switch f.Config.Bling {
+	case "high":
+		bling, err = core.HighBling()
+	case "default":
+		bling, err = core.DefaultBling()
+	case "low":
+		bling, err = core.LowBling()
+	case "none":
+		bling, err = core.NoBling()
+	default:
+		bling, err = core.DefaultBling()
 	}
-	err := f.writeFile("flake.nix", data, true)
+	if err != nil {
+		return err
+	}
+	data := Data{
+		Config: f.Config,
+		Bling:  bling,
+	}
+	err = f.writeFile("flake.nix", data, true)
 	if err != nil {
 		return err
 	}

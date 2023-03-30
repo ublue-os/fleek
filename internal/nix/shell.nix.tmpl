@@ -1,14 +1,10 @@
 { pkgs, misc, ... }: {
-  {{- if eq .Config.Bling "high" }}
-  programs.exa.enableAliases = true;
-  programs.exa.extraOptions = [
-    "--group-directories-first"
-    "--header"
-  ];
-  programs.bat.config = {
-    theme = "TwoDark";
-  };
+{{range $index, $element := .Bling.ProgramMap}} 
+# {{ $index }}
+{{range  $v := $element.ConfigLines}} 
+  {{ $v.Key }} = {{ $v.Value  }};
   {{ end -}}
+{{ end -}}
 # {{ .Config.Shell }}
 {{- if eq .Config.Shell "bash" }}
   programs.bash.profileExtra = "[ -r ~/.nix-profile/etc/profile.d/nix.sh ] && source  ~/.nix-profile/etc/profile.d/nix.sh";

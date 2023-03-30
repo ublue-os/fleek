@@ -18,20 +18,11 @@
   # programs are installed and configuration applied to dotfiles
   home.packages = [
     # user selected packages
-  {{- range .Config.Packages }}
+    {{- range .Config.Packages }}
     pkgs.{{ . }}{{ end }}
-    {{- range .LowPackages }}
-    pkgs.{{ . }}{{ end }}
-    {{ if eq .Config.Bling "default" -}}
-    {{- range .DefaultPackages }}
-    pkgs.{{ . }}{{ end }}
-    {{- end }}
-    {{- if eq .Config.Bling "high" }}
-    {{- range .DefaultPackages }}
-    pkgs.{{ . }}{{end}}
-    {{- range .HighPackages }}
-    pkgs.{{ . }}{{end}}
-    {{ end -}}
+    # Fleek Bling
+  {{- range $p, $pkg := .Bling.PackageMap }}
+    pkgs.{{ $p }}{{ end }}
     # extra until this works, remove later :TODO:
     pkgs.go
     pkgs.gcc
