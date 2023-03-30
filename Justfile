@@ -43,7 +43,7 @@ apply:
 man: build
   #!/bin/bash
   rm -rf man/
-  for i in `find ./cmd/fleek/locales -type f`
+  for i in `find ./locales -type f`
   do
       file=$(basename "$i" .yml)
       echo "$file"
