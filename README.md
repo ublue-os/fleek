@@ -43,7 +43,11 @@ echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 ```
 Next you'll need `fleek`. Download from the releases link and move it somewhere in your $PATH.
 
-Finally, run `fleek init`. This will create your configuration file and symlink it to `$HOME/.fleek.yml`. Open it with your favorite editor and take a look. Here's what mine looks like:
+Finally, run `fleek init`. This will create your configuration file and symlink it to `$HOME/.fleek.yml`. Open it with your favorite editor and take a look. 
+
+![fleek-init.gif](fleek-init.gif)
+
+Here's what mine looks like:
 
 ```
 ───────┬───────────────────────────────────────────────────
@@ -104,6 +108,8 @@ Line 25: `systems:` These are added by `fleek` when you run `fleek init`, you sh
 Now that you've seen some of the possibile changes you can make, edit your `~/.fleek.yml` file and save it.
 
 To apply your changes run `fleek apply`. `fleek` spins for a bit, and makes all the changes you requested. You may need to close and re-open your terminal application to see some of the changes, particularly if you add or remove fonts.
+
+![fleek-add.gif](fleek-add.gif)
 
 That's the quick start! From here, you can try `fleek add` to add packages from the CLI, `fleek search` to search for available packages, and explore `fleek remote` to share the same `fleek` configurations with multiple computers.
 
