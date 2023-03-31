@@ -4,8 +4,11 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package fleekcli
 
 import (
+	"errors"
+
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/internal/debug"
+	"github.com/ublue-os/fleek/internal/nix"
 	"github.com/ublue-os/fleek/internal/ux"
 )
 
@@ -101,7 +104,12 @@ func remove(cmd *cobra.Command, args []string) error {
 		out, err = flake.Apply()
 		if err != nil {
 			spinner.Fail()
-			debug.Log("flake apply error: %s", err)
+			ux.Error.Println(string(out))
+
+			if errors.Is(err, nix.ErrPackageConflict) {
+				ux.Fatal.Println(app.Trans("global.errConflict"))
+			}
+
 			return err
 		}
 		spinner.Success()

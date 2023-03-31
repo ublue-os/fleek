@@ -1,6 +1,7 @@
 package nix
 
 import (
+	"bytes"
 	"embed"
 	"errors"
 	"fmt"
@@ -11,6 +12,8 @@ import (
 
 	"github.com/ublue-os/fleek/internal/core"
 )
+
+var ErrPackageConflict = errors.New("package exists in fleek and nix profile")
 
 type Data struct {
 	Config   *core.Config
@@ -208,6 +211,12 @@ func (f *Flake) Apply() ([]byte, error) {
 	applyCmdLine := []string{"run", "--impure", "home-manager/master", "--", "-b", "bak", "switch", "--flake", ".#" + user + "@" + host}
 	out, err := f.runNix(nixbin, applyCmdLine)
 	if err != nil {
+		if bytes.Contains(out, []byte("priority")) {
+			return out, ErrPackageConflict
+		}
+		if bytes.Contains(out, []byte("conflict")) {
+			return out, ErrPackageConflict
+		}
 		return out, fmt.Errorf("nix run: %s", err)
 	}
 
