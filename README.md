@@ -113,6 +113,48 @@ To apply your changes run `fleek apply`. `fleek` spins for a bit, and makes all 
 
 That's the quick start! From here, you can try `fleek add` to add packages from the CLI, `fleek search` to search for available packages, and explore `fleek remote` to share the same `fleek` configurations with multiple computers.
 
+### Behind the Scenes
+
+Fancy animated gifs and long-winded README's are great, but what really happens when you run `fleek apply` the first time? I'm glad you asked...
+
+1. `fleek` creates a [nix home-manager]() configuration based on the [templates here](https://github.com/ublue-os/fleek/blob/main/internal/nix/home.nix.tmpl). 
+1. `fleek` compiles the templates and writes them to disk at `~/.config/home-manager` by default. 
+1. `fleek` calls the `nix` command, which does `nix` things to download and install all the packages in your `.fleek.yml` file.
+1. The libraries and binaries you specify get installed in the `/nix` folder, and symlinked into your very own personal `nix` profile. This is stored in your $HOME directory under `~/.nix-profile`.
+1. The `home-manager` command in the configuration assembles shell scripts and configurations for you based on the shell specified in your `.fleek.yml` file.
+1. Your existing shell configuration files get renamed with a `.bak` extension, so you can go back to your business if `fleek` isn't for you.
+1. New configurations are written, either `.zshrc` or `.bashrc`, and these configuration files add your `~/.nix-profile` and the packages you've installed to your $PATH
+
+Fleek's goal is to give you 90% of the power of a fully customized, hand-written, artisinally crafted `home-manager` configuration -- without forcing you to learn `nix`, which can be (ok, it IS) intimidating.
+
+You may like `fleek` and use it on one or more of your machines to install the things you need and use every day. 
+
+You might eventually be curious about how it all works. If that's the case you can always look at the nix flake that's generated for you and see what's going on behind the scenes. Cool! There's a lot you can do with `nix` that `fleek` doesn't even attempt.
+
+Or you might be a practical pragmatist sort of computer user and not care about what's happening behind the curtain. That's fine with `fleek`. We're just here to help you go from zero to productive faster, more reliably, without a bunch of fuss.
+
+## Motivation
+
+`fleek` is born out of frustration. 
+
+It's annoying setting up a new computer just right. It's annoying having completely different configurations and tools each place I need to work. It's nearly impossible to configure a Mac and an Ubuntu server to have the same look & feel, much less the same tools. 
+
+It's a huge time sink spending time configuring everything, and even worse when you try to do it in a way you can share it between computers.
+
+It wasn't until I was talking with Jorge Castro and he pointed out how complex my `home-manager` config was compared to a simple YAML file. 
+
+![nixmeup](nixmeup.png)
+
+Jorge is a smart dude. That night the first bits of `fleek` were written.
+
+Within 24 hours I took the plunge and dog-fooded `fleek` on my development laptop. That was a great moment. A day later I added `fleek remote` commands to push my configs to GitHub, then added the code to detect your arch & os and change the flake accordingly.
+
+I spent the next two weeks tweaking the user experience and testing over and over. Countless virtual machines were provisioned and destroyed. 
+
+*countless*
+
+And now we're here. `fleek` is ready for a broader audience than me and Jorge - who is the biggest inspriation for all the features `fleek` has, and maybe just as importantly, doesn't have.
+
 ## Shoulders
 
 Standing on the shoulders of giants:
