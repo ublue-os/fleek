@@ -4,6 +4,7 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package fleekcli
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -91,8 +92,31 @@ func initialize(cmd *cobra.Command, args []string) error {
 		if verbose {
 			ux.Info.Println(string(out))
 		}
-
 		spinner.Success()
+
+		// prompt for git configuration
+		email, err := cmdr.Prompt.Show(app.Trans("init.gitEmail"))
+		if err != nil {
+			return err
+		}
+
+		name, err := cmdr.Prompt.Show(app.Trans("init.gitName"))
+		if err != nil {
+			return err
+		}
+		out, err = r.LocalConfig(name, email)
+		if err != nil {
+			spinner.Fail()
+			return err
+		}
+		if verbose {
+			ux.Info.Println(string(out))
+		}
+		spinner, err = ux.Spinner().Start(app.Trans("init.cloning"))
+		if err != nil {
+			spinner.Fail()
+			return err
+		}
 		if cmd.Flag(app.Trans("init.applyFlag")).Changed {
 			if err != nil {
 				return err
@@ -127,17 +151,6 @@ func initialize(cmd *cobra.Command, args []string) error {
 
 						// make a new system
 
-						// prompt for git configuration
-						email, err := cmdr.Prompt.Show(app.Trans("init.gitEmail"))
-						if err != nil {
-							return err
-						}
-
-						name, err := cmdr.Prompt.Show(app.Trans("init.gitName"))
-						if err != nil {
-							return err
-						}
-
 						// create new system struct
 						sys, err := core.NewSystem(email, name)
 						if err != nil {
@@ -168,6 +181,11 @@ func initialize(cmd *cobra.Command, args []string) error {
 			ux.Info.Println(app.Trans("apply.applyingConfig"))
 			out, err := f.flake.Apply()
 			if err != nil {
+				ux.Error.Println(string(out))
+
+				if errors.Is(err, nix.ErrPackageConflict) {
+					ux.Fatal.Println(app.Trans("global.errConflict"))
+				}
 				spinner.Fail()
 				return err
 			}
