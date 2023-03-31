@@ -89,7 +89,11 @@ checksum:
   name_template: 'checksums.txt'
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
-
+dockers:
+  -
+    image_templates:
+    - "bketelsen/fleek"
+    use: podman
 
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.
