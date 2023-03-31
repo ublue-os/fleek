@@ -38,7 +38,7 @@ lint:
   golangci-lint run
 
 snapshot:
-  goreleaser --clean --snapshot
+  goreleaser release --clean --snapshot
 
 build:
   @source ./.env
