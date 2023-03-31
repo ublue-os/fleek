@@ -33,7 +33,7 @@ func loadBling(bytes []byte) (*Bling, error) {
 
 	err := yaml.Unmarshal(bytes, &b)
 	if err != nil {
-		return &b, nil
+		return &b, err
 	}
 	progs, err := LoadPrograms()
 	if err != nil {

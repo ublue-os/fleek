@@ -22,7 +22,7 @@ func LoadPackages() ([]*Package, error) {
 	var pp []*Package
 	err := yaml.Unmarshal(packages, &pp)
 	if err != nil {
-		return pp, nil
+		return pp, err
 	}
 	return pp, nil
 }

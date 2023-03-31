@@ -15,7 +15,7 @@ func LoadPrograms() ([]*Program, error) {
 	var pp []*Program
 	err := yaml.Unmarshal(programs, &pp)
 	if err != nil {
-		return pp, nil
+		return pp, err
 	}
 	return pp, nil
 }

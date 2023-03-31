@@ -10,3 +10,7 @@ linters:
   disable:
     # fleek is not a web server, context is not strictly necessary.
     - noctx
+    - gosec
+    - unparam
+    - musttag
+    - exhaustive

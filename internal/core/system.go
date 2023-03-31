@@ -56,15 +56,15 @@ func Hostname() (string, error) {
 func CurrentSystem() (*System, error) {
 	conf, err := ReadConfig()
 	if err != nil {
-		return nil, fmt.Errorf("reading config: %s", err)
+		return nil, fmt.Errorf("reading config: %w", err)
 	}
 	host, err := Hostname()
 	if err != nil {
-		return nil, fmt.Errorf("getting hostname: %s", err)
+		return nil, fmt.Errorf("getting hostname: %w", err)
 	}
 	user, err := Username()
 	if err != nil {
-		return nil, fmt.Errorf("getting username: %s", err)
+		return nil, fmt.Errorf("getting username: %w", err)
 	}
 	for _, sys := range conf.Systems {
 		if sys.Hostname == host {

@@ -35,6 +35,8 @@ default-env:
 deps:
   curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.52.2
 
+lint:
+  golangci-lint run
 
 build:
   @source ./.env

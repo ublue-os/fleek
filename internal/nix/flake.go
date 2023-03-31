@@ -34,7 +34,7 @@ func NewFlake(root string, config *core.Config) (*Flake, error) {
 
 	t, err := template.ParseFS(content, "*.tmpl")
 	if err != nil {
-		return nil, fmt.Errorf("parsing templates: %s", err)
+		return nil, fmt.Errorf("parsing templates: %w", err)
 	}
 
 	f := &Flake{
@@ -63,7 +63,7 @@ func (f *Flake) PackageIndex() ([]byte, error) {
 	indexCmdLine := []string{"search", "nixpkgs", "--json"}
 	out, err := f.runNix(nixbin, indexCmdLine)
 	if err != nil {
-		return out, fmt.Errorf("nix search: %s", err)
+		return out, fmt.Errorf("nix search: %w", err)
 	}
 
 	return out, nil
@@ -218,7 +218,7 @@ func (f *Flake) Apply() ([]byte, error) {
 		if bytes.Contains(out, []byte("conflict")) {
 			return out, ErrPackageConflict
 		}
-		return out, fmt.Errorf("nix run: %s", err)
+		return out, fmt.Errorf("nix run: %w", err)
 	}
 
 	return out, nil
