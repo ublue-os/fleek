@@ -49,20 +49,7 @@ apply:
   ./fleek apply --push
 
 man: build
-  #!/bin/bash
-  rm -rf man/
-  for i in `find ./locales -type f`
-  do
-      file=$(basename "$i" .yml)
-      echo "$file"
-      just mkman "$file"
-  done
-
-mkman lang:
-    mkdir -p man/{{lang}} ;  \
-    mkdir -p man/{{lang}}/man1 ; \
-    LANG={{lang}} ./fleek man > man/{{lang}}/man1/fleek.1 2> /dev/null ; \
-    gzip -6 man/{{lang}}/man1/fleek.1 ; \
+  ./man.sh ./fleek
 
 push: man (cleanup "fleek" "fleek.1" "fleek.1.gz")
   {{CONTAINER_BUILDER}} build --no-cache -t docker.io/bketelsen/fleek .
