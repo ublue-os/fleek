@@ -79,6 +79,7 @@ func add(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		out, err := repo.Commit()
+
 		if err != nil {
 			debug.Log("commit error: %s", err)
 			return err

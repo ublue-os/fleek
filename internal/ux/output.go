@@ -22,40 +22,14 @@ var (
 	highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
 	special   = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
 
-	bold          = lipgloss.NewStyle().Bold(true)
-	faint         = lipgloss.NewStyle().Faint(true)
-	italic        = lipgloss.NewStyle().Italic(true)
-	underline     = lipgloss.NewStyle().Underline(true)
-	strikethrough = lipgloss.NewStyle().Strikethrough(true)
-	red           = lipgloss.NewStyle().Foreground(lipgloss.Color("#E88388"))
-	green         = lipgloss.NewStyle().Foreground(lipgloss.Color("#A8CC8C"))
-	yellow        = lipgloss.NewStyle().Foreground(lipgloss.Color("#DBAB79"))
-	blue          = lipgloss.NewStyle().Foreground(lipgloss.Color("#71BEF2"))
-	magenta       = lipgloss.NewStyle().Foreground(lipgloss.Color("#D290E4"))
-	cyan          = lipgloss.NewStyle().Foreground(lipgloss.Color("#66C2CD"))
-	gray          = lipgloss.NewStyle().Foreground(lipgloss.Color("#B9BFCA"))
-
-	divider = lipgloss.NewStyle().
-		SetString("•").
-		Padding(0, 1).
-		Foreground(subtle).
-		String()
-
-	url = lipgloss.NewStyle().Foreground(special).Render
+	bold   = lipgloss.NewStyle().Bold(true)
+	italic = lipgloss.NewStyle().Italic(true)
+	green  = lipgloss.NewStyle().Foreground(lipgloss.Color("#A8CC8C"))
+	yellow = lipgloss.NewStyle().Foreground(lipgloss.Color("#DBAB79"))
 
 	// Tabs.
 
 	// Title.
-
-	titleStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFF7DB")).Render
-
-	descStyle = lipgloss.NewStyle().MarginTop(1)
-
-	infoStyle = lipgloss.NewStyle().
-			BorderStyle(lipgloss.NormalBorder()).
-			BorderTop(true).
-			BorderForeground(subtle)
 
 	// Dialog.
 
@@ -73,12 +47,6 @@ var (
 			MarginRight(2).
 			Render
 
-	listItem = lipgloss.NewStyle().PaddingLeft(2).Render
-
-	checkMark = lipgloss.NewStyle().SetString("✓").
-			Foreground(special).
-			PaddingRight(1).
-			String()
 	bullet = lipgloss.NewStyle().SetString("-").
 		Foreground(special).
 		PaddingRight(1).
@@ -91,15 +59,6 @@ var (
 	}
 
 	// Paragraphs/History.
-
-	historyStyle = lipgloss.NewStyle().
-			Align(lipgloss.Left).
-			Foreground(lipgloss.Color("#FAFAFA")).
-			Background(highlight).
-			Margin(1, 3, 0, 0).
-			Padding(1, 2).
-			Height(19).
-			Width(columnWidth)
 
 	// Status Bar.
 

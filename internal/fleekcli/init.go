@@ -29,7 +29,7 @@ func InitCommand() *cobra.Command {
 		Long:  app.Trans("init.long"),
 
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return initialize(cmd, args)
+			return initialize(cmd)
 		},
 	}
 	command.Flags().BoolVarP(
@@ -45,7 +45,7 @@ func InitCommand() *cobra.Command {
 }
 
 // initCmd represents the init command
-func initialize(cmd *cobra.Command, args []string) error {
+func initialize(cmd *cobra.Command) error {
 	var verbose bool
 	if cmd.Flag(app.Trans("fleek.verboseFlag")).Changed {
 		verbose = true

@@ -59,7 +59,7 @@ func (fr *FlakeRepo) Commit() ([]byte, error) {
 	addCmdline := []string{"add", "--all"}
 	out, err := fr.runGit(gitbin, addCmdline)
 	if err != nil {
-		return out, fmt.Errorf("git add: %s", err)
+		return out, fmt.Errorf("git add: %w", err)
 	}
 	commitCmdLine := []string{"commit", "-m", "fleek: commit"}
 	commitOut, err := fr.runGit(gitbin, commitCmdLine)
@@ -83,7 +83,7 @@ func (fr *FlakeRepo) Pull() ([]byte, error) {
 	pullCmdline := []string{"pull", "origin", "main"}
 	out, err := fr.runGit(gitbin, pullCmdline)
 	if err != nil {
-		return out, fmt.Errorf("git pull: %s", err)
+		return out, fmt.Errorf("git pull: %w", err)
 	}
 	return out, nil
 }
@@ -92,12 +92,12 @@ func (fr *FlakeRepo) LocalConfig(user, email string) ([]byte, error) {
 	userCmdline := []string{"config", "user.name", user}
 	out, err := fr.runGit(gitbin, userCmdline)
 	if err != nil {
-		return out, fmt.Errorf("git config: %s", err)
+		return out, fmt.Errorf("git config: %w", err)
 	}
 	emailCmdline := []string{"config", "user.email", email}
 	out2, err := fr.runGit(gitbin, emailCmdline)
 	if err != nil {
-		return append(out, out2...), fmt.Errorf("git config: %s", err)
+		return append(out, out2...), fmt.Errorf("git config: %w", err)
 	}
 	return append(out, out2...), nil
 }
@@ -108,7 +108,7 @@ func (fr *FlakeRepo) CreateRepo() ([]byte, error) {
 	out, err := fr.runGit(gitbin, initCmdLine)
 	output = append(output, out...)
 	if err != nil {
-		return output, fmt.Errorf("git init: %s", err)
+		return output, fmt.Errorf("git init: %w", err)
 	}
 	gitIgnore, err := os.Create(filepath.Join(fr.RootDir, ".gitignore"))
 	if err != nil {
@@ -123,7 +123,7 @@ func (fr *FlakeRepo) CreateRepo() ([]byte, error) {
 	out, err = fr.runGit(gitbin, configCmdLine)
 	output = append(output, out...)
 	if err != nil {
-		return output, fmt.Errorf("git config: %s", err)
+		return output, fmt.Errorf("git config: %w", err)
 	}
 	return output, err
 }
@@ -134,7 +134,7 @@ func (fr *FlakeRepo) SetRebase() ([]byte, error) {
 	out, err := fr.runGit(gitbin, configCmdLine)
 	output = append(output, out...)
 	if err != nil {
-		return output, fmt.Errorf("git config: %s", err)
+		return output, fmt.Errorf("git config: %w", err)
 	}
 	return output, err
 }
@@ -150,13 +150,13 @@ func (fr *FlakeRepo) Push() ([]byte, error) {
 	pushCmdline := []string{"push", "origin", "main"}
 	out, err := fr.runGit(gitbin, pushCmdline)
 	if err != nil {
-		return out, fmt.Errorf("git push: %s", err)
+		return out, fmt.Errorf("git push: %w", err)
 	}
 	return out, nil
 
 }
 
-func (fr *FlakeRepo) Dirty(verbose bool) (bool, []byte, error) {
+func (fr *FlakeRepo) Dirty() (bool, []byte, error) {
 
 	var dirty bool
 
@@ -165,7 +165,7 @@ func (fr *FlakeRepo) Dirty(verbose bool) (bool, []byte, error) {
 	cmd.Env = os.Environ()
 	out, err := cmd.Output()
 	if err != nil {
-		return false, out, fmt.Errorf("git status: %s", err)
+		return false, out, fmt.Errorf("git status: %w", err)
 	}
 
 	outString := string(out)
@@ -209,7 +209,7 @@ func (fr *FlakeRepo) AheadBehind(verbose bool) (bool, bool, []byte, error) {
 	output = append(output, out...)
 	if err != nil {
 		debug.Log("git fetch: %s", err)
-		return false, false, output, fmt.Errorf("git fetch: %s", err)
+		return false, false, output, fmt.Errorf("git fetch: %w", err)
 	}
 	cmd := exec.Command(gitbin, "status", "--ahead-behind")
 	cmd.Env = os.Environ()
@@ -219,7 +219,7 @@ func (fr *FlakeRepo) AheadBehind(verbose bool) (bool, bool, []byte, error) {
 
 	if err != nil {
 		debug.Log("git status: %s", err)
-		return false, false, output, fmt.Errorf("git status: %s", err)
+		return false, false, output, fmt.Errorf("git status: %w", err)
 	}
 
 	outString := string(out)
@@ -263,12 +263,12 @@ func (fr *FlakeRepo) Remote() (string, error) {
 	if err != nil {
 		debug.Log("fr open: %s", err)
 
-		return "", fmt.Errorf("opening repository: %s", err)
+		return "", fmt.Errorf("opening repository: %w", err)
 	}
 
 	list, err := fr.repo.Remotes()
 	if err != nil {
-		return "", fmt.Errorf("getting remotes	: %s", err)
+		return "", fmt.Errorf("getting remotes	: %w", err)
 	}
 	var urls string
 	for _, r := range list {

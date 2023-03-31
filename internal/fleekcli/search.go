@@ -60,7 +60,7 @@ func search(cmd *cobra.Command, args []string) error {
 	}
 	pc, err := cache.New()
 	if err != nil {
-		spinner.Stop()
+		_ = spinner.Stop()
 		ux.Error.Println(app.Trans("search.cacheError"))
 		return err
 	}
@@ -72,7 +72,7 @@ func search(cmd *cobra.Command, args []string) error {
 		}
 		err = pc.Update()
 		if err != nil {
-			spinner.Stop()
+			_ = spinner.Stop()
 			ux.Error.Println(app.Trans("search.cacheError"))
 			return err
 		}
@@ -109,7 +109,7 @@ func search(cmd *cobra.Command, args []string) error {
 			ux.Warning.Println(app.Trans("search.noResults"))
 		} else {
 			ux.Info.Println(app.Trans("search.fuzzyMatches"))
-			ux.Table().WithHasHeader(true).WithData(toTableDataWithHeader(hits)).Render()
+			_ = ux.Table().WithHasHeader(true).WithData(toTableDataWithHeader(hits)).Render()
 		}
 	}
 	if len(exactHits) == 0 {
@@ -119,7 +119,7 @@ func search(cmd *cobra.Command, args []string) error {
 		}
 	} else {
 		ux.Info.Println(app.Trans("search.exactMatches"))
-		ux.Table().WithHasHeader(true).WithData(toTableDataWithHeader(exactHits)).Render()
+		_ = ux.Table().WithHasHeader(true).WithData(toTableDataWithHeader(exactHits)).Render()
 
 	}
 

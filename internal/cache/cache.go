@@ -112,7 +112,7 @@ func (pc *PackageCache) packageIndex() ([]byte, error) {
 	indexCmdLine := []string{"search", "nixpkgs", "--json"}
 	out, err := pc.runNix(nixbin, indexCmdLine)
 	if err != nil {
-		return out, fmt.Errorf("nix search: %s", err)
+		return out, fmt.Errorf("nix search: %w", err)
 	}
 
 	return out, nil

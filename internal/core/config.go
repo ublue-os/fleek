@@ -313,7 +313,7 @@ func WriteSampleConfig(location, email, name string, force bool) error {
 
 	err = c.MakeFlakeDir()
 	if err != nil {
-		return fmt.Errorf("making flake dir: %s", err)
+		return fmt.Errorf("making flake dir: %w", err)
 	}
 	_, err = os.Stat(cfile)
 

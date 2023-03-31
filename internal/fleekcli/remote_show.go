@@ -14,14 +14,14 @@ func RepoShowCmd() *cobra.Command {
 		Short: app.Trans("remoteshow.short"),
 		Long:  app.Trans("remoteshow.long"),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return show(cmd, args)
+			return show(cmd)
 		},
 	}
 	return command
 }
 
 // initCmd represents the init command
-func show(cmd *cobra.Command, args []string) error {
+func show(cmd *cobra.Command) error {
 	ux.Description.Println(cmd.Short)
 
 	repo, err := f.Repo()

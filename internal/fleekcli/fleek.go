@@ -165,7 +165,7 @@ func initFleek(verbose bool) (*Fleek, error) {
 				}
 			}
 
-			dirty, out, err := f.repo.Dirty(false)
+			dirty, out, err := f.repo.Dirty()
 			cobra.CheckErr(err)
 			if dirty {
 				f.flakeStatus = FlakeDirty

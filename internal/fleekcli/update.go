@@ -23,7 +23,7 @@ func UpdateCommand() *cobra.Command {
 		Short: app.Trans("update.short"),
 		Long:  app.Trans("update.long"),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return update(cmd, args)
+			return update(cmd)
 		},
 	}
 	command.Flags().BoolVarP(
@@ -33,7 +33,7 @@ func UpdateCommand() *cobra.Command {
 }
 
 // initCmd represents the init command
-func update(cmd *cobra.Command, args []string) error {
+func update(cmd *cobra.Command) error {
 	var verbose bool
 	if cmd.Flag(app.Trans("fleek.verboseFlag")).Changed {
 		verbose = true

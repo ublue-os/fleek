@@ -34,7 +34,7 @@ func (d *DebugMiddleware) AttachToFlag(flags *pflag.FlagSet, flagName string) {
 	d.flag.Hidden = true
 }
 
-func (d *DebugMiddleware) preRun(cmd *cobra.Command, args []string) {
+func (d *DebugMiddleware) preRun(_ *cobra.Command, _ []string) {
 	if d == nil {
 		return
 	}
@@ -50,7 +50,7 @@ func (d *DebugMiddleware) preRun(cmd *cobra.Command, args []string) {
 	}
 }
 
-func (d *DebugMiddleware) postRun(cmd *cobra.Command, args []string, runErr error) {
+func (d *DebugMiddleware) postRun(cmd *cobra.Command, _ []string, runErr error) {
 	if runErr == nil {
 		return
 	}
