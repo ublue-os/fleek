@@ -131,6 +131,8 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(ejectCmd)
 	command.AddCommand(searchCmd)
 
+	command.AddCommand(VersionCmd())
+
 	command.PersistentFlags().BoolVarP(
 		&flags.quiet, app.Trans("fleek.quietFlag"), "q", false, app.Trans("fleek.quietFlagDescription"))
 	command.PersistentFlags().BoolVarP(

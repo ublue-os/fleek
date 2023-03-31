@@ -162,6 +162,17 @@ search:
   package: "Package"
   version: "Version"
   description: "Description"
+
+version:
+  use: "version"
+  short: "Print version information"
+  flagVerbose: "verbose"
+  flagVerboseDescription: "displays additional version information"
+  version: "Version:     %v\n"
+  platform: "Platform:    %v\n"
+  commit:  "Commit:      %v\n"
+  time: "Commit Time: %v\n"
+  go: "Go Version:  %v\n"
 global:
   completed: "Operation completed successfully"
   failed: "Operation failed"
