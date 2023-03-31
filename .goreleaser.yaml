@@ -69,6 +69,7 @@ nightly:
 
 archives:
   - format: tar.gz
+    rlcp: true
     files:
       - LICENSE
       - README.md
@@ -94,6 +95,9 @@ dockers:
     image_templates:
     - "bketelsen/fleek"
     use: podman
+    dockerfile: Containerfile
+    extra_files:
+    - man
 
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.
