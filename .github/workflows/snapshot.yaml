@@ -36,3 +36,15 @@ jobs:
           # Your GoReleaser Pro key, if you are using the 'goreleaser-pro'
           # distribution:
           # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            LICENSE
+            dist/fleek_Darwin_arm64.tar.gz
+            dist/fleek_Linux_x86_64.tar.gz
+            dist/fleek_Linux_arm64.tar.gz
+            dist/fleek_Darwin_x86_64.tar.gz
