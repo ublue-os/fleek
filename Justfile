@@ -5,8 +5,6 @@ CONTAINER_BUILDER := "buildah"
 
 default: build
 
-
-
 [private]
 move +FILES:
   for FILE in {{FILES}}; do \
@@ -34,9 +32,13 @@ default-env:
 
 deps:
   curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.52.2
+  curl -sfL https://goreleaser.com/static/run | DISTRIBUTION=pro bash
 
 lint:
   golangci-lint run
+
+snapshot:
+  goreleaser --clean --snapshot
 
 build:
   @source ./.env
