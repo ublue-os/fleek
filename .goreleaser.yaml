@@ -4,6 +4,22 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod tidy
+after:
+  # Templates for the commands to be ran.
+  hooks:
+  - ./man.sh dist/fleek_linux_amd64_v1/fleek
+
+changelog:
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: 'Bug fixes'
+      regexp: '^.*?bug(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
+
 builds:
   - env:
       - CGO_ENABLED=0
@@ -53,6 +69,10 @@ nightly:
 
 archives:
   - format: tar.gz
+    files:
+      - LICENSE
+      - README.md
+      - man/**/*
     # this name template makes the OS and Arch compatible with the results of uname.
     name_template: >-
       {{ .ProjectName }}_
@@ -69,12 +89,7 @@ checksum:
   name_template: 'checksums.txt'
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
+
 
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.
