@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/ublue-os/fleek/compare/v0.5.0...v0.6.0) (2023-03-31)
+
+
+### Features
+
+* snapshot releases ([0a9741d](https://github.com/ublue-os/fleek/commit/0a9741de1a4da3a7e786831698866e50f5c6d074))
+
 ## [0.5.0](https://github.com/ublue-os/fleek/compare/v0.4.0...v0.5.0) (2023-03-31)
 
 
