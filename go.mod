@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/briandowns/spinner v1.23.0
 	github.com/charmbracelet/lipgloss v0.7.1
-	github.com/fatih/color v1.13.0
+	github.com/fatih/color v1.15.0
 	github.com/go-git/go-git/v5 v5.6.1
 	github.com/google/uuid v1.3.0
 	github.com/spf13/cobra v1.6.1
@@ -13,7 +13,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require github.com/mattn/go-colorable v0.1.12 // indirect
+require github.com/mattn/go-colorable v0.1.13 // indirect
 
 require (
 	atomicgo.dev/cursor v0.1.1 // indirect
