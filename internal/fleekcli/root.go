@@ -36,7 +36,7 @@ func RootCmd() *cobra.Command {
 
 			debug.Log("repo status")
 			if f.repo != nil {
-				dirty, _, err := f.repo.Dirty(false)
+				dirty, _, err := f.repo.Dirty()
 				cobra.CheckErr(err)
 				if dirty {
 					ux.Warning.Println(app.Trans("fleek.dirty"))

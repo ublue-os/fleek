@@ -24,7 +24,7 @@ func ApplyCommand() *cobra.Command {
 		Short: app.Trans("apply.short"),
 		Long:  app.Trans("apply.long"),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return apply(cmd, args)
+			return apply(cmd)
 		},
 	}
 	command.Flags().BoolVarP(
@@ -35,7 +35,7 @@ func ApplyCommand() *cobra.Command {
 	return command
 }
 
-func apply(cmd *cobra.Command, args []string) error {
+func apply(cmd *cobra.Command) error {
 	var verbose bool
 	var push bool
 	if cmd.Flag(app.Trans("fleek.verboseFlag")).Changed {

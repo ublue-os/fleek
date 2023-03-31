@@ -38,7 +38,7 @@ func sync(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-	dirty, out, err := f.repo.Dirty(false)
+	dirty, out, err := f.repo.Dirty()
 	if err != nil {
 		spinner.Fail()
 		return err

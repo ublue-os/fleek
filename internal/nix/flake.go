@@ -201,6 +201,7 @@ func (f *Flake) Write(includeSystems bool) error {
 func (f *Flake) Apply() ([]byte, error) {
 
 	user, err := core.Username()
+
 	if err != nil {
 		return []byte{}, err
 	}

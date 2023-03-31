@@ -156,7 +156,7 @@ func (fr *FlakeRepo) Push() ([]byte, error) {
 
 }
 
-func (fr *FlakeRepo) Dirty(verbose bool) (bool, []byte, error) {
+func (fr *FlakeRepo) Dirty() (bool, []byte, error) {
 
 	var dirty bool
 

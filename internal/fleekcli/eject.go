@@ -15,7 +15,7 @@ func EjectCommand() *cobra.Command {
 		Short: app.Trans("eject.short"),
 		Long:  app.Trans("eject.long"),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return eject(cmd, args)
+			return eject(cmd)
 		},
 	}
 
@@ -23,7 +23,8 @@ func EjectCommand() *cobra.Command {
 }
 
 // initCmd represents the init command
-func eject(cmd *cobra.Command, args []string) error {
+func eject(cmd *cobra.Command) error {
+	ux.Description.Println(cmd.Short)
 
 	ok, err := cmdr.Confirm.Show(app.Trans("eject.confirm"))
 	if err != nil {
