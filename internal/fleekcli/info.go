@@ -44,14 +44,6 @@ func infoFleek(cmd *cobra.Command, args []string) error {
 	}
 	ux.Info.Println("["+b.Name+" Bling]", b.Description)
 
-	var packages []string
-	for n := range b.PackageMap {
-		packages = append(packages, n)
-	}
-	var programs []string
-	for n := range b.ProgramMap {
-		programs = append(programs, n)
-	}
 	needle := args[0]
 	var found bool
 	pkg, ok := b.PackageMap[needle]
