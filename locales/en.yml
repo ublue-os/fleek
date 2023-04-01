@@ -186,5 +186,9 @@ global:
   packageGroup: "Package Management Commands"
   gitGroup: "Repository Management Commands"
   errConflict: "A package in your .fleek.yml exists in your nix profile.\nThis can happen if you manually install something with `nix profile install ...`.\nTo fix this error, run `nix profile list` and find the profile number of the offending package, then run `nix profile remomve [that number]`\nbefore running `fleek` again."
-
-  
+info:
+  use: "info"
+  long: "Show detailed information about a fleek installed package"
+  short: "Show detailed information about a fleek installed package"
+  notFound: "That program or package is not part of fleek's bling set."
+  aliases: "Provides the following shell aliases:"
