@@ -6,3 +6,4 @@ dist/
 .env
 man/
 fleek
+completions/

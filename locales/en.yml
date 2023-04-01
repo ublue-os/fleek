@@ -1,6 +1,6 @@
 fleek:
   use: "fleek"
-  long: "Fleek installs and manages packages in your nix installation with a \nfriendly and approachable config file."
+  long: "Fleek installs and manages packages in your nix installation with a friendly and approachable config file."
   short: "Fleek makes nix friendly"
   debugFlag: "debug"
   traceFlag: "trace"
@@ -64,8 +64,10 @@ init:
   forceFlagDescription: "overwrite existing configuration files"
   flakeLocation: "Flake Location"
   start: "initializing fleek"
-  apply: "apply configuration immediately after cloning"
-  clone: "address of existing fleek repository"
+  applyFlag: "apply"
+  cloneFlag: "clone"
+  cloneFlagDescription: "address of existing fleek repository"
+  applyFlagDescription: "apply configuration immediately after cloning"
   cloned: "repository cloned"
   checkNix: "checking for nix installation"
   writingConfigs: "writing configuration files"
@@ -78,7 +80,7 @@ init:
   newSystem: "New System: %s@%s"
 add:
   use: "add [package] [package] ..."
-  long: "Add a new package or program to your configuration.\n Use the `--program` flag to specify a program which can also be configured by nix."
+  long: "Add a new package or program to your configuration.\nUse the `--program` flag to specify a program which can also be configured by nix."
   short: "Add a new package or program to your configuration"
   program: "add a program instead of package"
   applyFlag: "apply"
@@ -88,7 +90,7 @@ add:
   done: "Complete!"
 remove:
   use: "remove [package] [package] ..."
-  long: "Remove a package or program from your configuration.\n Use the `--program` flag to specify a program which can also be configured by nix."
+  long: "Remove a package or program from your configuration.\nUse the `--program` flag to specify a program which can also be configured by nix."
   short: "Remove a package or program from your configuration"
   program: "remove a program instead of package"
   applyFlag: "apply"
@@ -111,7 +113,8 @@ remoteadd:
   use: "add"
   long: "Configure fleek to use a remote git repository"
   short: "Configure fleek to use a remote git repository"
-  name: "git reference name of the remote"
+  nameFlag: "name"
+  nameFlagDescription: "git reference name of the remote"
   saving: "Saving new configuration"
   addingRemote: "Adding git remote"
 update:
@@ -143,7 +146,7 @@ sync:
   gettingRemoteStatus: "Getting git remote status"
   gettingLocalStatus: "Getting git local status"
 search:
-  use: "search <package?"
+  use: "search <package>"
   long: "Search the package repository"
   short: "Search the package repository"
   exactMatches: "Exact Matches"

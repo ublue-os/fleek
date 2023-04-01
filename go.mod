@@ -8,12 +8,18 @@ require (
 	github.com/fatih/color v1.15.0
 	github.com/go-git/go-git/v5 v5.6.1
 	github.com/google/uuid v1.3.0
+	github.com/muesli/mango-cobra v1.2.0
+	github.com/muesli/roff v0.1.0
 	github.com/spf13/cobra v1.6.1
 	github.com/vanilla-os/orchid v0.4.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require github.com/mattn/go-colorable v0.1.13 // indirect
+require (
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/muesli/mango v0.1.0 // indirect
+	github.com/muesli/mango-pflag v0.1.0 // indirect
+)
 
 require (
 	atomicgo.dev/cursor v0.1.1 // indirect

@@ -20,6 +20,8 @@ func RootCmd() *cobra.Command {
 	command := &cobra.Command{
 		Use:   app.Trans("fleek.use"),
 		Short: app.Trans("fleek.short"),
+		Long:  app.Trans("fleek.long"),
+
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
@@ -120,6 +122,8 @@ func RootCmd() *cobra.Command {
 	searchCmd := SearchCommand()
 	searchCmd.GroupID = packageGroup.ID
 
+	manCmd := ManCommand()
+	command.AddCommand(manCmd)
 	command.AddCommand(showCmd)
 	command.AddCommand(syncCmd)
 	command.AddCommand(addCmd)

@@ -24,7 +24,7 @@ func RepoAddCmd() *cobra.Command {
 		},
 	}
 	command.Flags().StringVarP(
-		&flags.name, app.Trans("remoteadd.applyFlag"), "n", "origin", app.Trans("reemoteadd.name"))
+		&flags.name, app.Trans("remoteadd.nameFlag"), "n", "origin", app.Trans("remoteadd.nameFlagDescription"))
 
 	return command
 }

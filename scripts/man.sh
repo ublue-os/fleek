@@ -6,8 +6,7 @@ do
     file=$(basename "$i" .yml)
     mkdir -p man/$file
     mkdir -p man/$file/man1
-    LANG=$file $1 man > man/$file/man1/fleek.1 2> /dev/null
-    gzip -6 man/$file/man1/fleek.1
+    LANG=$file go run ./cmd/fleek/main.go man | gzip -c -9 >man/$file/man1/fleek.1.gz
 done
 
 

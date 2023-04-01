@@ -4,10 +4,8 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod tidy
-after:
-  # Templates for the commands to be ran.
-  hooks:
-  - ./man.sh dist/fleek_linux_amd64_v1/fleek
+    - ./scripts/man.sh
+    - ./scripts/completions.sh
 
 changelog:
   groups:
@@ -74,6 +72,7 @@ archives:
       - LICENSE
       - README.md
       - man/**/*
+      - completions/**/*
     # this name template makes the OS and Arch compatible with the results of uname.
     name_template: >-
       {{ .ProjectName }}_
@@ -98,6 +97,7 @@ dockers:
     dockerfile: Containerfile
     extra_files:
     - man
+    - completions
 
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.
