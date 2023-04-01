@@ -24,13 +24,13 @@ func SearchCommand() *cobra.Command {
 		Short:   app.Trans("search.short"),
 		Long:    app.Trans("search.long"),
 		Args:    cobra.ExactArgs(1),
-		Example: "search neovim\n search --update emacs",
+		Example: "search neovim\nsearch --update emacs",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return search(cmd, args)
 		},
 	}
 	command.Flags().BoolVarP(
-		&flags.update, app.Trans("search.updateFlag"), "a", false, app.Trans("search.updateFlagDescription"))
+		&flags.update, app.Trans("search.updateFlag"), "u", false, app.Trans("search.updateFlagDescription"))
 	command.Flags().BoolVarP(
 		&flags.fuzzy, app.Trans("search.fuzzyFlag"), "f", false, app.Trans("search.fuzzyFlagDescription"))
 
