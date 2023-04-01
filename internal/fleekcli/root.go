@@ -122,6 +122,8 @@ func RootCmd() *cobra.Command {
 	searchCmd := SearchCommand()
 	searchCmd.GroupID = packageGroup.ID
 
+	infoCmd := InfoCommand()
+	infoCmd.GroupID = packageGroup.ID
 	manCmd := ManCommand()
 	command.AddCommand(manCmd)
 	command.AddCommand(showCmd)
@@ -134,6 +136,7 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(initCmd)
 	command.AddCommand(ejectCmd)
 	command.AddCommand(searchCmd)
+	command.AddCommand(infoCmd)
 
 	command.AddCommand(VersionCmd())
 

@@ -5,7 +5,7 @@
       https://github.com/sharkdp/bat
     aliases:
     - key: catp
-      value: "bat -p"
+      value: "bat -P"
       description: bat --plain for unformatted cat
     - key: cat
       value: "bat"
