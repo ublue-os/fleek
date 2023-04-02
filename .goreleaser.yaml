@@ -91,13 +91,15 @@ snapshot:
   name_template: "{{ incpatch .Version }}-next"
 dockers:
   -
-    image_templates:
-    - "bketelsen/fleek"
     use: podman
     dockerfile: Containerfile
     extra_files:
     - man
     - completions
+    image_templates:
+    - "bketelsen/fleek:{{ if .IsNightly }}dev{{ else }}latest{{ end }}"
+    - "bketelsen/fleek:{{ .Tag }}"
+    - "bketelsen/fleek:v{{ .Major }}"
 
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.
