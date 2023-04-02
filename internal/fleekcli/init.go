@@ -53,13 +53,7 @@ func initialize(cmd *cobra.Command) error {
 	ux.Description.Println(cmd.Short)
 	var upstream string
 	loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
-	/*home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	// hack!
-	//floc := filepath.Join(home, loc)
-	*/
+
 	f.config = &core.Config{
 		FlakeDir: loc,
 	}
@@ -73,7 +67,6 @@ func initialize(cmd *cobra.Command) error {
 		// clone it
 		spinner, err := ux.Spinner().Start(app.Trans("init.cloning"))
 		if err != nil {
-			spinner.Fail()
 			return err
 		}
 		err = f.config.Clone(upstream)
@@ -135,7 +128,6 @@ func initialize(cmd *cobra.Command) error {
 			if err != nil {
 				return err
 			}
-
 			// only re-apply the templates if not `ejected`
 			if !f.config.Ejected {
 				if verbose {
@@ -166,9 +158,19 @@ func initialize(cmd *cobra.Command) error {
 						if err != nil {
 							return err
 						}
+						repo, err := f.Repo()
+						if err != nil {
+							return err
+						}
+						out, err := repo.Commit()
+						if verbose {
+							ux.Info.Println(string(out))
+						}
+						if err != nil {
+							return err
+						}
 					}
 				}
-
 				if verbose {
 					ux.Info.Println(app.Trans("apply.writingFlake"))
 				}
@@ -176,8 +178,21 @@ func initialize(cmd *cobra.Command) error {
 				if err != nil {
 					return err
 				}
+				repo, err := f.Repo()
+				if err != nil {
+					return err
+				}
+				out, err := repo.Commit()
+				if verbose {
+					ux.Info.Println(string(out))
+				}
+				if err != nil {
+					return err
+				}
 
 			}
+			spinner.Success()
+
 			ux.Info.Println(app.Trans("apply.applyingConfig"))
 			out, err := f.flake.Apply()
 			if err != nil {
@@ -186,13 +201,12 @@ func initialize(cmd *cobra.Command) error {
 				if errors.Is(err, nix.ErrPackageConflict) {
 					ux.Fatal.Println(app.Trans("global.errConflict"))
 				}
-				spinner.Fail()
 				return err
 			}
 			if verbose {
 				ux.Info.Println(string(out))
 			}
-			spinner.Success(app.Trans("apply.done"))
+			ux.Info.Println(app.Trans("apply.done"))
 			return nil
 		}
 		ux.Info.Println(app.Trans("init.cloned"))
