@@ -4,12 +4,24 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package fleekcli
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/internal/core"
 	"github.com/ublue-os/fleek/internal/ux"
 )
 
+// add json flag
+// add level override flag
+type showCmdFlags struct {
+	json  bool
+	level string
+}
+
 func ShowCmd() *cobra.Command {
+	flags := showCmdFlags{}
+
 	command := &cobra.Command{
 		Use:   app.Trans("show.use"),
 		Short: app.Trans("show.short"),
@@ -19,16 +31,34 @@ func ShowCmd() *cobra.Command {
 			return showFleek(cmd)
 		},
 	}
+	command.Flags().BoolVarP(
+		&flags.json, app.Trans("show.jsonFlag"), "j", false, app.Trans("show.jsonFlagDescription"))
+	command.Flags().StringVarP(
+		&flags.level, app.Trans("show.levelFlag"), "l", "", app.Trans("show.levelFlagDescription"))
 	return command
 }
 
 // initCmd represents the init command
 func showFleek(cmd *cobra.Command) error {
+	var showJSON bool
+	var level string
 
-	ux.Description.Println(cmd.Short)
+	if cmd.Flag(app.Trans("show.jsonFlag")).Changed {
+		showJSON = true
+	}
+
+	if cmd.Flag(app.Trans("show.levelFlag")).Changed {
+		level = cmd.Flag(app.Trans("show.levelFlag")).Value.String()
+	} else {
+		level = f.config.Bling
+	}
+	if !showJSON {
+		ux.Description.Println(cmd.Short)
+	}
 	var b *core.Bling
 	var err error
-	switch f.config.Bling {
+
+	switch level {
 	case "high":
 		b, err = core.HighBling()
 		cobra.CheckErr(err)
@@ -41,8 +71,14 @@ func showFleek(cmd *cobra.Command) error {
 	case "none":
 		b, err = core.NoBling()
 		cobra.CheckErr(err)
+	default:
+		ux.Error.Println(app.Trans("show.invalidLevel", level))
+		return nil
 	}
-	ux.Info.Println("["+b.Name+" Bling]", b.Description)
+
+	if !showJSON {
+		ux.Info.Println("["+b.Name+" Bling]", b.Description)
+	}
 
 	var packages []string
 	for n := range b.PackageMap {
@@ -56,11 +92,20 @@ func showFleek(cmd *cobra.Command) error {
 		programs = append(programs, n)
 		//fmt.Println(style.Render(p.Description))
 	}
+	if showJSON {
+		bb, err := json.Marshal(b)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(bb))
+		return nil
+	}
 
 	ux.ThreeColumnList(
 		"["+b.Name+"] "+app.Trans("show.packages"), packages,
 		"["+b.Name+"] "+app.Trans("show.managedPackages"), programs,
 		app.Trans("show.userPackages"), f.config.Packages,
 	)
+
 	return nil
 }
