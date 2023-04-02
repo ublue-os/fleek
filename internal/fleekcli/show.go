@@ -40,11 +40,11 @@ func ShowCmd() *cobra.Command {
 
 // initCmd represents the init command
 func showFleek(cmd *cobra.Command) error {
-	var showJson bool
+	var showJSON bool
 	var level string
 
 	if cmd.Flag(app.Trans("show.jsonFlag")).Changed {
-		showJson = true
+		showJSON = true
 	}
 
 	if cmd.Flag(app.Trans("show.levelFlag")).Changed {
@@ -52,7 +52,7 @@ func showFleek(cmd *cobra.Command) error {
 	} else {
 		level = f.config.Bling
 	}
-	if !showJson {
+	if !showJSON {
 		ux.Description.Println(cmd.Short)
 	}
 	var b *core.Bling
@@ -76,7 +76,7 @@ func showFleek(cmd *cobra.Command) error {
 		return nil
 	}
 
-	if !showJson {
+	if !showJSON {
 		ux.Info.Println("["+b.Name+" Bling]", b.Description)
 	}
 
@@ -92,20 +92,20 @@ func showFleek(cmd *cobra.Command) error {
 		programs = append(programs, n)
 		//fmt.Println(style.Render(p.Description))
 	}
-	if showJson {
+	if showJSON {
 		bb, err := json.Marshal(b)
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(bb))
 		return nil
-	} else {
-
-		ux.ThreeColumnList(
-			"["+b.Name+"] "+app.Trans("show.packages"), packages,
-			"["+b.Name+"] "+app.Trans("show.managedPackages"), programs,
-			app.Trans("show.userPackages"), f.config.Packages,
-		)
 	}
+
+	ux.ThreeColumnList(
+		"["+b.Name+"] "+app.Trans("show.packages"), packages,
+		"["+b.Name+"] "+app.Trans("show.managedPackages"), programs,
+		app.Trans("show.userPackages"), f.config.Packages,
+	)
+
 	return nil
 }
