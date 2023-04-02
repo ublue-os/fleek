@@ -158,6 +158,17 @@ func initialize(cmd *cobra.Command) error {
 						if err != nil {
 							return err
 						}
+						repo, err := f.Repo()
+						if err != nil {
+							return err
+						}
+						out, err := repo.Commit()
+						if verbose {
+							ux.Info.Println(string(out))
+						}
+						if err != nil {
+							return err
+						}
 					}
 				}
 				if verbose {
@@ -167,6 +178,18 @@ func initialize(cmd *cobra.Command) error {
 				if err != nil {
 					return err
 				}
+				repo, err := f.Repo()
+				if err != nil {
+					return err
+				}
+				out, err := repo.Commit()
+				if verbose {
+					ux.Info.Println(string(out))
+				}
+				if err != nil {
+					return err
+				}
+
 			}
 			spinner.Success()
 
