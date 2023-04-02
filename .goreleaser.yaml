@@ -98,7 +98,7 @@ dockers:
     - completions
     image_templates:
     - "bketelsen/fleek:{{ if .IsNightly }}dev{{ else }}latest{{ end }}"
-    - "bketelsen/fleek:{{ .Tag }}{{ if .IsNightly }}-dev{{ end }}"
+    - "bketelsen/fleek:{{ .Tag }}{{ if .IsNightly }}dev{{ end }}"
     - "bketelsen/fleek:v{{ .Major }}{{ if .IsNightly }}-dev{{ end }}"
 
 # The lines beneath this are called `modelines`. See `:help modeline`
