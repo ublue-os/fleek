@@ -19,10 +19,11 @@ type removeCmdFlags struct {
 func RemoveCommand() *cobra.Command {
 	flags := removeCmdFlags{}
 	command := &cobra.Command{
-		Use:   app.Trans("remove.use"),
-		Short: app.Trans("remove.short"),
-		Long:  app.Trans("remove.long"),
-		Args:  cobra.MinimumNArgs(1),
+		Use:     app.Trans("remove.use"),
+		Short:   app.Trans("remove.short"),
+		Long:    app.Trans("remove.long"),
+		Example: app.Trans("remove.example"),
+		Args:    cobra.MinimumNArgs(1),
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return remove(cmd, args)

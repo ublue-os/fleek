@@ -11,10 +11,11 @@ import (
 
 func InfoCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   app.Trans("info.use"),
-		Short: app.Trans("info.short"),
-		Long:  app.Trans("info.long"),
-		Args:  cobra.ExactArgs(1),
+		Use:     app.Trans("info.use"),
+		Short:   app.Trans("info.short"),
+		Long:    app.Trans("info.long"),
+		Example: app.Trans("info.example"),
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return infoFleek(cmd, args)
 		},

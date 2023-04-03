@@ -24,7 +24,7 @@ func SearchCommand() *cobra.Command {
 		Short:   app.Trans("search.short"),
 		Long:    app.Trans("search.long"),
 		Args:    cobra.ExactArgs(1),
-		Example: "search neovim\nsearch --update emacs",
+		Example: app.Trans("search.example"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return search(cmd, args)
 		},

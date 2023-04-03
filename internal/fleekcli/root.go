@@ -125,6 +125,9 @@ func RootCmd() *cobra.Command {
 	infoCmd := InfoCommand()
 	infoCmd.GroupID = packageGroup.ID
 	manCmd := ManCommand()
+
+	docsCmd := genDocsCmd()
+	command.AddCommand(docsCmd)
 	command.AddCommand(manCmd)
 	command.AddCommand(showCmd)
 	command.AddCommand(syncCmd)

@@ -1,6 +1,12 @@
 fleek:
   use: "fleek"
-  long: "Fleek installs and manages packages in your nix installation with a friendly and approachable config file."
+  long: |
+    Fleek installs and manages packages in your nix installation with a friendly and approachable config file.
+    Fleek uses the power of `nix` and `home-manager` behind the scenes to give you access to the largest repository of packages in the world.
+
+    Fleek hides the complexity of `nix` by giving you a CLI and YAML file to manage your installed applications.
+
+    To get started, try `fleek init`.
   short: "Fleek makes nix friendly"
   debugFlag: "debug"
   traceFlag: "trace"
@@ -32,7 +38,9 @@ fleek:
   migrated: "Migrated .fleek.yml"
 eject:
   use: "eject"
-  long: "Eject writes your current configuration to disk and removes Fleek's templates.\n\nChanges to .fleek.yml will be ignored; you will modify your Nix configurations directly."
+  long: |
+    Eject writes your current configuration to disk and removes Fleek's templates.
+    Changes to .fleek.yml will be ignored; you will modify your Nix configurations directly.
   short: "Manage your home configuration directly, without the .fleek.yml file."
   verboseFlag: "show more detailed output"
   start: "Applying current fleek configuration to your home flake."
@@ -40,8 +48,16 @@ eject:
   confirm: "Are you sure you want to manage your home configuration files directly?"
 apply:
   use: "apply"
-  long: "Apply fleek configuration by reading the ~/.fleek.yml file and updating \nthe flake templates."
+  long: | 
+    Apply fleek configuration by reading the ~/.fleek.yml file, updating the flake templates, and applying the changes.
+    
+    Use the `--dry-run` flag to test your changes without applying them.
+    Use the `--push` flag to push your local changes to your git remote if one is configured.
   short: "Apply fleek configuration"
+  example: |
+    fleek apply
+    fleek apply --push
+    fleek apply --dry-run
   behind: "Can't apply with unmerged remote changes. Use `--sync` flag to pull remote changes."
   dryRunFlag: "dry-run"
   dryRunFlagDescription: "dry run - don't apply configuration"
@@ -58,8 +74,14 @@ apply:
   done: "Complete!"
 init:
   use: "init"
-  long: "Initialize fleek with standard configuration options.\n\nIf `--clone` is set, an existing Fleek configuration will be cloned from that repository."
+  long: |
+    Initialize fleek with standard configuration options.
+    If `--clone` is set, an existing Fleek configuration will be cloned from that repository.
   short: "Initialize fleek"
+  example: |
+    fleek init
+    fleek init -c git@github.com:you/fleeks
+    fleek init -a -c git@github.com:you/fleeks
   forceFlag: "force"
   forceFlagDescription: "overwrite existing configuration files"
   flakeLocation: "Flake Location"
@@ -75,14 +97,17 @@ init:
   complete: "Done. \n\nEdit ~/.fleek.yml to your taste and run `fleek apply`"
   locationFlag: "location"
   locationFlagDescription: "location of fleek repository, relative to home"
-  gitEmail: "Git Config - enter your email address"
-  gitName: "Git Config - enter your full name"
+  gitEmail: "git: enter your email address"
+  gitName: "git: enter your full name"
   newSystem: "New System: %s@%s"
 add:
   use: "add [package] [package] ..."
   long: "Add a new package or program to your configuration.\nUse the `--program` flag to specify a program which can also be configured by nix."
   short: "Add a new package or program to your configuration"
   program: "add a program instead of package"
+  example: |
+    fleek add --apply neovim
+    fleek add emacs
   applyFlag: "apply"
   applyFlagDescription: "apply configuration after adding"
   adding: "Adding package "
@@ -92,6 +117,9 @@ remove:
   use: "remove [package] [package] ..."
   long: "Remove a package or program from your configuration.\nUse the `--program` flag to specify a program which can also be configured by nix."
   short: "Remove a package or program from your configuration"
+  example: |
+    fleek remove emacs htop
+    fleek remove --apply neovim
   program: "remove a program instead of package"
   applyFlag: "apply"
   applyFlagDescription: "apply configuration after removing"
@@ -113,13 +141,18 @@ remoteadd:
   use: "add"
   long: "Configure fleek to use a remote git repository"
   short: "Configure fleek to use a remote git repository"
+  example: |
+    fleek remote add git@github.com:your/fleeks
+    fleek remote add -n origin git@github.com:your/fleeks
   nameFlag: "name"
   nameFlagDescription: "git reference name of the remote"
   saving: "Saving new configuration"
   addingRemote: "Adding git remote"
 update:
   use: "update"
-  long: "Update installed packages"
+  long: |
+    Update installed packages.
+    Use `--apply` flag to apply the updates.
   short: "Update installed packages"
   start: "Updating available packages"
   applyFlag: "apply"
@@ -129,7 +162,10 @@ update:
 show:
   use: "show"
   long: "Show packages, managed packages, and aliases added in your current configuration level."
-  short: "Show currently configured bling level details"
+  short: "Show bling level details"
+  example: |
+    fleek show
+    fleek show --level high
   packages: "Packages"
   managedPackages: "Managed Packages"
   userPackages: "User Packages"
@@ -140,7 +176,9 @@ show:
   invalidLevel: "Invalid bling level"
 sync:
   use: "sync"
-  long: "Synchronize local configuration with remote git repository"
+  long: |
+    Synchronize local configuration with remote git repository.
+    Requires a configured remote repository. See `fleek remote add` for details.
   short: "Synchronize configuration with git"
   noChanges: "No changes to synchronize"
   gitPush: "Running `git push`"
@@ -152,8 +190,15 @@ sync:
   gettingLocalStatus: "Getting git local status"
 search:
   use: "search <package>"
-  long: "Search the package repository"
+  long: |
+    Search the package repository. 
+    On first run, `search` will download a local copy of the nix packages index in JSON format.
+
+    Update the local package cache by using the `--update` flag.
   short: "Search the package repository"
+  example: |
+    fleek search neovim
+    fleek search --update emacs
   exactMatches: "Exact Matches"
   fuzzyMatches: "Fuzzy Matches"
   openingCache: "Reading package cache"
@@ -192,8 +237,10 @@ global:
   gitGroup: "Repository Management Commands"
   errConflict: "A package in your .fleek.yml exists in your nix profile.\nThis can happen if you manually install something with `nix profile install ...`.\nTo fix this error, run `nix profile list` and find the profile number of the offending package, then run `nix profile remomve [that number]`\nbefore running `fleek` again."
 info:
-  use: "info"
+  use: "info <package>"
   long: "Show detailed information about a fleek installed package"
+  example: |
+    fleek info fzf
   short: "Show detailed information about a fleek installed package"
   notFound: "That program or package is not part of fleek's bling set."
   aliases: "Provides the following shell aliases:"

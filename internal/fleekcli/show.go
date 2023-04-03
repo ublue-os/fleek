@@ -23,10 +23,10 @@ func ShowCmd() *cobra.Command {
 	flags := showCmdFlags{}
 
 	command := &cobra.Command{
-		Use:   app.Trans("show.use"),
-		Short: app.Trans("show.short"),
-		Long:  app.Trans("show.long"),
-
+		Use:     app.Trans("show.use"),
+		Short:   app.Trans("show.short"),
+		Long:    app.Trans("show.long"),
+		Example: app.Trans("show.example"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return showFleek(cmd)
 		},
@@ -80,18 +80,6 @@ func showFleek(cmd *cobra.Command) error {
 		ux.Info.Println("["+b.Name+" Bling]", b.Description)
 	}
 
-	var packages []string
-	for n := range b.PackageMap {
-		//fmt.Println(style.Render(n))
-		packages = append(packages, n)
-		//fmt.Println(style.Render(p.Description))
-	}
-	var programs []string
-	for n := range b.ProgramMap {
-		//fmt.Println(style.Render(n))
-		programs = append(programs, n)
-		//fmt.Println(style.Render(p.Description))
-	}
 	if showJSON {
 		bb, err := json.Marshal(b)
 		if err != nil {
@@ -102,8 +90,8 @@ func showFleek(cmd *cobra.Command) error {
 	}
 
 	ux.ThreeColumnList(
-		"["+b.Name+"] "+app.Trans("show.packages"), packages,
-		"["+b.Name+"] "+app.Trans("show.managedPackages"), programs,
+		"["+b.Name+"] "+app.Trans("show.packages"), b.Packages,
+		"["+b.Name+"] "+app.Trans("show.managedPackages"), b.Programs,
 		app.Trans("show.userPackages"), f.config.Packages,
 	)
 

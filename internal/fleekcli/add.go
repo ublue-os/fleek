@@ -16,11 +16,11 @@ type addCmdFlags struct {
 func AddCommand() *cobra.Command {
 	flags := addCmdFlags{}
 	command := &cobra.Command{
-		Use:   app.Trans("add.use"),
-		Short: app.Trans("add.short"),
-		Long:  app.Trans("add.long"),
-		Args:  cobra.MinimumNArgs(1),
-
+		Use:     app.Trans("add.use"),
+		Short:   app.Trans("add.short"),
+		Long:    app.Trans("add.long"),
+		Args:    cobra.MinimumNArgs(1),
+		Example: app.Trans("add.example"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return add(cmd, args)
 		},
