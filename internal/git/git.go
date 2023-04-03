@@ -125,6 +125,12 @@ func (fr *FlakeRepo) CreateRepo() ([]byte, error) {
 	if err != nil {
 		return output, fmt.Errorf("git config: %w", err)
 	}
+	mainCmdLine := []string{"branch", "-M", "main"}
+	out, err = fr.runGit(gitbin, mainCmdLine)
+	output = append(output, out...)
+	if err != nil {
+		return output, fmt.Errorf("git branch: %w", err)
+	}
 	return output, err
 }
 func (fr *FlakeRepo) SetRebase() ([]byte, error) {
