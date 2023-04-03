@@ -29,9 +29,9 @@ builds:
       - arm64
     ldflags:
       - -w -extldflags "-static"
-      - -s -w -X github.com/fleek/internal/build.Version={{.Version}}
-      - -s -w -X github.com/fleek/internal/build.Commit={{.Commit}}
-      - -s -w -X github.com/fleek/internal/build.CommitDate={{.CommitDate}}
+      - -s -w -X github.com/ublue-os/fleek/internal/build.Version={{.Version}}
+      - -s -w -X github.com/ublue-os/fleek/internal/build.Commit={{.Commit}}
+      - -s -w -X github.com/ublue-os/fleek/internal/build.CommitDate={{.CommitDate}}
     flags:
       - -tags=netgo
       - -a

@@ -23,6 +23,7 @@ func ApplyCommand() *cobra.Command {
 		Use:   app.Trans("apply.use"),
 		Short: app.Trans("apply.short"),
 		Long:  app.Trans("apply.long"),
+		Example: app.Trans("apply.example"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return apply(cmd)
 		},

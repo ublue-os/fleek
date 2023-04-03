@@ -20,7 +20,7 @@ func AddCommand() *cobra.Command {
 		Short: app.Trans("add.short"),
 		Long:  app.Trans("add.long"),
 		Args:  cobra.MinimumNArgs(1),
-
+		Example: app.Trans("add.example"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return add(cmd, args)
 		},

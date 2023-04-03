@@ -16,9 +16,11 @@ type remoteAddCmdFlags struct {
 func RepoAddCmd() *cobra.Command {
 	flags := remoteAddCmdFlags{}
 	command := &cobra.Command{
-		Use:   app.Trans("remoteadd.use"),
-		Short: app.Trans("remoteadd.short"),
-		Long:  app.Trans("remoteadd.long"),
+		Use:     app.Trans("remoteadd.use"),
+		Short:   app.Trans("remoteadd.short"),
+		Long:    app.Trans("remoteadd.long"),
+		Args:    cobra.ExactArgs(1),
+		Example: app.Trans("remoteadd.example"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return remoteadd(cmd, args)
 		},
