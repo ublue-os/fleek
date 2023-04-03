@@ -77,6 +77,7 @@ func apply(cmd *cobra.Command) error {
 		out, err := repo.Commit()
 		if err != nil {
 			debug.Log("git commit error: %s", err)
+			debug.Log(string(out))
 			return err
 		}
 		if verbose {
@@ -115,6 +116,8 @@ func apply(cmd *cobra.Command) error {
 		out, err = r.Commit()
 		if err != nil {
 			debug.Log("git commit error: %s", err)
+			debug.Log(string(out))
+
 			return err
 		}
 		if verbose {
@@ -146,6 +149,7 @@ func apply(cmd *cobra.Command) error {
 		out, err := repo.Push()
 		if err != nil {
 			debug.Log("git push error: %s", err)
+			debug.Log(string(out))
 			return err
 		}
 		if verbose {
