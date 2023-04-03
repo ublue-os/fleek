@@ -1,4 +1,4 @@
-package fleekcli 
+package fleekcli
 
 import (
 	"os"

@@ -24,9 +24,9 @@ type initCmdFlags struct {
 func InitCommand() *cobra.Command {
 	flags := initCmdFlags{}
 	command := &cobra.Command{
-		Use:   app.Trans("init.use"),
-		Short: app.Trans("init.short"),
-		Long:  app.Trans("init.long"),
+		Use:     app.Trans("init.use"),
+		Short:   app.Trans("init.short"),
+		Long:    app.Trans("init.long"),
 		Example: app.Trans("init.example"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return initialize(cmd)
