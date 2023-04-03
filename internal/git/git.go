@@ -153,7 +153,7 @@ func (fr *FlakeRepo) Push() ([]byte, error) {
 	if remote == "" {
 		return []byte{}, nil
 	}
-	pushCmdline := []string{"push", "origin", "main"}
+	pushCmdline := []string{"push", "-u", "origin", "main"}
 	out, err := fr.runGit(gitbin, pushCmdline)
 	if err != nil {
 		return out, fmt.Errorf("git push: %w", err)
