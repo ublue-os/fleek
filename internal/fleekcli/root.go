@@ -4,7 +4,6 @@ import (
 	"io"
 
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
 	"github.com/ublue-os/fleek/internal/ux"
@@ -71,28 +70,16 @@ func RootCmd() *cobra.Command {
 		ID:    "package",
 		Title: app.Trans("global.packageGroup"),
 	}
-	gitGroup := &cobra.Group{
-		ID:    "gitgroup",
-		Title: app.Trans("global.gitGroup"),
-	}
-	command.AddGroup(initGroup, packageGroup, gitGroup, fleekGroup)
+
+	command.AddGroup(initGroup, packageGroup, fleekGroup)
 	addCmd := AddCommand()
 	addCmd.GroupID = packageGroup.ID
 
 	removeCmd := RemoveCommand()
 	removeCmd.GroupID = packageGroup.ID
 
-	syncCmd := SyncCmd()
-	syncCmd.GroupID = gitGroup.ID
-
 	showCmd := ShowCmd()
 	showCmd.GroupID = fleekGroup.ID
-	repoAddCmd := RepoAddCmd()
-	repoAddCmd.GroupID = gitGroup.ID
-	repoShowCmd := RepoShowCmd()
-	repoShowCmd.GroupID = gitGroup.ID
-	repoCmd := RepoCmd()
-	repoCmd.GroupID = gitGroup.ID
 
 	applyCmd := ApplyCommand()
 	applyCmd.GroupID = fleekGroup.ID
@@ -117,12 +104,12 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(docsCmd)
 	command.AddCommand(manCmd)
 	command.AddCommand(showCmd)
-	command.AddCommand(syncCmd)
+
 	command.AddCommand(addCmd)
 	command.AddCommand(removeCmd)
 	command.AddCommand(applyCmd)
 	command.AddCommand(updateCmd)
-	command.AddCommand(repoCmd)
+
 	command.AddCommand(initCmd)
 	command.AddCommand(ejectCmd)
 	command.AddCommand(searchCmd)
@@ -145,21 +132,6 @@ func mustConfig() error {
 
 	if !cfgFound {
 		return usererr.New("configuration files not found, run `fleek init`")
-	}
-	return nil
-}
-
-var dirty = func(_ *cobra.Command, _ []string) error {
-	fl, err := flake.Load(cfg, app)
-	if err != nil {
-		return err
-	}
-	dirty, err := fl.Dirty()
-	if err != nil {
-		return err
-	}
-	if dirty {
-		ux.Warning.Println(app.Trans("fleek.dirty"))
 	}
 	return nil
 }

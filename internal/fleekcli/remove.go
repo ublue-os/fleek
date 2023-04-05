@@ -78,16 +78,12 @@ func remove(cmd *cobra.Command, args []string) error {
 		debug.Log("flake write error: %s", err)
 		return err
 	}
-	err = fl.Commit(sb.String())
-	if err != nil {
-		debug.Log("commit error: %s", err)
-		return err
-	}
+
 	if apply {
 		if verbose {
 			ux.Info.Println(app.Trans("remove.applying"))
 		}
-		err = fl.Apply(sb.String())
+		err = fl.Apply()
 		if err != nil {
 			if errors.Is(err, flake.ErrPackageConflict) {
 				ux.Fatal.Println(app.Trans("global.errConflict"))

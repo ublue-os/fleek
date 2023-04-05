@@ -30,7 +30,6 @@ func ShowCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return showFleek(cmd)
 		},
-		PostRunE: dirty,
 	}
 	command.Flags().BoolVarP(
 		&flags.json, app.Trans("show.jsonFlag"), "j", false, app.Trans("show.jsonFlagDescription"))

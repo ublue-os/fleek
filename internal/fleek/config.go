@@ -2,7 +2,6 @@ package fleek
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -33,7 +32,6 @@ type Config struct {
 	Verbose  bool   `yaml:"-"`
 	Force    bool   `yaml:"-"`
 	Quiet    bool   `yaml:"-"`
-	Branch   string `yaml:"branch"`
 	FlakeDir string `yaml:"flakedir"`
 	Unfree   bool   `yaml:"unfree"`
 	// bash or zsh
@@ -49,18 +47,12 @@ type Config struct {
 	Ejected    bool              `yaml:"ejected"`
 	Systems    []*System         `yaml:",flow"`
 }
-type GitConfig struct {
-	Name       string `yaml:"name"`
-	Email      string `yaml:"email"`
-	PrivateKey string `yaml:"privatekey"`
-}
 
 type System struct {
-	Hostname  string    `yaml:"hostname"`
-	Username  string    `yaml:"username"`
-	Arch      string    `yaml:"arch"`
-	OS        string    `yaml:"os"`
-	GitConfig GitConfig `yaml:"git"`
+	Hostname string `yaml:"hostname"`
+	Username string `yaml:"username"`
+	Arch     string `yaml:"arch"`
+	OS       string `yaml:"os"`
 }
 
 func (s System) HomeDir() string {
@@ -71,7 +63,7 @@ func (s System) HomeDir() string {
 	return base + "/" + s.Username
 }
 
-func NewSystem(name, email, key string) (*System, error) {
+func NewSystem() (*System, error) {
 	user, err := Username()
 	if err != nil {
 		return nil, err
@@ -85,11 +77,6 @@ func NewSystem(name, email, key string) (*System, error) {
 		Arch:     Arch(),
 		OS:       runtime.GOOS,
 		Username: user,
-		GitConfig: GitConfig{
-			Name:       name,
-			Email:      email,
-			PrivateKey: key,
-		},
 	}, nil
 }
 
@@ -259,16 +246,16 @@ func ReadConfig() (*Config, error) {
 	return c, nil
 }
 
-func (c *Config) WriteInitialConfig(email, name string, force bool) error {
+func (c *Config) WriteInitialConfig(force bool) error {
 	aliases := make(map[string]string)
-	aliases["fleeks"] = "cd ~/.config/home-manager"
-	sys, err := NewSystem(name, email, "")
+	aliases["fleeks"] = "cd ~/Sync/fleek"
+	sys, err := NewSystem()
 	if err != nil {
 		debug.Log("new system err: %s ", err)
 		return err
 	}
 	c.Unfree = true
-	c.Name = fmt.Sprintf("Fleek Configuration for %s", name)
+	c.Name = "Fleek Configuration"
 	c.Packages = []string{
 		"helix",
 	}

@@ -25,7 +25,6 @@ func AddCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return add(cmd, args)
 		},
-		PostRunE: dirty,
 	}
 	command.Flags().BoolVarP(
 		&flags.apply, app.Trans("add.applyFlag"), "a", false, app.Trans("add.applyFlagDescription"))
@@ -67,15 +66,11 @@ func add(cmd *cobra.Command, args []string) error {
 		debug.Log("flake write error: %s", err)
 		return err
 	}
-	err = fl.Commit(sb.String())
-	if err != nil {
-		debug.Log("commit error: %s", err)
-		return err
-	}
+
 	if apply {
 		ux.Info.Println(app.Trans("add.applying"))
 
-		err = fl.Apply(sb.String())
+		err = fl.Apply()
 		if err != nil {
 			if errors.Is(err, flake.ErrPackageConflict) {
 				ux.Fatal.Println(app.Trans("global.errConflict"))

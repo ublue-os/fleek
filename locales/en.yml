@@ -14,26 +14,10 @@ fleek:
   quietFlagDescription: "suppress logs"
   verboseFlag: "verbose"
   verboseFlagDescription: "show more detailed output"
-  gitStatus: "Checking status of fleek repository"
-  dirty: "fleek repository has uncommitted changes, run `fleek sync` to commit and push changes"
-  ahead: "local fleek repository has unpushed changes, run `fleek sync` to push changes"
-  behind: "remote fleek repository has changes to be pulled"
-  pull: "Pulling remote changes"
-  push: "Pushing local changes to remote"
   nixGarbage: "run garbage collection to remove unused items"
-  syncFlag: "synchronize git repository before and after command"
   installNix: "No nix installation found! We recommend starting at https://zero-to-nix.com/"
   noConfigFound: "Configuration file does not exist."
   noFlakeFound: "Fleek configuration directory does not exist."
-  validRepository: "Fleek configuration directory is a git repository."
-  notValidRepository: "Fleek configuration directory is not a git repository."
-  remoteFound: "Found git remote: "
-  noRemote: "Fleek configuration directory has no configured git remotes."
-  gettingStatus: "Getting git remote status"
-  skippingStatus: "Skipping git remote status"
-  aheadStatus: "Local fleek repository is ahead of remote. Run `fleek sync` to push changes."
-  behindStatus: "Local fleek repository is behind remote. Run `fleek sync` to pull changes."
-  divergedStatus: "Both local and remote repositories have changes. Run `fleek sync` to reconcile changes."
   migrating: "Migrating .fleek.yml to current version"
   migrated: "Migrated .fleek.yml"
   configLoaded: "Loaded configuration"
@@ -57,17 +41,12 @@ apply:
   short: "Apply fleek configuration"
   example: |
     fleek apply
-    fleek apply --push
     fleek apply --dry-run
   behind: "Can't apply with unmerged remote changes. Use `--sync` flag to pull remote changes."
   dryRunFlag: "dry-run"
   dryRunFlagDescription: "dry run - don't apply configuration"
-  pushFlag: "push"
-  pushFlagDescription: "push modified configuration to git remote"
-  pushing: "Pushing changes to git remote"
   writingConfig: "Writing configuration templates"
   writingFlake: "Writing Nix flake"
-  commitError: "Error committing changes to local repository"
   checkingSystem: "Checking for current system in flake"
   newSystem: "New system detected"
   applyingConfig: "Applying config to flake, please wait..."
@@ -77,23 +56,18 @@ init:
   use: "init"
   long: |
     Initialize fleek with standard configuration options.
-    If `--clone` is set, an existing Fleek configuration will be cloned from that repository.
+    Configuration is stored in $HOME/Sync/fleek by default. You can change this option with the -l/--location flag.
   short: "Initialize fleek"
   example: |
     fleek init
-    fleek init -c git@github.com:you/fleeks
-    fleek init -a -c git@github.com:you/fleeks
+    fleek init -l Sync/configs
+    fleek init -a
   forceFlag: "force"
   forceFlagDescription: "overwrite existing configuration files"
   flakeLocation: "Flake Location"
   start: "initializing fleek"
   applyFlag: "apply"
-  cloneFlag: "clone"
-  cloneFlagDescription: "address of existing fleek repository"
-  branchFlag: "branch"
-  branchFlagDescription: "git branch of remote repository"
   applyFlagDescription: "apply configuration immediately after cloning"
-  cloned: "repository cloned"
   checkNix: "checking for nix installation"
   writingConfigs: "writing configuration files"
   nixNotFound: "can't find `nix` binary - is nix installed?"
@@ -102,13 +76,7 @@ init:
   locationFlagDescription: "location of fleek repository, relative to home"
   levelFlag: "level"
   levelFlagDescription: "bling level: `none`,`low`,`default`,`high`"
-  gitEmail: "git: enter your email address"
-  gitName: "git: enter your full name"
   newSystem: "New System: %s@%s"
-  privateKeyFlag: "key"
-  privateKeyFlagDescription: "location of private ssh key to use with git, relative to $HOME"
-  promptPasswordFlag: "prompt-password"
-  promptPasswordFlagDescription: "prompt for ssh key password"
   blingLevel: "Bling Level: %s"
 add:
   use: "add [package] [package] ..."
@@ -137,28 +105,6 @@ remove:
   config: "Removing package %s from configuration"
   applying: "Removing package and applying configuration"
   done: "Complete!"
-remote:
-  use: "remote"
-  long: "Manage or show the remote git repository"
-  short: "Manage or show the remote git repository"
-remoteshow:
-  use: "show"
-  long: "Show the remote git repository"
-  short: "Show the remote git repository"
-  configured: "Fleek Configured: "
-  actual: "Git Configured: "
-  done: "Command completed."
-remoteadd:
-  use: "add"
-  long: "Configure fleek to use a remote git repository"
-  short: "Configure fleek to use a remote git repository"
-  example: |
-    fleek remote add git@github.com:your/fleeks
-    fleek remote add -n origin git@github.com:your/fleeks
-  nameFlag: "name"
-  nameFlagDescription: "git reference name of the remote"
-  saving: "Saving new configuration"
-  addingRemote: "Adding git remote"
 update:
   use: "update"
   long: |
@@ -186,20 +132,6 @@ show:
   levelFlag: "level"
   levelFlagDescription: "show a different bling level"
   invalidLevel: "Invalid bling level"
-sync:
-  use: "sync"
-  long: |
-    Synchronize local configuration with remote git repository.
-    Requires a configured remote repository. See `fleek remote add` for details.
-  short: "Synchronize configuration with git"
-  noChanges: "No changes to synchronize"
-  gitPush: "Running `git push`"
-  gitPull: "Running `git pull`"
-  gitCommit: "Running `git commit`"
-  remoteStatus: "Remote Status: "
-  flakeStatus: "Flake Status: "
-  gettingRemoteStatus: "Getting git remote status"
-  gettingLocalStatus: "Getting git local status"
 search:
   use: "search <package>"
   long: |
@@ -227,7 +159,6 @@ search:
   package: "Package"
   version: "Version"
   description: "Description"
-
 version:
   use: "version"
   short: "Print version information"
@@ -242,11 +173,9 @@ global:
   completed: "Operation completed successfully"
   failed: "Operation failed"
   applying: "Applying configuration"
-  commit: "Commiting git changes"
   initGroup: "Getting Started"
   fleekGroup: "Configuration Commands"
   packageGroup: "Package Management Commands"
-  gitGroup: "Repository Management Commands"
   errConflict: "A package in your .fleek.yml exists in your nix profile.\nThis can happen if you manually install something with `nix profile install ...`.\nTo fix this error, run `nix profile list` and find the profile number of the offending package, then run `nix profile remomve [that number]`\nbefore running `fleek` again."
 info:
   use: "info <package>"
@@ -257,20 +186,11 @@ info:
   notFound: "That program or package is not part of fleek's bling set."
   aliases: "Provides the following shell aliases:"
 flake:
-  cloning: "Cloning git repository %s"
-  gitConfigs: "Setting up git configuration"
-  commit: "Committing changes to git repository"
   noConfig: "No configuration files found. Try `fleek init`."
   configLoaded: "Configuration loaded"
   initializingTemplates: "Initializing templates"
   ensureDir: "Ensuring flake directory exists"
-  gettingKeys: "Opening ssh keys"
-  creating: "Creating configuration files %s"
+  creating: "Creating configuration files"
   writing: "Writing configuration files"
   apply: "Applying configuration"
   update: "Updating flake sources"
-  fetching: "Fetching remote changes to remote"
-  pushing: "Pushing changes to remote"
-  pulling: "Pulling remote changes"
-  errNoRemotes: "No remotes configured. Try `fleek remote add`."
-  syncMessage: "sync"

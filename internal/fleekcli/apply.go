@@ -24,10 +24,7 @@ func ApplyCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return apply(cmd)
 		},
-		PostRunE: dirty,
 	}
-	command.Flags().BoolVarP(
-		&flags.push, app.Trans("apply.pushFlag"), "p", false, app.Trans("apply.pushFlagDescription"))
 	command.Flags().BoolVarP(
 		&flags.dryRun, app.Trans("apply.dryRunFlag"), "d", false, app.Trans("apply.dryRunFlagDescription"))
 
@@ -40,10 +37,7 @@ func apply(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-	var push bool
-	if cmd.Flag(app.Trans("apply.pushFlag")).Changed {
-		push = true
-	}
+
 	var dry bool
 	if cmd.Flag(app.Trans("apply.dryRunFlag")).Changed {
 		dry = true
@@ -56,14 +50,8 @@ func apply(cmd *cobra.Command) error {
 		return err
 	}
 	if !dry {
-
-		if err := fl.Write(true); err != nil {
+		if err := fl.Apply(); err != nil {
 			return err
-		}
-		if push {
-			if err := fl.Push(); err != nil {
-				return err
-			}
 		}
 	} else {
 		ux.Info.Println(app.Trans("apply.dryApplyingConfig"))

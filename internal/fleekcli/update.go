@@ -22,7 +22,6 @@ func UpdateCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return update(cmd)
 		},
-		PostRunE: dirty,
 	}
 	command.Flags().BoolVarP(
 		&flags.apply, app.Trans("update.applyFlag"), "a", false, app.Trans("update.applyFlagDescription"))
@@ -45,7 +44,7 @@ func update(cmd *cobra.Command) error {
 		return err
 	}
 	if cmd.Flag(app.Trans("update.applyFlag")).Changed {
-		if err := fl.Apply(app.Trans("flake.update")); err != nil {
+		if err := fl.Apply(); err != nil {
 			return err
 		}
 	} else {

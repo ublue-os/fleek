@@ -11,14 +11,10 @@ import (
 )
 
 type initCmdFlags struct {
-	apply          bool
-	force          bool
-	clone          string
-	promptPassword bool
-	location       string
-	branch         string
-	privateKey     string
-	level          string
+	apply    bool
+	force    bool
+	location string
+	level    string
 }
 
 func InitCommand() *cobra.Command {
@@ -37,18 +33,9 @@ func InitCommand() *cobra.Command {
 	command.Flags().BoolVarP(
 		&flags.force, app.Trans("init.forceFlag"), "f", false, app.Trans("init.forceFlagDescription"))
 	command.Flags().StringVarP(
-		&flags.clone, app.Trans("init.cloneFlag"), "c", "", app.Trans("init.cloneFlagDescription"))
-	command.Flags().StringVarP(
-		&flags.branch, app.Trans("init.branchFlag"), "b", "main", app.Trans("init.branchFlagDescription"))
-	command.Flags().StringVarP(
-		&flags.location, app.Trans("init.locationFlag"), "l", ".config/home-manager", app.Trans("init.locationFlagDescription"))
-
+		&flags.location, app.Trans("init.locationFlag"), "l", "Sync/fleek", app.Trans("init.locationFlagDescription"))
 	command.Flags().StringVar(
 		&flags.level, app.Trans("init.levelFlag"), "default", app.Trans("init.levelFlagDescription"))
-	command.Flags().StringVarP(
-		&flags.privateKey, app.Trans("init.privateKeyFlag"), "k", ".ssh/id_rsa", app.Trans("init.privateKeyFlagDescription"))
-	command.Flags().BoolVarP(
-		&flags.promptPassword, app.Trans("init.promptPasswordFlag"), "p", false, app.Trans("init.promptPasswordFlagDescription"))
 	return command
 }
 
@@ -71,31 +58,16 @@ func initialize(cmd *cobra.Command) error {
 	if err != nil {
 		return usererr.WithUserMessage(err, app.Trans("flake.initializingTemplates"))
 	}
-	var upstream string
-	var branch string
-	prompt := cmd.Flag(app.Trans("init.promptPasswordFlag")).Changed
-
 	loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
-	keyfile := cmd.Flag(app.Trans("init.privateKeyFlag")).Value.String()
-
 	cfg.FlakeDir = loc
 
-	if cmd.Flag(app.Trans("init.cloneFlag")).Changed {
-		upstream = cmd.Flag(app.Trans("init.cloneFlag")).Value.String()
-		branch = cmd.Flag(app.Trans("init.branchFlag")).Value.String()
-		err := fl.Clone(upstream, branch, keyfile, prompt)
-		if err != nil {
-			return usererr.WithUserMessage(err, app.Trans("flake.cloning", upstream))
-		}
-	} else {
-		fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
-		err := fl.Create(force)
-		if err != nil {
-			return usererr.WithUserMessage(err, app.Trans("flake.creating", upstream))
-		}
+	fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
+	err = fl.Create(force)
+	if err != nil {
+		return usererr.WithUserMessage(err, app.Trans("flake.creating"))
 	}
 	if cmd.Flag(app.Trans("init.applyFlag")).Changed {
-		err := fl.Apply("")
+		err := fl.Apply()
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("init.applyFlag"))
 		}
