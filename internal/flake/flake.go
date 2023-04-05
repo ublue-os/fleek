@@ -203,6 +203,9 @@ func (f *Flake) Clone(repo, branch, privateKey string, promptPass bool) error {
 				return err
 			}
 			f.writeSystem(*sys, f.Config.Force)
+			if err != nil {
+				return err
+			}
 			err = f.Commit("add system: " + sys.Hostname)
 			if err != nil {
 				return err
