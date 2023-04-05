@@ -4,11 +4,14 @@ import (
 	"io"
 
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/internal/debug"
+	"github.com/ublue-os/fleek/internal/flake"
+	"github.com/ublue-os/fleek/internal/fleek"
+	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
 	"github.com/ublue-os/fleek/internal/ux"
 )
 
-var f *Fleek
+var cfg *fleek.Config
+var cfgFound bool
 
 type rootCmdFlags struct {
 	quiet   bool
@@ -26,44 +29,28 @@ func RootCmd() *cobra.Command {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
 			}
-			var err error
-			debug.Log("initializing fleek controller")
-			f, err = initFleek(false)
-			cobra.CheckErr(err)
+			// try to get the config, which may not exist yet
+			c, err := fleek.ReadConfig()
+			if err == nil {
+				if flags.verbose {
+					ux.Info.Println(app.Trans("fleek.configLoaded"))
+				}
+				cfg = c
+				cfgFound = true
+			} else {
+				cfg = &fleek.Config{}
+				cfgFound = false
+			}
+			if cfg != nil {
+				cfg.Quiet = flags.quiet
+				cfg.Verbose = flags.verbose
+			}
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
 			}
 
-			debug.Log("repo status")
-			if f.repo != nil {
-				dirty, _, err := f.repo.Dirty()
-				cobra.CheckErr(err)
-				if dirty {
-					ux.Warning.Println(app.Trans("fleek.dirty"))
-				}
-				debug.Log("getting remote status")
-				ahead, behind, _, err := f.repo.AheadBehind(false)
-				cobra.CheckErr(err)
-				debug.Log("ahead: %v", ahead)
-				debug.Log("behind: %v", behind)
-
-				if ahead {
-					debug.Log("remote status: %s", FlakeAhead.String())
-
-					ux.Warning.Println("Remote Status: " + app.Trans("fleek.aheadStatus"))
-				}
-				if behind {
-					debug.Log("remote status: %s", FlakeBehind.String())
-					ux.Warning.Println("Remote Status: " + app.Trans("fleek.behindStatus"))
-
-				}
-				if ahead && behind {
-					debug.Log("remote status: %s", FlakeDiverged.String())
-					ux.Warning.Println("Remote Status: " + app.Trans("fleek.divergedStatus"))
-				}
-			}
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
@@ -152,4 +139,27 @@ func RootCmd() *cobra.Command {
 	traceMiddleware.AttachToFlag(command.PersistentFlags(), app.Trans("fleek.traceFlag"))
 
 	return command
+}
+
+func mustConfig() error {
+
+	if !cfgFound {
+		return usererr.New("configuration files not found, run `fleek init`")
+	}
+	return nil
+}
+
+var dirty = func(_ *cobra.Command, _ []string) error {
+	fl, err := flake.Load(cfg, app)
+	if err != nil {
+		return err
+	}
+	dirty, err := fl.Dirty()
+	if err != nil {
+		return err
+	}
+	if dirty {
+		ux.Warning.Println(app.Trans("fleek.dirty"))
+	}
+	return nil
 }

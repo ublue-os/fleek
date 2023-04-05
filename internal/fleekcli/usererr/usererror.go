@@ -28,18 +28,6 @@ func New(msg string, args ...any) error {
 	})
 }
 
-// NewLogged creates new user error with the given message. These messages are
-// logged to Sentry without the message (for privacy reasons). This is useful
-// for unexpected errors that we want to make sure to log but we also want to
-// attach a good human readable message to.
-func NewLogged(msg string, args ...any) error {
-	return errors.WithStack(&combined{
-		userMessage: fmt.Sprintf(msg, args...),
-		level:       levelError,
-		logged:      true,
-	})
-}
-
 func NewWarning(msg string, args ...any) error {
 	return errors.WithStack(&combined{
 		userMessage: fmt.Sprintf(msg, args...),

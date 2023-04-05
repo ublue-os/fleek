@@ -15,7 +15,7 @@ fleek:
   verboseFlag: "verbose"
   verboseFlagDescription: "show more detailed output"
   gitStatus: "Checking status of fleek repository"
-  dirty: "fleek repository has uncommitted changes, run `fleek sync` to push changes"
+  dirty: "fleek repository has uncommitted changes, run `fleek sync` to commit and push changes"
   ahead: "local fleek repository has unpushed changes, run `fleek sync` to push changes"
   behind: "remote fleek repository has changes to be pulled"
   pull: "Pulling remote changes"
@@ -36,6 +36,7 @@ fleek:
   divergedStatus: "Both local and remote repositories have changes. Run `fleek sync` to reconcile changes."
   migrating: "Migrating .fleek.yml to current version"
   migrated: "Migrated .fleek.yml"
+  configLoaded: "Loaded configuration"
 eject:
   use: "eject"
   long: |
@@ -48,9 +49,9 @@ eject:
   confirm: "Are you sure you want to manage your home configuration files directly?"
 apply:
   use: "apply"
-  long: | 
+  long: |
     Apply fleek configuration by reading the ~/.fleek.yml file, updating the flake templates, and applying the changes.
-    
+
     Use the `--dry-run` flag to test your changes without applying them.
     Use the `--push` flag to push your local changes to your git remote if one is configured.
   short: "Apply fleek configuration"
@@ -89,6 +90,8 @@ init:
   applyFlag: "apply"
   cloneFlag: "clone"
   cloneFlagDescription: "address of existing fleek repository"
+  branchFlag: "branch"
+  branchFlagDescription: "git branch of remote repository"
   applyFlagDescription: "apply configuration immediately after cloning"
   cloned: "repository cloned"
   checkNix: "checking for nix installation"
@@ -97,9 +100,16 @@ init:
   complete: "Done. \n\nEdit ~/.fleek.yml to your taste and run `fleek apply`"
   locationFlag: "location"
   locationFlagDescription: "location of fleek repository, relative to home"
+  levelFlag: "level"
+  levelFlagDescription: "bling level: `none`,`low`,`default`,`high`"
   gitEmail: "git: enter your email address"
   gitName: "git: enter your full name"
   newSystem: "New System: %s@%s"
+  privateKeyFlag: "key"
+  privateKeyFlagDescription: "location of private ssh key to use with git, relative to $HOME"
+  promptPasswordFlag: "prompt-password"
+  promptPasswordFlagDescription: "prompt for ssh key password"
+  blingLevel: "Bling Level: %s"
 add:
   use: "add [package] [package] ..."
   long: "Add a new package or program to your configuration.\nUse the `--program` flag to specify a program which can also be configured by nix."
@@ -112,6 +122,7 @@ add:
   applyFlagDescription: "apply configuration after adding"
   adding: "Adding package "
   applying: "Applying configuration"
+  unapplied: "Package(s) added, but not applied. Run `fleek apply` to apply configuration."
   done: "Complete!"
 remove:
   use: "remove [package] [package] ..."
@@ -123,7 +134,7 @@ remove:
   program: "remove a program instead of package"
   applyFlag: "apply"
   applyFlagDescription: "apply configuration after removing"
-  config: "Removing package from configuration"
+  config: "Removing package %s from configuration"
   applying: "Removing package and applying configuration"
   done: "Complete!"
 remote:
@@ -151,13 +162,14 @@ remoteadd:
 update:
   use: "update"
   long: |
-    Update installed packages.
+    Update package index.
     Use `--apply` flag to apply the updates.
-  short: "Update installed packages"
-  start: "Updating available packages"
+  short: "Update package index"
+  applyStart: "Applying updates"
   applyFlag: "apply"
-  applyFlagDescription: "Applying updates."
+  applyFlagDescription: "apply updates after updating"
   needApply: "Run the `apply` command to apply these updates"
+  applied: "Updates applied."
   done: "Update complete."
 show:
   use: "show"
@@ -191,7 +203,7 @@ sync:
 search:
   use: "search <package>"
   long: |
-    Search the package repository. 
+    Search the package repository.
     On first run, `search` will download a local copy of the nix packages index in JSON format.
 
     Update the local package cache by using the `--update` flag.
@@ -244,3 +256,21 @@ info:
   short: "Show detailed information about a fleek installed package"
   notFound: "That program or package is not part of fleek's bling set."
   aliases: "Provides the following shell aliases:"
+flake:
+  cloning: "Cloning git repository %s"
+  gitConfigs: "Setting up git configuration"
+  commit: "Committing changes to git repository"
+  noConfig: "No configuration files found. Try `fleek init`."
+  configLoaded: "Configuration loaded"
+  initializingTemplates: "Initializing templates"
+  ensureDir: "Ensuring flake directory exists"
+  gettingKeys: "Opening ssh keys"
+  creating: "Creating configuration files %s"
+  writing: "Writing configuration files"
+  apply: "Applying configuration"
+  update: "Updating flake sources"
+  fetching: "Fetching remote changes to remote"
+  pushing: "Pushing changes to remote"
+  pulling: "Pulling remote changes"
+  errNoRemotes: "No remotes configured. Try `fleek remote add`."
+  syncMessage: "sync"

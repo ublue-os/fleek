@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/ublue-os/fleek/internal/core"
 	"github.com/ublue-os/fleek/internal/debug"
+	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/xdg"
 )
 
@@ -39,7 +39,7 @@ func New() (*PackageCache, error) {
 		location: cacheDir,
 	}
 	if _, err := os.Stat(cacheDir); errors.Is(err, fs.ErrNotExist) {
-		err := core.MkdirAll(cacheDir)
+		err := fleek.MkdirAll(cacheDir)
 		if err != nil {
 			return pc, err
 		}

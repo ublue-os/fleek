@@ -6,6 +6,7 @@ package fleekcli
 import (
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/internal/debug"
+	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/ux"
 )
 
@@ -38,11 +39,17 @@ func remoteadd(cmd *cobra.Command, args []string) error {
 		verbose = true
 	}
 	ux.Description.Println(cmd.Short)
-	f.config.Repository = args[0]
+
+	fl, err := flake.Load(cfg, app)
+	if err != nil {
+		return err
+	}
+
+	fl.Config.Repository = args[0]
 	if verbose {
 		ux.Info.Println(app.Trans("remoteAdd.saving"))
 	}
-	err := f.config.Save()
+	err = fl.Config.Save()
 	if err != nil {
 		debug.Log("save config error: %s", err)
 		ux.Error.Println(err)
@@ -53,28 +60,20 @@ func remoteadd(cmd *cobra.Command, args []string) error {
 		ux.Info.Println(app.Trans("remoteAdd.addingRemote"))
 	}
 	name := cmd.Flag("name").Value.String()
-	repo, err := f.Repo()
-	if err != nil {
-		debug.Log("getting repo error: %s", err)
-		ux.Error.Println(err)
-		return err
-	}
-	err = repo.RemoteAdd(args[0], name)
+
+	err = fl.RemoteAdd(args[0], name)
 	if err != nil {
 		debug.Log("adding remote repo error: %s", err)
 		ux.Error.Println(err)
 		return err
 	}
-	out, err := repo.Commit()
+	err = fl.Commit("fleek: add remote repository")
 	if err != nil {
-		debug.Log("repo commit error: %s", err)
-		ux.Error.Println(err)
+		debug.Log("commit error: %s", err)
 		return err
 	}
-	if verbose {
-		ux.Info.Println(string(out))
-	}
-	ux.Info.Println(f.config.Repository)
+
+	ux.Info.Println(fl.Config.Repository)
 	ux.Success.Println(app.Trans("remoteAdd.done"))
 	return nil
 }

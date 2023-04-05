@@ -1,0 +1,15 @@
+name: High
+description: A modern experience for modern times
+packages:
+  - lazygit
+  - jq
+  - yq
+  - neovim
+  - neofetch
+  - btop
+  - cheat
+programs:
+  - exa
+  - bat
+  - atuin
+  - zoxide

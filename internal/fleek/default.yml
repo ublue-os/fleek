@@ -1,0 +1,8 @@
+name: Default
+description: Just Enough bling
+packages:
+  - fzf
+  - ripgrep 
+  - vscode
+programs:
+  - direnv

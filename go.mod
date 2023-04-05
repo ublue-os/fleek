@@ -19,6 +19,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/muesli/mango v0.1.0 // indirect
 	github.com/muesli/mango-pflag v0.1.0 // indirect
+	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab // indirect
 )
 
 require (

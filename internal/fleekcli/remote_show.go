@@ -5,6 +5,7 @@ package fleekcli
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/ux"
 )
 
@@ -23,16 +24,20 @@ func RepoShowCmd() *cobra.Command {
 // initCmd represents the init command
 func show(cmd *cobra.Command) error {
 	ux.Description.Println(cmd.Short)
+	err := mustConfig()
+	if err != nil {
+		return err
+	}
+	fl, err := flake.Load(cfg, app)
+	if err != nil {
+		return err
+	}
 
-	repo, err := f.Repo()
+	urls, err := fl.Remote()
 	if err != nil {
 		return err
 	}
-	urls, err := repo.Remote()
-	if err != nil {
-		return err
-	}
-	ux.Info.Println(app.Trans("remoteshow.configured"), f.config.Repository)
+	ux.Info.Println(app.Trans("remoteshow.configured"), fl.Config.Repository)
 	ux.Info.Println(app.Trans("remoteshow.actual"), urls)
 	ux.Description.Println(app.Trans("remoteshow.done"))
 

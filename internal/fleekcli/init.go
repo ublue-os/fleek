@@ -4,21 +4,21 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package fleekcli
 
 import (
-	"errors"
-	"strings"
-
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/internal/core"
-	"github.com/ublue-os/fleek/internal/nix"
+	"github.com/ublue-os/fleek/internal/flake"
+	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
 	"github.com/ublue-os/fleek/internal/ux"
-	"github.com/vanilla-os/orchid/cmdr"
 )
 
 type initCmdFlags struct {
-	apply    bool
-	force    bool
-	clone    string
-	location string
+	apply          bool
+	force          bool
+	clone          string
+	promptPassword bool
+	location       string
+	branch         string
+	privateKey     string
+	level          string
 }
 
 func InitCommand() *cobra.Command {
@@ -39,258 +39,71 @@ func InitCommand() *cobra.Command {
 	command.Flags().StringVarP(
 		&flags.clone, app.Trans("init.cloneFlag"), "c", "", app.Trans("init.cloneFlagDescription"))
 	command.Flags().StringVarP(
+		&flags.branch, app.Trans("init.branchFlag"), "b", "main", app.Trans("init.branchFlagDescription"))
+	command.Flags().StringVarP(
 		&flags.location, app.Trans("init.locationFlag"), "l", ".config/home-manager", app.Trans("init.locationFlagDescription"))
 
+	command.Flags().StringVar(
+		&flags.level, app.Trans("init.levelFlag"), "default", app.Trans("init.levelFlagDescription"))
+	command.Flags().StringVarP(
+		&flags.privateKey, app.Trans("init.privateKeyFlag"), "k", ".ssh/id_rsa", app.Trans("init.privateKeyFlagDescription"))
+	command.Flags().BoolVarP(
+		&flags.promptPassword, app.Trans("init.promptPasswordFlag"), "p", false, app.Trans("init.promptPasswordFlagDescription"))
 	return command
 }
 
 // initCmd represents the init command
 func initialize(cmd *cobra.Command) error {
+
 	var verbose bool
 	if cmd.Flag(app.Trans("fleek.verboseFlag")).Changed {
 		verbose = true
 	}
-	ux.Description.Println(cmd.Short)
-	var upstream string
-	loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
+	var force bool
+	if cmd.Flag(app.Trans("init.forceFlag")).Changed {
+		force = true
+	}
+	cfg.Verbose = verbose
 
-	f.config = &core.Config{
-		FlakeDir: loc,
+	ux.Description.Println(cmd.Short)
+
+	fl, err := flake.Load(cfg, app)
+	if err != nil {
+		return usererr.WithUserMessage(err, app.Trans("flake.initializingTemplates"))
 	}
-	f.flakeLocation = f.config.UserFlakeDir()
-	if verbose {
-		ux.Info.Println(app.Trans("init.flakeLocation"), f.flakeLocation)
-	}
+	var upstream string
+	var branch string
+	prompt := cmd.Flag(app.Trans("init.promptPasswordFlag")).Changed
+
+	loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
+	keyfile := cmd.Flag(app.Trans("init.privateKeyFlag")).Value.String()
+
+	cfg.FlakeDir = loc
+
 	if cmd.Flag(app.Trans("init.cloneFlag")).Changed {
 		upstream = cmd.Flag(app.Trans("init.cloneFlag")).Value.String()
-
-		// clone it
-		spinner, err := ux.Spinner().Start(app.Trans("init.cloning"))
+		branch = cmd.Flag(app.Trans("init.branchFlag")).Value.String()
+		err := fl.Clone(upstream, branch, keyfile, prompt)
 		if err != nil {
-			return err
+			return usererr.WithUserMessage(err, app.Trans("flake.cloning", upstream))
 		}
-		err = f.config.Clone(upstream)
+	} else {
+		fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
+		err := fl.Create(force)
 		if err != nil {
-			spinner.Fail()
-			return err
+			return usererr.WithUserMessage(err, app.Trans("flake.creating", upstream))
 		}
-		r, err := f.Repo()
+	}
+	if cmd.Flag(app.Trans("init.applyFlag")).Changed {
+		err := fl.Apply("")
 		if err != nil {
-			return err
+			return usererr.WithUserMessage(err, app.Trans("init.applyFlag"))
 		}
-		out, err := r.SetRebase()
-		if err != nil {
-			return err
-		}
-		if verbose {
-			ux.Info.Println(string(out))
-		}
-		spinner.Success()
-
-		// prompt for git configuration
-		email, err := cmdr.Prompt.Show(app.Trans("init.gitEmail"))
-		if err != nil {
-			return err
-		}
-
-		name, err := cmdr.Prompt.Show(app.Trans("init.gitName"))
-		if err != nil {
-			return err
-		}
-		out, err = r.LocalConfig(name, email)
-		if err != nil {
-			spinner.Fail()
-			return err
-		}
-		if verbose {
-			ux.Info.Println(string(out))
-		}
-		spinner, err = ux.Spinner().Start(app.Trans("init.cloning"))
-		if err != nil {
-			spinner.Fail()
-			return err
-		}
-		if cmd.Flag(app.Trans("init.applyFlag")).Changed {
-			if err != nil {
-				return err
-			}
-			// load the new config
-			f.config, err = core.ReadConfig()
-			if err != nil {
-				return err
-			}
-			_, err = f.Flake()
-			if err != nil {
-				return err
-			}
-
-			_, err = f.Repo()
-			if err != nil {
-				return err
-			}
-			// only re-apply the templates if not `ejected`
-			if !f.config.Ejected {
-				if verbose {
-					ux.Info.Println(app.Trans("apply.checkingSystem"))
-				}
-				var includeSystems bool
-				// check to see if the current machine (system) is in the existing
-				// configs. If not, create a new one and add it.
-				_, err := core.CurrentSystem()
-				if err != nil {
-					if strings.Contains(err.Error(), "not") {
-						ux.Info.Println(app.Trans("apply.newSystem"))
-
-						// make a new system
-
-						// create new system struct
-						sys, err := core.NewSystem(email, name)
-						if err != nil {
-							return err
-						}
-						ux.Info.Printfln(app.Trans("init.newSystem", sys.Username, sys.Hostname))
-						// get current config
-						includeSystems = true
-						// append new(current) system
-						f.config.Systems = append(f.config.Systems, *sys)
-						// save it
-						err = f.config.Save()
-						if err != nil {
-							return err
-						}
-						repo, err := f.Repo()
-						if err != nil {
-							return err
-						}
-						out, err := repo.Commit()
-						if verbose {
-							ux.Info.Println(string(out))
-						}
-						if err != nil {
-							return err
-						}
-					}
-				}
-				if verbose {
-					ux.Info.Println(app.Trans("apply.writingFlake"))
-				}
-				err = f.flake.Write(includeSystems)
-				if err != nil {
-					return err
-				}
-				repo, err := f.Repo()
-				if err != nil {
-					return err
-				}
-				out, err := repo.Commit()
-				if verbose {
-					ux.Info.Println(string(out))
-				}
-				if err != nil {
-					return err
-				}
-
-			}
-			spinner.Success()
-
-			ux.Info.Println(app.Trans("apply.applyingConfig"))
-			out, err := f.flake.Apply()
-			if err != nil {
-				ux.Error.Println(string(out))
-
-				if errors.Is(err, nix.ErrPackageConflict) {
-					ux.Fatal.Println(app.Trans("global.errConflict"))
-				}
-				return err
-			}
-			if verbose {
-				ux.Info.Println(string(out))
-			}
-			ux.Info.Println(app.Trans("apply.done"))
-			return nil
-		}
-		ux.Info.Println(app.Trans("init.cloned"))
+		ux.Info.Println(app.Trans("global.complete"))
 
 		return nil
 	}
-	ux.Info.Println(app.Trans("init.start"))
-	var force bool
-	if cmd.Flag("force").Changed {
-		force = true
-	}
-	if verbose {
-		ux.Info.Println(app.Trans("init.checkNix"))
-	}
-
-	ok := nix.CheckNix()
-	if ok {
-		email, err := cmdr.Prompt.Show(app.Trans("init.gitEmail"))
-		if err != nil {
-			return err
-		}
-
-		name, err := cmdr.Prompt.Show(app.Trans("init.gitName"))
-		if err != nil {
-			return err
-		}
-		if verbose {
-			ux.Info.Println(app.Trans("init.writingConfigs"))
-		}
-		err = f.config.MakeFlakeDir()
-		if err != nil {
-			return err
-		}
-		ux.Info.Println("writing flake")
-		err = core.WriteSampleConfig(loc, email, name, force)
-		if err != nil {
-			return err
-		}
-		ux.Info.Println("reading config")
-
-		f.config, err = core.ReadConfig()
-		if err != nil {
-			return err
-		}
-		flake, err := f.Flake()
-		if err != nil {
-			return err
-		}
-		ux.Info.Println("init flake")
-
-		err = flake.Init(force)
-		if err != nil {
-			return err
-		}
-		repo, err := f.Repo()
-		if err != nil {
-			return err
-		}
-		ux.Info.Println("create repo")
-
-		out, err := repo.CreateRepo()
-		if err != nil {
-			return err
-		}
-		if verbose {
-			ux.Info.Println(string(out))
-		}
-		out, err = repo.LocalConfig(name, email)
-		if err != nil {
-			return err
-		}
-		if verbose {
-			ux.Info.Println(string(out))
-		}
-		out, err = repo.Commit()
-		if err != nil {
-			return err
-		}
-		if verbose {
-			ux.Info.Println(string(out))
-		}
-	} else {
-		ux.Error.Println(app.Trans("init.nixNotFound"))
-	}
 	ux.Info.Println(app.Trans("init.complete"))
+
 	return nil
 }
