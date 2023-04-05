@@ -10,7 +10,6 @@ import (
 )
 
 type applyCmdFlags struct {
-	push   bool
 	dryRun bool
 }
 
