@@ -132,7 +132,7 @@ show:
   jsonFlagDescription: "output in json format"
   levelFlag: "level"
   levelFlagDescription: "show a different bling level"
-  invalidLevel: "Invalid bling level"
+  invalidLevel: "Invalid bling level %s"
 search:
   use: "search <package>"
   long: |

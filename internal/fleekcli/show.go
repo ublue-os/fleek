@@ -54,6 +54,10 @@ func showFleek(cmd *cobra.Command) error {
 	}
 	if !showJSON {
 		ux.Description.Println(cmd.Short)
+		err := mustConfig()
+		if err != nil {
+			return err
+		}
 
 	}
 	var b *fleek.Bling

@@ -27,7 +27,10 @@ func InfoCommand() *cobra.Command {
 func infoFleek(cmd *cobra.Command, args []string) error {
 
 	ux.Description.Println(cmd.Short)
-
+	err := mustConfig()
+	if err != nil {
+		return err
+	}
 	fl, err := flake.Load(cfg, app)
 	if err != nil {
 		return err

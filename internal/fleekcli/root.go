@@ -44,12 +44,17 @@ func RootCmd() *cobra.Command {
 			if cfg != nil {
 				cfg.Quiet = flags.quiet
 				cfg.Verbose = flags.verbose
+				ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
+				ux.Debug.Printfln("git autoadd: %v", cfg.Git.AutoAdd)
 			}
+
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
 			}
+			ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
+			ux.Debug.Printfln("git autoadd: %v", cfg.Git.AutoAdd)
 
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
