@@ -21,7 +21,7 @@ func EjectCommand() *cobra.Command {
 }
 
 // initCmd represents the init command
-func eject(cmd *cobra.Command) error {
+func eject(_ *cobra.Command) error {
 	err := mustConfig()
 	if err != nil {
 		return err
