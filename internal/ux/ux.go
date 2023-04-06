@@ -48,7 +48,7 @@ var (
 		Text:  "[✓]",
 	}
 	// debug
-	debugMessageStyle = &pterm.Style{pterm.FgLightGreen}
+	debugMessageStyle = &pterm.Style{pterm.FgDefault}
 	debugPrefix       = pterm.Prefix{
 		Style: &pterm.Style{pterm.FgGreen},
 		Text:  "[d]",

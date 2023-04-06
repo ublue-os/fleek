@@ -8,7 +8,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/internal/debug"
 	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/ux"
 )
@@ -67,7 +66,7 @@ func remove(cmd *cobra.Command, args []string) error {
 		}
 		err = fl.Config.RemovePackage(p)
 		if err != nil {
-			debug.Log("remove package error: %s", err)
+			ux.Debug.Println("remove package error: %s", err)
 			return err
 		}
 		sb.WriteString(p + " ")
@@ -75,7 +74,7 @@ func remove(cmd *cobra.Command, args []string) error {
 	}
 	err = fl.Write(false)
 	if err != nil {
-		debug.Log("flake write error: %s", err)
+		ux.Debug.Println("flake write error: %s", err)
 		return err
 	}
 

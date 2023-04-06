@@ -28,6 +28,7 @@ func RootCmd() *cobra.Command {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
 			}
+			ux.Debug.Println("debug enabled")
 			// try to get the config, which may not exist yet
 			c, err := fleek.ReadConfig()
 			if err == nil {

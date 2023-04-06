@@ -13,7 +13,6 @@ import (
 
 	"github.com/riywo/loginshell"
 	app "github.com/ublue-os/fleek"
-	"github.com/ublue-os/fleek/internal/debug"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/ux"
 )
@@ -183,10 +182,10 @@ func (f *Flake) Join() error {
 	// Symlink the yaml file to home
 	cfile, err := f.Config.Location()
 	if err != nil {
-		debug.Log("location err: %s ", err)
+		ux.Debug.Println("location err: %s ", err)
 		return err
 	}
-	debug.Log("cfile: %s ", cfile)
+	ux.Debug.Println("cfile: %s ", cfile)
 
 	home, err := os.UserHomeDir()
 	if err != nil {

@@ -5,7 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/internal/debug"
 	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/ux"
 )
@@ -55,7 +54,7 @@ func add(cmd *cobra.Command, args []string) error {
 		ux.Info.Println(app.Trans("add.adding") + p)
 		err = fl.Config.AddPackage(p)
 		if err != nil {
-			debug.Log("add package error: %s", err)
+			ux.Debug.Println("add package error: %s", err)
 			return err
 		}
 		sb.WriteString(p + " ")
@@ -63,7 +62,7 @@ func add(cmd *cobra.Command, args []string) error {
 	}
 	err = fl.Write(false)
 	if err != nil {
-		debug.Log("flake write error: %s", err)
+		ux.Debug.Println("flake write error: %s", err)
 		return err
 	}
 

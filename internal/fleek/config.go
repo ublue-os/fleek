@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/ublue-os/fleek/internal/debug"
+	"github.com/ublue-os/fleek/internal/ux"
 	"gopkg.in/yaml.v3"
 )
 
@@ -37,15 +37,18 @@ type Config struct {
 	// bash or zsh
 	Shell string `yaml:"shell"`
 	// low, default, high
-	Bling      string            `yaml:"bling"`
-	Repository string            `yaml:"repo"`
-	Name       string            `yaml:"name"`
-	Packages   []string          `yaml:",flow"`
-	Programs   []string          `yaml:",flow"`
-	Aliases    map[string]string `yaml:",flow"`
-	Paths      []string          `yaml:"paths"`
-	Ejected    bool              `yaml:"ejected"`
-	Systems    []*System         `yaml:",flow"`
+	Bling    string            `yaml:"bling"`
+	Name     string            `yaml:"name"`
+	Packages []string          `yaml:",flow"`
+	Programs []string          `yaml:",flow"`
+	Aliases  map[string]string `yaml:",flow"`
+	Paths    []string          `yaml:"paths"`
+	Ejected  bool              `yaml:"ejected"`
+	Systems  []*System         `yaml:",flow"`
+}
+
+func Levels() []string {
+	return blingLevels
 }
 
 type System struct {
@@ -248,10 +251,10 @@ func ReadConfig() (*Config, error) {
 
 func (c *Config) WriteInitialConfig(force bool) error {
 	aliases := make(map[string]string)
-	aliases["fleeks"] = "cd ~/Sync/fleek"
+	aliases["fleeks"] = "cd ~/.local/share/fleek"
 	sys, err := NewSystem()
 	if err != nil {
-		debug.Log("new system err: %s ", err)
+		ux.Debug.Printfln("new system err: %s ", err)
 		return err
 	}
 	c.Unfree = true
@@ -271,15 +274,15 @@ func (c *Config) WriteInitialConfig(force bool) error {
 
 	cfile, err := c.Location()
 	if err != nil {
-		debug.Log("location err: %s ", err)
+		ux.Debug.Printfln("location err: %s ", err)
 		return err
 	}
-	debug.Log("cfile: %s ", cfile)
+	ux.Debug.Printfln("cfile: %s", cfile)
 
 	_, err = os.Stat(cfile)
 
-	debug.Log("stat err: %v ", err)
-	debug.Log("force: %v ", force)
+	ux.Debug.Printfln("stat err: %v ", err)
+	ux.Debug.Printfln("force: %v ", force)
 
 	if force || errors.Is(err, fs.ErrNotExist) {
 

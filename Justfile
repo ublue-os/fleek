@@ -52,8 +52,15 @@ apply:
   [ -e "./fleek" ] || just build
   ./fleek apply --push
 
+completions:
+  [ -e "./fleek" ] || just build
+  mkdir -p completions
+  ./fleek completion bash > completions/fleek.bash
+  ./fleek completion zsh > completions/fleek.zsh
+  ./fleek completion fish > completions/fleek.fish
+
 man: build
-  ./man.sh ./fleek
+  ./scripts/man.sh
 
 push: man (cleanup "fleek" "fleek.1" "fleek.1.gz")
   {{CONTAINER_BUILDER}} build --no-cache -t docker.io/bketelsen/fleek .
