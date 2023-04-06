@@ -66,7 +66,7 @@ func remove(cmd *cobra.Command, args []string) error {
 		}
 		err = fl.Config.RemovePackage(p)
 		if err != nil {
-			ux.Debug.Println("remove package error: %s", err)
+			ux.Debug.Printfln("remove package error: %s", err)
 			return err
 		}
 		sb.WriteString(p + " ")
@@ -74,7 +74,7 @@ func remove(cmd *cobra.Command, args []string) error {
 	}
 	err = fl.Write(false)
 	if err != nil {
-		ux.Debug.Println("flake write error: %s", err)
+		ux.Debug.Printfln("flake write error: %s", err)
 		return err
 	}
 

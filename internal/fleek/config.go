@@ -45,10 +45,16 @@ type Config struct {
 	Paths    []string          `yaml:"paths"`
 	Ejected  bool              `yaml:"ejected"`
 	Systems  []*System         `yaml:",flow"`
+	Git      Git               `yaml:"git"`
 }
 
 func Levels() []string {
 	return blingLevels
+}
+
+type Git struct {
+	AutoAdd  bool `yaml:"autoadd"`
+	AutoPush bool `yaml:"autopush"`
 }
 
 type System struct {

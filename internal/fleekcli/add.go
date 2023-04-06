@@ -54,7 +54,7 @@ func add(cmd *cobra.Command, args []string) error {
 		ux.Info.Println(app.Trans("add.adding") + p)
 		err = fl.Config.AddPackage(p)
 		if err != nil {
-			ux.Debug.Println("add package error: %s", err)
+			ux.Debug.Printfln("add package error: %s", err)
 			return err
 		}
 		sb.WriteString(p + " ")
@@ -62,7 +62,7 @@ func add(cmd *cobra.Command, args []string) error {
 	}
 	err = fl.Write(false)
 	if err != nil {
-		ux.Debug.Println("flake write error: %s", err)
+		ux.Debug.Printfln("flake write error: %s", err)
 		return err
 	}
 

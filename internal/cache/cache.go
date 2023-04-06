@@ -83,7 +83,7 @@ func (pc *PackageCache) Update() error {
 	if err != nil {
 		return err
 	}
-	ux.Debug.Println("writing cache file: %s", pc.cacheFile())
+	ux.Debug.Printfln("writing cache file: %s", pc.cacheFile())
 
 	err = os.WriteFile(pc.cacheFile(), bb, 0755)
 	if err != nil {

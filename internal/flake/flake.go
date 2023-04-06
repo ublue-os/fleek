@@ -182,10 +182,10 @@ func (f *Flake) Join() error {
 	// Symlink the yaml file to home
 	cfile, err := f.Config.Location()
 	if err != nil {
-		ux.Debug.Println("location err: %s ", err)
+		ux.Debug.Printfln("location err: %s ", err)
 		return err
 	}
-	ux.Debug.Println("cfile: %s ", cfile)
+	ux.Debug.Printfln("cfile: %s ", cfile)
 
 	home, err := os.UserHomeDir()
 	if err != nil {
