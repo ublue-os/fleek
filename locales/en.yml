@@ -78,6 +78,7 @@ init:
   levelFlagDescription: "bling level: `none`,`low`,`default`,`high`"
   newSystem: "New System: %s@%s"
   blingLevel: "Bling Level: %s"
+  joining: "Adding current system to configuration"
 add:
   use: "add [package] [package] ..."
   long: "Add a new package or program to your configuration.\nUse the `--program` flag to specify a program which can also be configured by nix."

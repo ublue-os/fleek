@@ -13,12 +13,12 @@ import (
 
 	"github.com/riywo/loginshell"
 	app "github.com/ublue-os/fleek"
+	"github.com/ublue-os/fleek/internal/debug"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/ux"
 )
 
 const nixbin = "nix"
-const gitbin = "git"
 
 var ErrPackageConflict = errors.New("package exists in fleek and nix profile")
 
@@ -48,14 +48,6 @@ func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
 		Config:    cfg,
 		app:       app,
 	}, nil
-}
-func (f *Flake) runGit(cmd string, cmdLine []string) ([]byte, error) {
-	command := exec.Command(cmd, cmdLine...)
-	command.Stdin = os.Stdin
-	command.Dir = f.Config.UserFlakeDir()
-	command.Env = os.Environ()
-	return command.Output()
-
 }
 
 func (f *Flake) Update() error {
@@ -163,6 +155,74 @@ func (f *Flake) Create(force bool) error {
 	return nil
 
 }
+func (f *Flake) IsJoin() (bool, error) {
+	// if the user has a flake.nix, but no fleek.yml, then we assume they want to join
+	_, err := os.Stat(filepath.Join(f.Config.UserFlakeDir(), "flake.nix"))
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return false, nil
+		}
+		return false, err
+	}
+	home, _ := os.UserHomeDir()
+	_, err = os.Stat(filepath.Join(home, ".fleek.yml"))
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return true, nil
+		}
+		return false, err
+	}
+	return false, nil
+}
+func (f *Flake) Join() error {
+	ux.Info.Println(f.app.Trans("init.writingConfigs"))
+	err := f.ensureFlakeDir()
+	if err != nil {
+		return err
+	}
+	// Symlink the yaml file to home
+	cfile, err := f.Config.Location()
+	if err != nil {
+		debug.Log("location err: %s ", err)
+		return err
+	}
+	debug.Log("cfile: %s ", cfile)
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	csym := filepath.Join(home, ".fleek.yml")
+	err = os.Symlink(cfile, csym)
+	if err != nil {
+		return err
+	}
+	err = f.ReadConfig()
+	if err != nil {
+		return err
+	}
+	err = f.Config.Validate()
+	if err != nil {
+		return err
+	}
+
+	sys, err := fleek.NewSystem()
+	if err != nil {
+		return err
+	}
+
+	err = f.writeSystem(*sys, false)
+	if err != nil {
+		return err
+	}
+	f.Config.Systems = append(f.Config.Systems, sys)
+	err = f.Config.Save()
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
 
 func (f *Flake) Check() ([]byte, error) {
 	checkCmdLine := []string{"run", "--impure", "home-manager/master", "build", "--impure", "--", "--flake", "."}
@@ -250,19 +310,6 @@ func (f *Flake) ensureFlakeDir() error {
 		}
 	}
 	return nil
-}
-func (f *Flake) setRebase() error {
-	var output []byte
-	configCmdLine := []string{"config", "pull.rebase", "true"}
-	out, err := f.runGit(gitbin, configCmdLine)
-	output = append(output, out...)
-	if err != nil {
-		if f.Config.Verbose {
-			ux.Verbose.Println(string(output))
-		}
-		return fmt.Errorf("git config: %w", err)
-	}
-	return err
 }
 
 func (f *Flake) ReadConfig() error {

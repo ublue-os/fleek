@@ -61,11 +61,25 @@ func initialize(cmd *cobra.Command) error {
 	loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
 	cfg.FlakeDir = loc
 
-	fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
-	err = fl.Create(force)
+	join, err := fl.IsJoin()
 	if err != nil {
-		return usererr.WithUserMessage(err, app.Trans("flake.creating"))
+		return err
 	}
+	if join {
+		ux.Info.Println(app.Trans("init.joining"))
+		err := fl.Join()
+		if err != nil {
+			return err
+		}
+
+	} else {
+		fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
+		err = fl.Create(force)
+		if err != nil {
+			return usererr.WithUserMessage(err, app.Trans("flake.creating"))
+		}
+	}
+
 	if cmd.Flag(app.Trans("init.applyFlag")).Changed {
 		err := fl.Apply()
 		if err != nil {
