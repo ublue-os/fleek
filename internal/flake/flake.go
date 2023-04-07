@@ -219,7 +219,17 @@ func (f *Flake) Join() error {
 	if err != nil {
 		return err
 	}
-	f.Config.Systems = append(f.Config.Systems, sys)
+	//
+	var found bool
+	for _, s := range f.Config.Systems {
+		if s.Hostname == sys.Hostname && s.Username == sys.Username && s.Arch == sys.Arch {
+			ux.Debug.Println("system already exists")
+			found = true
+		}
+	}
+	if !found {
+		f.Config.Systems = append(f.Config.Systems, sys)
+	}
 	err = f.Config.Save()
 	if err != nil {
 		return err
