@@ -6,10 +6,10 @@ import (
 	"io/fs"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/ublue-os/fleek/internal/debug"
+	fgit "github.com/ublue-os/fleek/internal/git"
 	"github.com/ublue-os/fleek/internal/ux"
 )
 
@@ -56,24 +56,31 @@ func (f *Flake) mayCommit() error {
 		return err
 	}
 	if git {
-		ux.Info.Println(f.app.Trans("git.commit"))
 		ux.Debug.Println("is git repo")
-		// commit
-		err = f.commit()
+		// add
+		ux.Debug.Println("git will add")
+		ux.Info.Println(f.app.Trans("git.add"))
+		err = f.add()
 		if err != nil {
-			ux.Debug.Printfln("git commit error: %s", err)
+			ux.Debug.Printfln("git add error: %s", err)
 			return err
 		}
-		// add
-		if f.Config.Git.AutoAdd {
-			ux.Debug.Println("git will add")
-			ux.Info.Println(f.app.Trans("git.add"))
-			err = f.add()
+		if f.Config.Git.AutoCommit {
+			ux.Debug.Println("git will commit")
+			ux.Info.Println(f.app.Trans("git.commit"))
+			err = f.commit()
 			if err != nil {
-				ux.Debug.Printfln("git add error: %s", err)
+				ux.Debug.Printfln("git commit error: %s", err)
+				return err
+			}
+			// commit
+			err = f.commit()
+			if err != nil {
+				ux.Debug.Printfln("git commit error: %s", err)
 				return err
 			}
 		}
+
 		if f.Config.Git.AutoPush {
 			ux.Debug.Println("git will push")
 			ux.Info.Println(f.app.Trans("git.push"))
@@ -128,9 +135,17 @@ func (f *Flake) add() error {
 }
 
 func (f *Flake) commit() error {
+	status, err := f.gitStatus()
+	if err != nil {
+		return err
+	}
+	if status.Empty() {
+		ux.Debug.Println("git status is empty, skipping commit")
+		return nil
+	}
 
 	commitCmdLine := []string{"commit", "-m", "fleek: commit"}
-	err := f.runGit(gitbin, commitCmdLine)
+	err = f.runGit(gitbin, commitCmdLine)
 	if err != nil {
 		return fmt.Errorf("git commit: %w", err)
 	}
@@ -146,7 +161,7 @@ func (f *Flake) pull() error {
 	if remote == "" {
 		return err
 	}
-	pullCmdline := []string{"pull", "origin", "main"}
+	pullCmdline := []string{"pull", "--autostash", "--rebase", "origin", "main"}
 	err = f.runGit(gitbin, pullCmdline)
 	if err != nil {
 		return fmt.Errorf("git pull: %w", err)
@@ -181,32 +196,17 @@ func (f *Flake) push() error {
 
 }
 
-func (f *Flake) Dirty() (bool, []byte, error) {
-
-	var dirty bool
-
-	cmd := exec.Command(gitbin, "status", "--porcelain")
+func (f *Flake) gitStatus() (*fgit.Status, error) {
+	// git status --ignored --porcelain=v2
+	cmd := exec.Command(gitbin, "status", "--ignored", "--porcelain=v2")
 	cmd.Dir = f.Config.UserFlakeDir()
 	cmd.Env = os.Environ()
 	out, err := cmd.Output()
 	if err != nil {
-		return false, out, fmt.Errorf("git status: %w", err)
+		return nil, err
 	}
+	return fgit.ParseStatusPorcelainV2(out)
 
-	outString := string(out)
-
-	if len(outString) > 0 {
-		lines := strings.Split(outString, "\n")
-		for _, line := range lines {
-			cleanLine := strings.TrimSpace(line)
-			if cleanLine != "" {
-				dirty = true
-			}
-		}
-
-	}
-
-	return dirty, out, nil
 }
 
 func (f *Flake) remote() (string, error) {
@@ -232,51 +232,3 @@ func (f *Flake) remote() (string, error) {
 	}
 	return urls, nil
 }
-
-/*
-from git-scm.com git-status docs
-
-' ' = unmodified
-
-M = modified
-
-T = file type changed (regular file, symbolic link or submodule)
-
-A = added
-
-D = deleted
-
-R = renamed
-
-C = copied (if config option status.renames is set to "copies")
-
-U = updated but unmerged
-
-X          Y     Meaning
--------------------------------------------------
-	 [AMD]   not updated
-M        [ MTD]  updated in index
-T        [ MTD]  type changed in index
-A        [ MTD]  added to index
-D                deleted from index
-R        [ MTD]  renamed in index
-C        [ MTD]  copied in index
-[MTARC]          index and work tree matches
-[ MTARC]    M    work tree changed since index
-[ MTARC]    T    type changed in work tree since index
-[ MTARC]    D    deleted in work tree
-	    R    renamed in work tree
-	    C    copied in work tree
--------------------------------------------------
-D           D    unmerged, both deleted
-A           U    unmerged, added by us
-U           D    unmerged, deleted by them
-U           A    unmerged, added by them
-D           U    unmerged, deleted by us
-A           A    unmerged, both added
-U           U    unmerged, both modified
--------------------------------------------------
-?           ?    untracked
-!           !    ignored
--------------------------------------------------
-*/

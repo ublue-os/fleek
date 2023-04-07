@@ -53,10 +53,10 @@ func Levels() []string {
 }
 
 type Git struct {
-	Enabled  bool `yaml:"enabled"`
-	AutoAdd  bool `yaml:"autoadd"`
-	AutoPush bool `yaml:"autopush"`
-	AutoPull bool `yaml:"autopull"`
+	Enabled    bool `yaml:"enabled"`
+	AutoCommit bool `yaml:"autocommit"`
+	AutoPush   bool `yaml:"autopush"`
+	AutoPull   bool `yaml:"autopull"`
 }
 
 type System struct {

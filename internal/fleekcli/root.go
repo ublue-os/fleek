@@ -45,7 +45,7 @@ func RootCmd() *cobra.Command {
 				cfg.Quiet = flags.quiet
 				cfg.Verbose = flags.verbose
 				ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
-				ux.Debug.Printfln("git autoadd: %v", cfg.Git.AutoAdd)
+				ux.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
 				ux.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
 
 			}
@@ -56,7 +56,7 @@ func RootCmd() *cobra.Command {
 				cmd.SetErr(io.Discard)
 			}
 			ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
-			ux.Debug.Printfln("git autoadd: %v", cfg.Git.AutoAdd)
+			ux.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
 			ux.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
 
 		},

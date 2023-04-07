@@ -210,14 +210,14 @@ git:
     of the management for you.
 
     Either way, if your fleek configuration is in a git repository, fleek will
-    automatically commit any changes it makes to prevent surprises.
+    automatically `git add`` any changes it makes to prevent surprises.
 
     Fleek will automatically set `pull.rebase = true` in your repository
     configuration to make sure your local changes are always applied on top of
     the latest remote changes.
 
-    Set `git: autoadd: true` in your .fleek.yml file to have fleek automatically
-    add local changes to git.
+    Set `git: autocommit: true` in your .fleek.yml file to have fleek automatically
+    commit local changes to git.
     Set `git: autopush: true` in your .fleek.yml file to have fleek
     automatically push local changes to your remote repository.
     Set `git: autopull: true` in your .fleek.yml file to pull remote changes
