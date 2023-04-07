@@ -161,6 +161,7 @@ func (f *Flake) pull() error {
 	if remote == "" {
 		return err
 	}
+	// totally stole --autostash --rebase from chezmoi, thanks twpayne
 	pullCmdline := []string{"pull", "--autostash", "--rebase", "origin", "main"}
 	err = f.runGit(gitbin, pullCmdline)
 	if err != nil {
