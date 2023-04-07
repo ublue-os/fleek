@@ -94,6 +94,8 @@ func remove(cmd *cobra.Command, args []string) error {
 			}
 			return err
 		}
+	} else {
+		ux.Warning.Println(app.Trans("remove.notApplied"))
 	}
 
 	ux.Success.Println(app.Trans("remove.done"))

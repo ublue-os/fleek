@@ -105,6 +105,7 @@ remove:
   applyFlagDescription: "apply configuration after removing"
   config: "Removing package %s from configuration"
   applying: "Removing package and applying configuration"
+  needApply: "Package removed. Run `fleek apply` to apply the changes."
   done: "Complete!"
 update:
   use: "update"
