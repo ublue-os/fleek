@@ -190,7 +190,7 @@ func (f *Flake) Join() error {
 		ux.Debug.Printfln("location err: %s ", err)
 		return err
 	}
-	ux.Debug.Printfln("cfile: %s ", cfile)
+	ux.Debug.Printfln("init cfile: %s ", cfile)
 
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -199,6 +199,7 @@ func (f *Flake) Join() error {
 	csym := filepath.Join(home, ".fleek.yml")
 	err = os.Symlink(cfile, csym)
 	if err != nil {
+		ux.Debug.Println("first symlink attempt failed")
 		return err
 	}
 	err = f.ReadConfig()
@@ -209,13 +210,14 @@ func (f *Flake) Join() error {
 	if err != nil {
 		return err
 	}
+	ux.Debug.Println("new system")
 
 	sys, err := fleek.NewSystem()
 	if err != nil {
 		return err
 	}
-
-	err = f.writeSystem(*sys, false)
+	ux.Debug.Println("write system")
+	err = f.writeSystem(*sys, true)
 	if err != nil {
 		return err
 	}
@@ -229,9 +231,13 @@ func (f *Flake) Join() error {
 	}
 	if !found {
 		f.Config.Systems = append(f.Config.Systems, sys)
+
 	}
+	ux.Debug.Println("write config")
+
 	err = f.Config.Save()
 	if err != nil {
+		ux.Debug.Println("config save failed")
 		return err
 	}
 	git, err := f.IsGitRepo()

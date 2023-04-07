@@ -25,8 +25,9 @@ func InitCommand() *cobra.Command {
 		Short:   app.Trans("init.short"),
 		Long:    app.Trans("init.long"),
 		Example: app.Trans("init.example"),
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return initialize(cmd)
+			return initialize(cmd, args)
 		},
 	}
 	command.Flags().BoolVarP(
@@ -41,7 +42,7 @@ func InitCommand() *cobra.Command {
 }
 
 // initCmd represents the init command
-func initialize(cmd *cobra.Command) error {
+func initialize(cmd *cobra.Command, args []string) error {
 
 	var verbose bool
 	if cmd.Flag(app.Trans("fleek.verboseFlag")).Changed {
@@ -55,12 +56,18 @@ func initialize(cmd *cobra.Command) error {
 
 	ux.Description.Println(cmd.Short)
 
+	loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
 	fl, err := flake.Load(cfg, app)
+	cfg.FlakeDir = loc
 	if err != nil {
 		return usererr.WithUserMessage(err, app.Trans("flake.initializingTemplates"))
 	}
-	loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
-	cfg.FlakeDir = loc
+	if len(args) > 0 {
+		err = fl.Clone(args[0])
+		if err != nil {
+			return err
+		}
+	}
 
 	join, err := fl.IsJoin()
 	if err != nil {
