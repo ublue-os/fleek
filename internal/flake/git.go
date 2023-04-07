@@ -21,6 +21,27 @@ func (f *Flake) gitOpen() (*git.Repository, error) {
 
 }
 
+func (f *Flake) Clone(repo string) error {
+	cloneCmdline := []string{"clone", repo, f.Config.UserFlakeDir()}
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	command := exec.Command(gitbin, cloneCmdline...)
+	command.Stdin = os.Stdin
+	command.Dir = home
+	command.Stdin = os.Stdin
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	command.Env = os.Environ()
+	err = command.Run()
+	if err != nil {
+		return fmt.Errorf("git clone: %w", err)
+	}
+	return nil
+}
+
 func (f *Flake) runGit(cmd string, cmdLine []string) error {
 	command := exec.Command(cmd, cmdLine...)
 	command.Stdin = os.Stdin
@@ -29,9 +50,7 @@ func (f *Flake) runGit(cmd string, cmdLine []string) error {
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	command.Env = os.Environ()
-
 	return command.Run()
-
 }
 
 func (f *Flake) IsGitRepo() (bool, error) {
@@ -59,7 +78,9 @@ func (f *Flake) mayCommit() error {
 		ux.Debug.Println("is git repo")
 		// add
 		ux.Debug.Println("git will add")
-		ux.Info.Println(f.app.Trans("git.add"))
+		if f.Config.Verbose {
+			ux.Verbose.Println(f.app.Trans("git.add"))
+		}
 		err = f.add()
 		if err != nil {
 			ux.Debug.Printfln("git add error: %s", err)
@@ -67,7 +88,9 @@ func (f *Flake) mayCommit() error {
 		}
 		if f.Config.Git.AutoCommit {
 			ux.Debug.Println("git will commit")
-			ux.Info.Println(f.app.Trans("git.commit"))
+			if f.Config.Verbose {
+				ux.Verbose.Println(f.app.Trans("git.commit"))
+			}
 			err = f.commit()
 			if err != nil {
 				ux.Debug.Printfln("git commit error: %s", err)
@@ -83,7 +106,9 @@ func (f *Flake) mayCommit() error {
 
 		if f.Config.Git.AutoPush {
 			ux.Debug.Println("git will push")
-			ux.Info.Println(f.app.Trans("git.push"))
+			if f.Config.Verbose {
+				ux.Verbose.Println(f.app.Trans("git.push"))
+			}
 			err = f.push()
 			if err != nil {
 				ux.Debug.Printfln("git push error: %s", err)
@@ -104,12 +129,16 @@ func (f *Flake) MayPull() error {
 		return err
 	}
 	if git {
-		ux.Info.Println(f.app.Trans("git.commit"))
+		if f.Config.Verbose {
+			ux.Verbose.Println(f.app.Trans("git.commit"))
+		}
 		ux.Debug.Println("is git repo")
 
 		if f.Config.Git.AutoPull {
 			ux.Debug.Println("git will pull")
-			ux.Info.Println(f.app.Trans("git.pull"))
+			if f.Config.Verbose {
+				ux.Verbose.Println(f.app.Trans("git.pull"))
+			}
 			err = f.pull()
 			if err != nil {
 				ux.Debug.Printfln("git pull error: %s", err)

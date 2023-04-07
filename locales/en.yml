@@ -56,11 +56,12 @@ init:
   use: "init"
   long: |
     Initialize fleek with standard configuration options.
-    Configuration is stored in $HOME/Sync/fleek by default. You can change this option with the -l/--location flag.
+    Configuration is stored in $HOME/.local/share/fleek by default. You can change this option with the -l/--location flag.
   short: "Initialize fleek"
   example: |
     fleek init
-    fleek init -l Sync/configs
+    fleek init git@github.com:your/repo
+    fleek init -l .local/share/fleek 
     fleek init -a
   forceFlag: "force"
   forceFlagDescription: "overwrite existing configuration files"
@@ -69,7 +70,7 @@ init:
   applyFlag: "apply"
   applyFlagDescription: "apply configuration immediately after cloning"
   checkNix: "checking for nix installation"
-  writingConfigs: "writing configuration files"
+  writingConfigs: "Writing configuration files"
   nixNotFound: "can't find `nix` binary - is nix installed?"
   complete: "Done. \n\nEdit ~/.fleek.yml to your taste and run `fleek apply`"
   locationFlag: "location"
