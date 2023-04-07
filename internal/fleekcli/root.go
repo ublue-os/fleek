@@ -4,11 +4,13 @@ import (
 	"io"
 
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/internal/debug"
+	"github.com/ublue-os/fleek/internal/fleek"
+	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
 	"github.com/ublue-os/fleek/internal/ux"
 )
 
-var f *Fleek
+var cfg *fleek.Config
+var cfgFound bool
 
 type rootCmdFlags struct {
 	quiet   bool
@@ -26,44 +28,37 @@ func RootCmd() *cobra.Command {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
 			}
-			var err error
-			debug.Log("initializing fleek controller")
-			f, err = initFleek(false)
-			cobra.CheckErr(err)
+			ux.Debug.Println("debug enabled")
+			// try to get the config, which may not exist yet
+			c, err := fleek.ReadConfig()
+			if err == nil {
+				if flags.verbose {
+					ux.Info.Println(app.Trans("fleek.configLoaded"))
+				}
+				cfg = c
+				cfgFound = true
+			} else {
+				cfg = &fleek.Config{}
+				cfgFound = false
+			}
+			if cfg != nil {
+				cfg.Quiet = flags.quiet
+				cfg.Verbose = flags.verbose
+				ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
+				ux.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
+				ux.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
+
+			}
+
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
 			}
+			ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
+			ux.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
+			ux.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
 
-			debug.Log("repo status")
-			if f.repo != nil {
-				dirty, _, err := f.repo.Dirty()
-				cobra.CheckErr(err)
-				if dirty {
-					ux.Warning.Println(app.Trans("fleek.dirty"))
-				}
-				debug.Log("getting remote status")
-				ahead, behind, _, err := f.repo.AheadBehind(false)
-				cobra.CheckErr(err)
-				debug.Log("ahead: %v", ahead)
-				debug.Log("behind: %v", behind)
-
-				if ahead {
-					debug.Log("remote status: %s", FlakeAhead.String())
-
-					ux.Warning.Println("Remote Status: " + app.Trans("fleek.aheadStatus"))
-				}
-				if behind {
-					debug.Log("remote status: %s", FlakeBehind.String())
-					ux.Warning.Println("Remote Status: " + app.Trans("fleek.behindStatus"))
-
-				}
-				if ahead && behind {
-					debug.Log("remote status: %s", FlakeDiverged.String())
-					ux.Warning.Println("Remote Status: " + app.Trans("fleek.divergedStatus"))
-				}
-			}
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
@@ -84,28 +79,16 @@ func RootCmd() *cobra.Command {
 		ID:    "package",
 		Title: app.Trans("global.packageGroup"),
 	}
-	gitGroup := &cobra.Group{
-		ID:    "gitgroup",
-		Title: app.Trans("global.gitGroup"),
-	}
-	command.AddGroup(initGroup, packageGroup, gitGroup, fleekGroup)
+
+	command.AddGroup(initGroup, packageGroup, fleekGroup)
 	addCmd := AddCommand()
 	addCmd.GroupID = packageGroup.ID
 
 	removeCmd := RemoveCommand()
 	removeCmd.GroupID = packageGroup.ID
 
-	syncCmd := SyncCmd()
-	syncCmd.GroupID = gitGroup.ID
-
 	showCmd := ShowCmd()
 	showCmd.GroupID = fleekGroup.ID
-	repoAddCmd := RepoAddCmd()
-	repoAddCmd.GroupID = gitGroup.ID
-	repoShowCmd := RepoShowCmd()
-	repoShowCmd.GroupID = gitGroup.ID
-	repoCmd := RepoCmd()
-	repoCmd.GroupID = gitGroup.ID
 
 	applyCmd := ApplyCommand()
 	applyCmd.GroupID = fleekGroup.ID
@@ -130,12 +113,12 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(docsCmd)
 	command.AddCommand(manCmd)
 	command.AddCommand(showCmd)
-	command.AddCommand(syncCmd)
+
 	command.AddCommand(addCmd)
 	command.AddCommand(removeCmd)
 	command.AddCommand(applyCmd)
 	command.AddCommand(updateCmd)
-	command.AddCommand(repoCmd)
+
 	command.AddCommand(initCmd)
 	command.AddCommand(ejectCmd)
 	command.AddCommand(searchCmd)
@@ -152,4 +135,12 @@ func RootCmd() *cobra.Command {
 	traceMiddleware.AttachToFlag(command.PersistentFlags(), app.Trans("fleek.traceFlag"))
 
 	return command
+}
+
+func mustConfig() error {
+
+	if !cfgFound {
+		return usererr.New("configuration files not found, run `fleek init`")
+	}
+	return nil
 }

@@ -11,6 +11,12 @@ var (
 		Style: &pterm.Style{pterm.FgBlue},
 		Text:  "[i]",
 	}
+	// verbose
+	verboseMessageStyle = &pterm.Style{pterm.FgLightGreen}
+	verbosePrefix       = pterm.Prefix{
+		Style: &pterm.Style{pterm.FgGreen},
+		Text:  "[v]",
+	}
 	// warning
 	warningMessageStyle = &pterm.Style{pterm.FgLightYellow}
 	warningPrefix       = pterm.Prefix{
@@ -42,7 +48,7 @@ var (
 		Text:  "[✓]",
 	}
 	// debug
-	debugMessageStyle = &pterm.Style{pterm.FgLightGreen}
+	debugMessageStyle = &pterm.Style{pterm.FgDefault}
 	debugPrefix       = pterm.Prefix{
 		Style: &pterm.Style{pterm.FgGreen},
 		Text:  "[d]",

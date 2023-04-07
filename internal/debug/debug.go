@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
+	"github.com/pterm/pterm"
 )
 
 var enabled bool
@@ -20,9 +21,10 @@ func IsEnabled() bool { return enabled }
 
 func Enable() {
 	enabled = true
+	pterm.EnableDebugMessages()
 	log.SetPrefix("[DEBUG] ")
-	log.SetFlags(log.Llongfile | log.Ldate | log.Ltime)
-	_ = log.Output(2, "Debug mode enabled.")
+	log.SetFlags(log.Lshortfile | log.Ltime)
+	//_ = log.Output(2, "Debug mode enabled.")
 }
 
 func SetOutput(w io.Writer) {

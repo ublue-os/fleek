@@ -4,11 +4,11 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package fleekcli
 
 import (
-	"errors"
+	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/internal/debug"
-	"github.com/ublue-os/fleek/internal/nix"
+	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/ux"
 )
 
@@ -42,80 +42,57 @@ func remove(cmd *cobra.Command, args []string) error {
 		verbose = true
 	}
 	ux.Description.Println(cmd.Short)
+	err := mustConfig()
+	if err != nil {
+		return err
+	}
 	var apply bool
 	if cmd.Flag(app.Trans("remove.applyFlag")).Changed {
 		apply = true
 	}
 
-	var err error
+	fl, err := flake.Load(cfg, app)
+	if err != nil {
+		return err
+	}
+	err = fl.MayPull()
+	if err != nil {
+		return err
+	}
+
+	var sb strings.Builder
+
+	sb.WriteString("remove packages: ")
 
 	for _, p := range args {
-		/*		if cmd.Flag("program").Changed {
-					err = f.config.RemoveProgram(p)
-					cobra.CheckErr(err)
-				} else {
-		*/
-		ux.Info.Println(app.Trans("remove.config"))
-		err = f.config.RemovePackage(p)
+
+		if verbose {
+			ux.Verbose.Printfln(app.Trans("remove.config"), p)
+		}
+		err = fl.Config.RemovePackage(p)
 		if err != nil {
-			debug.Log("remove package error: %s", err)
-			ux.Error.Println(err)
+			ux.Debug.Printfln("remove package error: %s", err)
 			return err
 		}
-		//	}
+		sb.WriteString(p + " ")
 
 	}
+	err = fl.Write(false)
+	if err != nil {
+		ux.Debug.Printfln("flake write error: %s", err)
+		return err
+	}
+
 	if apply {
 		if verbose {
 			ux.Info.Println(app.Trans("remove.applying"))
 		}
-		flake, err := f.Flake()
+		err = fl.Apply()
 		if err != nil {
-			debug.Log("get flake error: %s", err)
-			return err
-		}
-		err = flake.Write(false)
-		if err != nil {
-			debug.Log("flake write error: %s", err)
-			return err
-		}
-		repo, err := f.Repo()
-		if err != nil {
-			debug.Log("get repo error: %s", err)
-			return err
-		}
-		spinner, err := ux.Spinner().Start(app.Trans("remove.applying"))
-		if err != nil {
-			return err
-		}
-		out, err := repo.Commit()
-		if err != nil {
-			debug.Log("commit error: %s", err)
-			spinner.Fail()
-			return err
-		}
-		spinner.Success()
-		if verbose {
-			ux.Info.Println(string(out))
-		}
-		spinner, err = ux.Spinner().Start(app.Trans("global.commit"))
-		if err != nil {
-			return err
-		}
-		out, err = flake.Apply()
-		if err != nil {
-			spinner.Fail()
-			ux.Error.Println(string(out))
-
-			if errors.Is(err, nix.ErrPackageConflict) {
+			if errors.Is(err, flake.ErrPackageConflict) {
 				ux.Fatal.Println(app.Trans("global.errConflict"))
 			}
-
 			return err
-		}
-		spinner.Success()
-		if verbose {
-			ux.Info.Println(string(out))
 		}
 	}
 

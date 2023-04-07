@@ -1,16 +1,14 @@
-package core
+package fleek
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 
-	"github.com/ublue-os/fleek/internal/debug"
+	"github.com/ublue-os/fleek/internal/ux"
 	"gopkg.in/yaml.v3"
 )
 
@@ -18,7 +16,7 @@ var (
 	operatingSystems = []string{"linux", "darwin"}
 	architectures    = []string{"aarch64", "x86_64"}
 	shells           = []string{"bash", "zsh"}
-	blingLevels      = []string{"low", "default", "high"}
+	blingLevels      = []string{"none", "low", "default", "high"}
 	LowPackages      = []string{"htop", "git", "github-cli", "glab"}
 	DefaultPackages  = []string{"fzf", "ripgrep", "vscode"}
 	HighPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
@@ -30,32 +28,42 @@ var (
 // Config holds the options that will be
 // merged into the home-manager flake.
 type Config struct {
+	Debug    bool   `yaml:"-"`
+	Verbose  bool   `yaml:"-"`
+	Force    bool   `yaml:"-"`
+	Quiet    bool   `yaml:"-"`
 	FlakeDir string `yaml:"flakedir"`
 	Unfree   bool   `yaml:"unfree"`
 	// bash or zsh
 	Shell string `yaml:"shell"`
 	// low, default, high
-	Bling      string            `yaml:"bling"`
-	Repository string            `yaml:"repo"`
-	Name       string            `yaml:"name"`
-	Packages   []string          `yaml:",flow"`
-	Programs   []string          `yaml:",flow"`
-	Aliases    map[string]string `yaml:",flow"`
-	Paths      []string          `yaml:"paths"`
-	Ejected    bool              `yaml:"ejected"`
-	Systems    []System          `yaml:",flow"`
+	Bling    string            `yaml:"bling"`
+	Name     string            `yaml:"name"`
+	Packages []string          `yaml:",flow"`
+	Programs []string          `yaml:",flow"`
+	Aliases  map[string]string `yaml:",flow"`
+	Paths    []string          `yaml:"paths"`
+	Ejected  bool              `yaml:"ejected"`
+	Systems  []*System         `yaml:",flow"`
+	Git      Git               `yaml:"git"`
 }
-type GitConfig struct {
-	Name  string `yaml:"name"`
-	Email string `yaml:"email"`
+
+func Levels() []string {
+	return blingLevels
+}
+
+type Git struct {
+	Enabled    bool `yaml:"enabled"`
+	AutoCommit bool `yaml:"autocommit"`
+	AutoPush   bool `yaml:"autopush"`
+	AutoPull   bool `yaml:"autopull"`
 }
 
 type System struct {
-	Hostname  string    `yaml:"hostname"`
-	Username  string    `yaml:"username"`
-	Arch      string    `yaml:"arch"`
-	OS        string    `yaml:"os"`
-	GitConfig GitConfig `yaml:"git"`
+	Hostname string `yaml:"hostname"`
+	Username string `yaml:"username"`
+	Arch     string `yaml:"arch"`
+	OS       string `yaml:"os"`
 }
 
 func (s System) HomeDir() string {
@@ -66,7 +74,7 @@ func (s System) HomeDir() string {
 	return base + "/" + s.Username
 }
 
-func NewSystem(name, email string) (*System, error) {
+func NewSystem() (*System, error) {
 	user, err := Username()
 	if err != nil {
 		return nil, err
@@ -80,10 +88,6 @@ func NewSystem(name, email string) (*System, error) {
 		Arch:     Arch(),
 		OS:       runtime.GOOS,
 		Username: user,
-		GitConfig: GitConfig{
-			Name:  name,
-			Email: email,
-		},
 	}, nil
 }
 
@@ -253,72 +257,40 @@ func ReadConfig() (*Config, error) {
 	return c, nil
 }
 
-func (c *Config) Clone(repo string) error {
-
-	clone := exec.Command("git", "clone", "-q", repo, c.UserFlakeDir())
-	clone.Stderr = os.Stderr
-	clone.Stdin = os.Stdin
-	clone.Stdout = os.Stdout
-	clone.Env = os.Environ()
-
-	err := clone.Run()
-	if err != nil {
-		return err
-	}
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	yamlPath := filepath.Join(c.UserFlakeDir(), ".fleek.yml")
-	csym := filepath.Join(home, ".fleek.yml")
-	return os.Symlink(yamlPath, csym)
-
-}
-
-// WriteSampleConfig creates the first fleek
-// configuration file
-func WriteSampleConfig(location, email, name string, force bool) error {
+func (c *Config) WriteInitialConfig(force bool) error {
 	aliases := make(map[string]string)
-	aliases["cdfleek"] = "cd ~/.config/home-manager"
-	sys, err := NewSystem(name, email)
+	aliases["fleeks"] = "cd ~/.local/share/fleek"
+	sys, err := NewSystem()
 	if err != nil {
-		debug.Log("new system err: %s ", err)
+		ux.Debug.Printfln("new system err: %s ", err)
 		return err
 	}
-	c := &Config{
-		FlakeDir: location,
-		Unfree:   true,
-		Shell:    "bash",
-		Bling:    "default",
-		Name:     "My Fleek Configuration",
-		Packages: []string{
-			"helix",
-		},
-		Programs: []string{
-			"dircolors",
-		},
-		Aliases: aliases,
-		Paths: []string{
-			"$HOME/bin",
-			"$HOME/.local/bin",
-		},
-		Systems: []System{*sys},
+	c.Unfree = true
+	c.Name = "Fleek Configuration"
+	c.Packages = []string{
+		"helix",
 	}
+	c.Programs = []string{
+		"dircolors",
+	}
+	c.Aliases = aliases
+	c.Paths = []string{
+		"$HOME/bin",
+		"$HOME/.local/bin",
+	}
+	c.Systems = []*System{sys}
+
 	cfile, err := c.Location()
 	if err != nil {
-		debug.Log("location err: %s ", err)
+		ux.Debug.Printfln("location err: %s ", err)
 		return err
 	}
-	debug.Log("cfile: %s ", cfile)
+	ux.Debug.Printfln("cfile: %s", cfile)
 
-	err = c.MakeFlakeDir()
-	if err != nil {
-		return fmt.Errorf("making flake dir: %w", err)
-	}
 	_, err = os.Stat(cfile)
 
-	debug.Log("stat err: %v ", err)
-	debug.Log("force: %v ", force)
+	ux.Debug.Printfln("stat err: %v ", err)
+	ux.Debug.Printfln("force: %v ", force)
 
 	if force || errors.Is(err, fs.ErrNotExist) {
 

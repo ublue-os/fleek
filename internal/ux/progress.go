@@ -15,6 +15,11 @@ var (
 		MessageStyle: infoMessageStyle,
 		Prefix:       infoPrefix,
 	}
+	// Info returns a PrefixPrinter, which can be used to print text with an "info" Prefix.
+	Verbose = pterm.PrefixPrinter{
+		MessageStyle: verboseMessageStyle,
+		Prefix:       verbosePrefix,
+	}
 
 	// Warning returns a PrefixPrinter, which can be used to print text with a "warning" Prefix.
 	Warning = pterm.PrefixPrinter{

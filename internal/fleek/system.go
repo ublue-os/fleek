@@ -1,4 +1,4 @@
-package core
+package fleek
 
 import (
 	"errors"
@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"os/user"
+
+	"github.com/ublue-os/fleek/internal/ux"
 )
 
 var ErrSysNotFound = errors.New("system not found")
@@ -53,11 +55,8 @@ func Hostname() (string, error) {
 	return h, nil
 }
 
-func CurrentSystem() (*System, error) {
-	conf, err := ReadConfig()
-	if err != nil {
-		return nil, fmt.Errorf("reading config: %w", err)
-	}
+func (c *Config) CurrentSystem() (*System, error) {
+
 	host, err := Hostname()
 	if err != nil {
 		return nil, fmt.Errorf("getting hostname: %w", err)
@@ -66,10 +65,10 @@ func CurrentSystem() (*System, error) {
 	if err != nil {
 		return nil, fmt.Errorf("getting username: %w", err)
 	}
-	for _, sys := range conf.Systems {
+	for _, sys := range c.Systems {
 		if sys.Hostname == host {
 			if sys.Username == user {
-				return &sys, nil
+				return sys, nil
 			}
 		}
 	}
@@ -107,6 +106,7 @@ func UserShell() (string, error) {
 	if strings.Contains(shell, "bash") {
 		shell = "bash"
 	}
+	ux.Debug.Printfln("detected shell: %s", shell)
 	return shell, nil
 
 }

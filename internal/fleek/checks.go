@@ -1,6 +1,7 @@
-package nix
+package fleek
 
 import (
+	"os"
 	"os/exec"
 )
 
@@ -9,4 +10,10 @@ import (
 func CheckNix() bool {
 	_, err := exec.LookPath("nix")
 	return err == nil
+}
+
+func SSHAuthSock() bool {
+	sock := os.Getenv("SSH_AUTH_SOCK")
+	return sock != ""
+
 }

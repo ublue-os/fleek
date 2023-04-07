@@ -5,8 +5,6 @@ package fleekcli
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/internal/ux"
-	"github.com/vanilla-os/orchid/cmdr"
 )
 
 func EjectCommand() *cobra.Command {
@@ -23,29 +21,10 @@ func EjectCommand() *cobra.Command {
 }
 
 // initCmd represents the init command
-func eject(cmd *cobra.Command) error {
-	ux.Description.Println(cmd.Short)
-
-	ok, err := cmdr.Confirm.Show(app.Trans("eject.confirm"))
+func eject(_ *cobra.Command) error {
+	err := mustConfig()
 	if err != nil {
 		return err
-	}
-
-	if ok {
-		ux.Info.Println(app.Trans("eject.start"))
-		flake, err := f.Flake()
-		if err != nil {
-			return err
-		}
-		err = flake.Write(true)
-		if err != nil {
-			return err
-		}
-		err = f.config.Eject()
-		if err != nil {
-			return err
-		}
-		ux.Success.Println(app.Trans("eject.complete"))
 	}
 	return nil
 }

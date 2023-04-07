@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/ublue-os/fleek/internal/core"
+	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/ux"
 )
 
@@ -50,26 +50,30 @@ func showFleek(cmd *cobra.Command) error {
 	if cmd.Flag(app.Trans("show.levelFlag")).Changed {
 		level = cmd.Flag(app.Trans("show.levelFlag")).Value.String()
 	} else {
-		level = f.config.Bling
+		level = cfg.Bling
 	}
 	if !showJSON {
 		ux.Description.Println(cmd.Short)
-	}
-	var b *core.Bling
-	var err error
+		err := mustConfig()
+		if err != nil {
+			return err
+		}
 
+	}
+	var b *fleek.Bling
+	var err error
 	switch level {
 	case "high":
-		b, err = core.HighBling()
+		b, err = fleek.HighBling()
 		cobra.CheckErr(err)
 	case "default":
-		b, err = core.DefaultBling()
+		b, err = fleek.DefaultBling()
 		cobra.CheckErr(err)
 	case "low":
-		b, err = core.LowBling()
+		b, err = fleek.LowBling()
 		cobra.CheckErr(err)
 	case "none":
-		b, err = core.NoBling()
+		b, err = fleek.NoBling()
 		cobra.CheckErr(err)
 	default:
 		ux.Error.Println(app.Trans("show.invalidLevel", level))
@@ -92,7 +96,7 @@ func showFleek(cmd *cobra.Command) error {
 	ux.ThreeColumnList(
 		"["+b.Name+"] "+app.Trans("show.packages"), b.Packages,
 		"["+b.Name+"] "+app.Trans("show.managedPackages"), b.Programs,
-		app.Trans("show.userPackages"), f.config.Packages,
+		app.Trans("show.userPackages"), cfg.Packages,
 	)
 
 	return nil
