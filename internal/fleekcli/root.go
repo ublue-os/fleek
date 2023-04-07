@@ -46,6 +46,8 @@ func RootCmd() *cobra.Command {
 				cfg.Verbose = flags.verbose
 				ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
 				ux.Debug.Printfln("git autoadd: %v", cfg.Git.AutoAdd)
+				ux.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
+
 			}
 
 		},
@@ -55,6 +57,7 @@ func RootCmd() *cobra.Command {
 			}
 			ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
 			ux.Debug.Printfln("git autoadd: %v", cfg.Git.AutoAdd)
+			ux.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
 
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

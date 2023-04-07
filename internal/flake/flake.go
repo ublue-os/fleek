@@ -64,6 +64,11 @@ func (f *Flake) Update() error {
 		ux.Verbose.Println(out)
 	}
 	spinner.Success()
+	err = f.mayCommit()
+
+	if err != nil {
+		return err
+	}
 	return nil
 }
 func (f *Flake) Create(force bool) error {
@@ -219,6 +224,21 @@ func (f *Flake) Join() error {
 	if err != nil {
 		return err
 	}
+	git, err := f.IsGitRepo()
+	if err != nil {
+		return err
+	}
+	if git {
+		ux.Warning.Println(f.app.Trans("git.warn"))
+		err = f.setRebase()
+		if err != nil {
+			return err
+		}
+		err = f.mayCommit()
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 
 }
@@ -295,9 +315,15 @@ func (f *Flake) Write(includeSystems bool) error {
 	}
 
 	spinner.Success()
+	err = f.mayCommit()
+
+	if err != nil {
+		return err
+	}
 	return nil
 
 }
+
 func (f *Flake) ensureFlakeDir() error {
 	if f.Config.Verbose {
 		ux.Verbose.Println(f.app.Trans("flake.ensureDir"))

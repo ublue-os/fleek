@@ -48,6 +48,11 @@ func add(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	err = fl.MayPull()
+	if err != nil {
+		return err
+	}
+
 	var sb strings.Builder
 	sb.WriteString("add packages: ")
 	for _, p := range args {

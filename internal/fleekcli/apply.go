@@ -45,6 +45,11 @@ func apply(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
+	err = fl.MayPull()
+	if err != nil {
+		return err
+	}
+
 	if err := fl.Write(true); err != nil {
 		return err
 	}

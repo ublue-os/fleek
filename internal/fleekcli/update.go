@@ -40,6 +40,11 @@ func update(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
+	err = fl.MayPull()
+	if err != nil {
+		return err
+	}
+
 	if err := fl.Update(); err != nil {
 		return err
 	}
