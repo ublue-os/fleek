@@ -7,6 +7,8 @@ fleek:
     Fleek hides the complexity of `nix` by giving you a CLI and YAML file to manage your installed applications.
 
     To get started, try `fleek init`.
+
+    To share configurations with other computers, see https://getfleek.dev/docs/multiple
   short: "Fleek makes nix friendly"
   debugFlag: "debug"
   traceFlag: "trace"
@@ -57,11 +59,12 @@ init:
   long: |
     Initialize fleek with standard configuration options.
     Configuration is stored in $HOME/.local/share/fleek by default. You can change this option with the -l/--location flag.
+    For information on sharing configurations with multiple computers, see https://getfleek.dev/docs/multiple
   short: "Initialize fleek"
   example: |
     fleek init
     fleek init git@github.com:your/repo
-    fleek init -l .local/share/fleek 
+    fleek init -l .local/share/fleek
     fleek init -a
   forceFlag: "force"
   forceFlagDescription: "overwrite existing configuration files"
