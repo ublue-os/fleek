@@ -100,6 +100,7 @@ brews:
   - tap:
       owner: ublue-os
       name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     folder: Formula
     goarm: "7"
     homepage:  https://getfleek.dev
