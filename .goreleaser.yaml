@@ -72,7 +72,7 @@ archives:
       - LICENSE
       - README.md
       - man/**/*
-      - completions/**/*
+      - completions/*
     # this name template makes the OS and Arch compatible with the results of uname.
     name_template: >-
       {{ .ProjectName }}_
