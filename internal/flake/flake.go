@@ -333,6 +333,12 @@ func (f *Flake) Write(includeSystems bool, message string) error {
 	if err != nil {
 		return err
 	}
+	if f.Config.Ejected {
+		err = f.writeFile("README.md", data, true)
+		if err != nil {
+			return err
+		}
+	}
 
 	spinner.Success()
 	err = f.mayCommit(message)
@@ -457,6 +463,7 @@ func (f *Flake) Apply() error {
 func (f *Flake) runNix(cmd string, cmdLine []string) ([]byte, error) {
 	command := exec.Command(cmd, cmdLine...)
 	command.Stdin = os.Stdin
+	fmt.Println(f.Config.UserFlakeDir())
 	command.Dir = f.Config.UserFlakeDir()
 	command.Env = os.Environ()
 	if f.Config.Unfree {

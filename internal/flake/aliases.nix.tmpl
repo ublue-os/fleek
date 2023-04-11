@@ -5,9 +5,6 @@
     {{ end -}}
     {{- $programs := .Bling.Programs -}}
     {{- $programmap := .Bling.ProgramMap -}}
-
-
-
     {{- range $index, $element := $programs -}}
     {{- $prog := index $programmap $element -}}
     {{ if $prog }}

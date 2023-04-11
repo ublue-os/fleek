@@ -1,21 +1,25 @@
 # {{.Config.Name}}
-nix home-manager configs managed by [fleek](https://github.com/ublue-os/fleek)
+nix home-manager configs created by [fleek](https://github.com/ublue-os/fleek)
 
-## Getting Started
+## Reference
 
-Install [Nix](https://nixos.org) then run:
-
-```
-fleek init
-```
-
-`fleek` reads your configuration from `$HOME~/.fleek.yml`. You can edit this
-file with `fleek edit` which opens your `$EDITOR`.
-
-Edit the list of packages you want installed manually by modifying `$HOME/.fleek.yml`.
+[home-manager](https://nix-community.github.io/home-manager/)
+[home-manager options](https://nix-community.github.io/home-manager/options.html)
 
 ## Usage
 
-Modify $HOME/.fleek.yml to your liking and run `fleek apply`.
+Aliases were added to the config to make it easier to use. To use them, run the following commands:
+
+```bash
+# To change into the fleek generated home-manager directory
+$ fleeks
+# To apply the configuration
+$ apply-{hostname}
+```
+
+Your actual aliases are listed below:
+{{- range $index, $element := .Config.Aliases }}
+    {{$index}} = "{{$element}}";
+{{ end -}}
 
 
