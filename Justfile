@@ -24,7 +24,6 @@ cleanup +FILES:
 backup: (move "$FLEEK_MANAGED/.fleek.yml" "$FLEEK_MANAGED/.config/home-manager")
 
 clean: (cleanup "$FLEEK_MANAGED/.fleek.yml" "$FLEEK_MANAGED/.config/home-manager" "dist")
-
 restore: clean (unmove "$FLEEK_MANAGED/.fleek.yml" "$FLEEK_MANAGED/.config/home-manager")
 
 default-env:
@@ -52,6 +51,21 @@ apply:
   [ -e "./fleek" ] || just build
   ./fleek apply --push
 
+examples:
+  [ -e "./fleek" ] || just build
+  rm -rf examples/none
+  rm -rf examples/low
+  rm -rf examples/default
+  rm -rf examples/high
+  mkdir -p examples/none
+  mkdir -p examples/low
+  mkdir -p examples/default
+  mkdir -p examples/high
+  ./fleek generate --level none -l projects/ublue/fleek/examples/none
+  ./fleek generate --level default -l projects/ublue/fleek/examples/default
+  ./fleek generate --level low -l projects/ublue/fleek/examples/low
+  ./fleek generate --level high -l projects/ublue/fleek/examples/high
+  
 completions:
   [ -e "./fleek" ] || just build
   mkdir -p completions
