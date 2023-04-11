@@ -71,7 +71,7 @@ func (f *Flake) Update() error {
 	}
 	return nil
 }
-func (f *Flake) Create(force bool) error {
+func (f *Flake) Create(force bool, symlink bool) error {
 	ux.Info.Println(f.app.Trans("init.writingConfigs"))
 	err := f.ensureFlakeDir()
 	if err != nil {
@@ -138,7 +138,7 @@ func (f *Flake) Create(force bool) error {
 		return err
 	}
 
-	err = f.Config.WriteInitialConfig(f.Config.Force)
+	err = f.Config.WriteInitialConfig(f.Config.Force, symlink)
 	if err != nil {
 		return err
 	}

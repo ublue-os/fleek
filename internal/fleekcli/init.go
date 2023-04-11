@@ -82,7 +82,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 
 	} else {
 		fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
-		err = fl.Create(force)
+		err = fl.Create(force, true)
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("flake.creating"))
 		}

@@ -4,7 +4,11 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package fleekcli
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/internal/flake"
+	"github.com/ublue-os/fleek/internal/ux"
 )
 
 func EjectCommand() *cobra.Command {
@@ -21,10 +25,48 @@ func EjectCommand() *cobra.Command {
 }
 
 // initCmd represents the init command
-func eject(_ *cobra.Command) error {
+func eject(cmd *cobra.Command) error {
 	err := mustConfig()
 	if err != nil {
 		return err
 	}
+	ux.Description.Println(cmd.Short)
+
+	fl, err := flake.Load(cfg, app)
+	if err != nil {
+		return err
+	}
+	fl.Config.Ejected = true
+	fl.Config.Git.AutoCommit = false
+	fl.Config.Git.AutoPull = false
+	fl.Config.Git.AutoPush = false
+	fl.Config.Git.Enabled = false
+	for _, system := range fl.Config.Systems {
+		// nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
+		fl.Config.Aliases["apply-"+system.Hostname] = fmt.Sprintf("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
+		//ux.Info.Printfln("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
+	}
+	err = fl.Config.Save()
+	if err != nil {
+		return err
+	}
+	// reload config so it won't git push
+	err = fl.ReadConfig()
+	if err != nil {
+		return err
+	}
+	err = fl.Write(true)
+	if err != nil {
+		return err
+	}
+	ux.Info.Println("Run the following commands from the flake directory to apply your changes:")
+
+	for _, system := range fl.Config.Systems {
+		// nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
+		fmt.Printf("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s\n", system.Username, system.Hostname)
+		//ux.Info.Printfln("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
+	}
+
+	ux.Warning.Println(app.Trans("eject.complete"))
 	return nil
 }

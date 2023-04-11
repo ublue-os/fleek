@@ -2,6 +2,7 @@ package fleekcli
 
 import (
 	"io"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/internal/fleek"
@@ -47,6 +48,10 @@ func RootCmd() *cobra.Command {
 				ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
 				ux.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
 				ux.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
+				if cfg.Ejected {
+					ux.Error.Println(app.Trans("eject.ejected"))
+					os.Exit(1)
+				}
 
 			}
 
@@ -101,7 +106,8 @@ func RootCmd() *cobra.Command {
 
 	ejectCmd := EjectCommand()
 	ejectCmd.GroupID = fleekGroup.ID
-
+	generateCmd := GenerateCommand()
+	generateCmd.GroupID = fleekGroup.ID
 	searchCmd := SearchCommand()
 	searchCmd.GroupID = packageGroup.ID
 
@@ -123,6 +129,7 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(ejectCmd)
 	command.AddCommand(searchCmd)
 	command.AddCommand(infoCmd)
+	command.AddCommand(generateCmd)
 
 	command.AddCommand(VersionCmd())
 

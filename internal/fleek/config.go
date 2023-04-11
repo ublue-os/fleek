@@ -257,9 +257,9 @@ func ReadConfig() (*Config, error) {
 	return c, nil
 }
 
-func (c *Config) WriteInitialConfig(force bool) error {
+func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 	aliases := make(map[string]string)
-	aliases["fleeks"] = "cd ~/.local/share/fleek"
+	aliases["fleeks"] = "cd " + c.UserFlakeDir()
 	sys, err := NewSystem()
 	if err != nil {
 		ux.Debug.Printfln("new system err: %s ", err)
@@ -321,11 +321,14 @@ func (c *Config) WriteInitialConfig(force bool) error {
 		if err != nil {
 			return err
 		}
-		csym := filepath.Join(home, ".fleek.yml")
-		err = os.Symlink(cfile, csym)
-		if err != nil {
-			return err
+		if symlink {
+			csym := filepath.Join(home, ".fleek.yml")
+			err = os.Symlink(cfile, csym)
+			if err != nil {
+				return err
+			}
 		}
+
 	} else {
 		return errors.New("cowardly refusing to overwrite config file without --force flag")
 	}
