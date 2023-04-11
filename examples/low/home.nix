@@ -18,6 +18,7 @@
     # user selected packages
     pkgs.helix
     # Fleek Bling
+    pkgs.git
     pkgs.htop
     pkgs.github-cli
     pkgs.glab
