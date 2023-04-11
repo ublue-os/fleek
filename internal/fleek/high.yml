@@ -1,6 +1,13 @@
 name: High
 description: A modern experience for modern times
 packages:
+  - git
+  - htop 
+  - github-cli
+  - glab
+  - fzf
+  - ripgrep 
+  - vscode
   - lazygit
   - jq
   - yq
@@ -13,3 +20,6 @@ programs:
   - bat
   - atuin
   - zoxide
+
+  - direnv
+  - starship
