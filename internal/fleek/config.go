@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/ublue-os/fleek/internal/ux"
+	"github.com/ublue-os/fleek/fin"
 	"gopkg.in/yaml.v3"
 )
 
@@ -262,7 +262,7 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 	aliases["fleeks"] = "cd " + c.UserFlakeDir()
 	sys, err := NewSystem()
 	if err != nil {
-		ux.Debug.Printfln("new system err: %s ", err)
+		fin.Debug.Printfln("new system err: %s ", err)
 		return err
 	}
 	c.Unfree = true
@@ -282,15 +282,15 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 
 	cfile, err := c.Location()
 	if err != nil {
-		ux.Debug.Printfln("location err: %s ", err)
+		fin.Debug.Printfln("location err: %s ", err)
 		return err
 	}
-	ux.Debug.Printfln("cfile: %s", cfile)
+	fin.Debug.Printfln("cfile: %s", cfile)
 
 	_, err = os.Stat(cfile)
 
-	ux.Debug.Printfln("stat err: %v ", err)
-	ux.Debug.Printfln("force: %v ", force)
+	fin.Debug.Printfln("stat err: %v ", err)
+	fin.Debug.Printfln("force: %v ", force)
 
 	if force || errors.Is(err, fs.ErrNotExist) {
 

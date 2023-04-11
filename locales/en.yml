@@ -210,7 +210,8 @@ info:
     fleek info fzf
   short: "Show detailed information about a fleek installed package"
   notFound: "That program or package is not part of fleek's bling set."
-  aliases: "Provides the following shell aliases:"
+  aliases: "Shell Aliases"
+  description: "Description"
 flake:
   noConfig: "No configuration files found. Try `fleek init`."
   configLoaded: "Configuration loaded"

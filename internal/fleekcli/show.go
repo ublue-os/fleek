@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/ux"
 )
@@ -53,7 +54,7 @@ func showFleek(cmd *cobra.Command) error {
 		level = cfg.Bling
 	}
 	if !showJSON {
-		ux.Description.Println(cmd.Short)
+		fin.Description.Println(cmd.Short)
 		err := mustConfig()
 		if err != nil {
 			return err
@@ -76,12 +77,12 @@ func showFleek(cmd *cobra.Command) error {
 		b, err = fleek.NoBling()
 		cobra.CheckErr(err)
 	default:
-		ux.Error.Println(app.Trans("show.invalidLevel", level))
+		fin.Error.Println(app.Trans("show.invalidLevel", level))
 		return nil
 	}
 
 	if !showJSON {
-		ux.Info.Println("["+b.Name+" Bling]", b.Description)
+		fin.Info.Println("["+b.Name+" Bling]", b.Description)
 	}
 
 	if showJSON {

@@ -5,8 +5,8 @@ package fleekcli
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
-	"github.com/ublue-os/fleek/internal/ux"
 )
 
 type applyCmdFlags struct {
@@ -31,26 +31,32 @@ func ApplyCommand() *cobra.Command {
 }
 
 func apply(cmd *cobra.Command) error {
-	ux.Description.Println(cmd.Short)
+	fin.Description.Println(cmd.Short)
 	err := mustConfig()
 	if err != nil {
 		return err
-	}
-
-	var dry bool
-	if cmd.Flag(app.Trans("apply.dryRunFlag")).Changed {
-		dry = true
 	}
 	fl, err := flake.Load(cfg, app)
 	if err != nil {
 		return err
 	}
+	if cfg.Ejected {
+		if err := fl.Apply(); err != nil {
+			return err
+		}
+		fin.Success.Println(app.Trans("global.completed"))
+	}
+	var dry bool
+	if cmd.Flag(app.Trans("apply.dryRunFlag")).Changed {
+		dry = true
+	}
+
 	err = fl.MayPull()
 	if err != nil {
 		return err
 	}
 
-	if err := fl.Write(true); err != nil {
+	if err := fl.Write(true, "fleek: apply"); err != nil {
 		return err
 	}
 	if !dry {
@@ -58,14 +64,14 @@ func apply(cmd *cobra.Command) error {
 			return err
 		}
 	} else {
-		ux.Info.Println(app.Trans("apply.dryApplyingConfig"))
+		fin.Info.Println(app.Trans("apply.dryApplyingConfig"))
 		if bb, err := fl.Check(); err != nil {
 			if err != nil {
-				ux.Warning.Println(string(bb))
+				fin.Warning.Println(string(bb))
 				return err
 			}
 		}
 	}
-	ux.Success.Println(app.Trans("global.completed"))
+	fin.Success.Println(app.Trans("global.completed"))
 	return nil
 }

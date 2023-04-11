@@ -7,9 +7,9 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
-	"github.com/ublue-os/fleek/internal/ux"
 	"github.com/ublue-os/fleek/internal/xdg"
 )
 
@@ -54,7 +54,7 @@ func generate(cmd *cobra.Command) error {
 	}
 	cfg.Verbose = verbose
 
-	ux.Description.Println(cmd.Short)
+	fin.Description.Println(cmd.Short)
 
 	loc := cmd.Flag(app.Trans("generate.locationFlag")).Value.String()
 	fl, err := flake.Load(cfg, app)
@@ -64,12 +64,13 @@ func generate(cmd *cobra.Command) error {
 	}
 
 	fl.Config.Bling = cmd.Flag(app.Trans("generate.levelFlag")).Value.String()
+	fin.Info.Println("Bling level:", fl.Config.Bling)
 	err = fl.Create(force, false)
 	if err != nil {
 		return usererr.WithUserMessage(err, app.Trans("flake.creating"))
 	}
 
-	ux.Info.Printfln(app.Trans("generate.complete"), loc)
+	fin.Info.Printfln(app.Trans("generate.complete"), loc)
 	fl.Config.Ejected = true
 	fl.Config.Git.AutoCommit = false
 	fl.Config.Git.AutoPull = false
@@ -78,14 +79,14 @@ func generate(cmd *cobra.Command) error {
 	for _, system := range fl.Config.Systems {
 		// nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
 		fl.Config.Aliases["apply-"+system.Hostname] = fmt.Sprintf("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
-		//ux.Info.Printfln("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
+		//fin.Info.Printfln("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
 	}
 	err = fl.Config.Save()
 	if err != nil {
 		return err
 	}
-
-	err = fl.Write(true)
+	fin.Info.Println("writing,", fl.Config.Bling)
+	err = fl.Write(true, "fleek: generate")
 	if err != nil {
 		return err
 	}
@@ -95,17 +96,17 @@ func generate(cmd *cobra.Command) error {
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("generate.applyFlag"))
 		}
-		ux.Info.Println(app.Trans("global.complete"))
+		fin.Info.Println(app.Trans("global.complete"))
 
 		return nil
 	} else {
 		// TODO app trans
-		ux.Info.Println("Run the following commands from the flake directory to apply your changes:")
+		fin.Info.Println("Run the following commands from the flake directory to apply your changes:")
 
 		for _, system := range fl.Config.Systems {
 			// nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
 			fmt.Printf("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s\n", system.Username, system.Hostname)
-			//ux.Info.Printfln("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
+			//fin.Info.Printfln("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
 		}
 
 	}

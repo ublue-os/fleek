@@ -2,7 +2,6 @@ package fin
 
 import (
 	"io"
-	"strings"
 
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -91,8 +90,6 @@ type pcliOut struct{}
 
 func (pcliOut) Write(p []byte) (n int, err error) {
 	str := string(p)
-	if strings.Contains(str, " is on version: ") {
-		pterm.Print(str)
-	}
+	Info.Print(str)
 	return len(p), nil
 }

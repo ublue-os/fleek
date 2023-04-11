@@ -8,8 +8,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
-	"github.com/ublue-os/fleek/internal/ux"
 )
 
 type removeCmdFlags struct {
@@ -41,7 +41,7 @@ func remove(cmd *cobra.Command, args []string) error {
 	if cmd.Flag(app.Trans("fleek.verboseFlag")).Changed {
 		verbose = true
 	}
-	ux.Description.Println(cmd.Short)
+	fin.Description.Println(cmd.Short)
 	err := mustConfig()
 	if err != nil {
 		return err
@@ -67,37 +67,37 @@ func remove(cmd *cobra.Command, args []string) error {
 	for _, p := range args {
 
 		if verbose {
-			ux.Verbose.Printfln(app.Trans("remove.config"), p)
+			fin.Verbose.Printfln(app.Trans("remove.config"), p)
 		}
 		err = fl.Config.RemovePackage(p)
 		if err != nil {
-			ux.Debug.Printfln("remove package error: %s", err)
+			fin.Debug.Printfln("remove package error: %s", err)
 			return err
 		}
 		sb.WriteString(p + " ")
 
 	}
-	err = fl.Write(false)
+	err = fl.Write(false, sb.String())
 	if err != nil {
-		ux.Debug.Printfln("flake write error: %s", err)
+		fin.Debug.Printfln("flake write error: %s", err)
 		return err
 	}
 
 	if apply {
 		if verbose {
-			ux.Info.Println(app.Trans("remove.applying"))
+			fin.Info.Println(app.Trans("remove.applying"))
 		}
 		err = fl.Apply()
 		if err != nil {
 			if errors.Is(err, flake.ErrPackageConflict) {
-				ux.Fatal.Println(app.Trans("global.errConflict"))
+				fin.Fatal.Println(app.Trans("global.errConflict"))
 			}
 			return err
 		}
 	} else {
-		ux.Warning.Println(app.Trans("remove.notApplied"))
+		fin.Warning.Println(app.Trans("remove.needApply"))
 	}
 
-	ux.Success.Println(app.Trans("remove.done"))
+	fin.Success.Println(app.Trans("remove.done"))
 	return nil
 }

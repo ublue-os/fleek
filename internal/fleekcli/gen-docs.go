@@ -90,14 +90,3 @@ func genDocsCmd() *cobra.Command {
 
 	return genDocsCmd
 }
-
-func getPathTo(file string) string {
-	// dir, _ := os.Getwd()
-	return filepath.Join("./", file)
-}
-
-const fmTemplate = `---
-title: "%s"
-description: "%s"
----
-`

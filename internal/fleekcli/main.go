@@ -35,7 +35,7 @@ func Execute(ctx context.Context, args []string) int {
 func init() {
 	app = fleek.NewApp()
 	root = RootCmd()
-	// Use https://github.com/pterm/pcli to style the output of cobra.
+
 	fin.SetRepo("ublue-os/fleek")
 	fin.SetRootCmd(root)
 	fin.Setup()
