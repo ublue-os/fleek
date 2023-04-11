@@ -34,6 +34,9 @@
         pname = "fleek";
         inherit version;
         src = ./.;
+        nativeBuildInputs = with pkgs; [
+          installShellFiles # Shell completion helper function (see postInstall below)
+        ];
         subPackages = [ "cmd/fleek" ];
         vendorSha256 = "sha256-cuhIB9Bfmaolym9DLUpjsuUGpE0z6YMrnb1yOmEUQaA=";
         CGO_ENABLED = 0;
@@ -48,6 +51,12 @@
         tags = [
           "netgo"
         ];
+        postInstall = ''
+          installShellCompletion --cmd fleek \
+            --bash <($out/bin/fleek completion bash) \
+            --fish <($out/bin/fleek completion fish) \
+            --zsh <($out/bin/fleek completion zsh)
+        '';
       };
     });
   };
