@@ -82,7 +82,7 @@ func infoFleek(cmd *cobra.Command, args []string) error {
 			for _, a := range prog.Aliases {
 				td = append(td, []string{a.Key, a.Value, a.Description})
 			}
-			fin.Table().WithHasHeader(true).WithHeaderRowSeparator("-").WithData(td).Render()
+			_ = fin.Table().WithHasHeader(true).WithHeaderRowSeparator("-").WithData(td).Render()
 
 		}
 	}

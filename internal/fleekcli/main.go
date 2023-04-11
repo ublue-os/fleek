@@ -36,7 +36,7 @@ func init() {
 	app = fleek.NewApp()
 	root = RootCmd()
 
-	fin.SetRepo("ublue-os/fleek")
+	_ = fin.SetRepo("ublue-os/fleek")
 	fin.SetRootCmd(root)
 	fin.Setup()
 

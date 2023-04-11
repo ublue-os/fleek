@@ -170,6 +170,11 @@ In my third rewrite, I looked at devbox and loved how they organized everything.
 - [devbox](https://github.com/jetpack-io/devbox)
 - [devbox license](https://github.com/jetpack-io/devbox/blob/main/LICENSE)
 
+Great terminal display code inspired by and copied from pcli.
+
+- [pcli](https://github.com/pterm/pcli/)
+- [pcli license](https://github.com/pterm/pcli/blob/main/LICENSE)
+
 None of this is possible without Nix and Nix Home Manager:
 
 - [nix](https://nixos.org/)

@@ -99,16 +99,14 @@ func generate(cmd *cobra.Command) error {
 		fin.Info.Println(app.Trans("global.complete"))
 
 		return nil
-	} else {
-		// TODO app trans
-		fin.Info.Println("Run the following commands from the flake directory to apply your changes:")
+	}
+	// TODO app trans
+	fin.Info.Println("Run the following commands from the flake directory to apply your changes:")
 
-		for _, system := range fl.Config.Systems {
-			// nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
-			fmt.Printf("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s\n", system.Username, system.Hostname)
-			//fin.Info.Printfln("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
-		}
-
+	for _, system := range fl.Config.Systems {
+		// nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
+		fmt.Printf("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s\n", system.Username, system.Hostname)
+		//fin.Info.Printfln("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
 	}
 
 	return nil

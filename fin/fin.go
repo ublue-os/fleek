@@ -1,5 +1,12 @@
 package fin
 
+/*
+Much of this code is either copied from or inspired by the pterm project.
+MIT License
+
+Copyright (c) 2021 pterm
+*/
+
 import (
 	"errors"
 	"strings"

@@ -2,7 +2,6 @@ package fleekcli
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -66,19 +65,19 @@ func genDocsCmd() *cobra.Command {
 			*/
 			doc := fin.GenerateMarkdownDoc(cmd.Root())
 
-			pterm.Fatal.PrintOnError(ioutil.WriteFile(filepath.Join(docsPath, fmt.Sprintf("%s.md", cmd.Root().Name())), []byte(doc.Markdown), 0777))
+			pterm.Fatal.PrintOnError(os.WriteFile(filepath.Join(docsPath, fmt.Sprintf("%s.md", cmd.Root().Name())), []byte(doc.Markdown), 0777))
 			for _, subCmd := range cmd.Root().Commands() {
 				if !subCmd.Hidden {
 					doc := fin.GenerateMarkdownDoc(subCmd)
 					fileName := strings.Replace(subCmd.CommandPath(), " ", "_", -1)
 
-					pterm.Fatal.PrintOnError(ioutil.WriteFile(filepath.Join(docsPath, fmt.Sprintf("%s.md", fileName)), []byte(doc.Markdown), 0777))
+					pterm.Fatal.PrintOnError(os.WriteFile(filepath.Join(docsPath, fmt.Sprintf("%s.md", fileName)), []byte(doc.Markdown), 0777))
 
 					for _, subSubCmd := range subCmd.Commands() {
 						if !subSubCmd.Hidden {
 							fileName := strings.Replace(subSubCmd.CommandPath(), " ", "_", -1)
 							doc := fin.GenerateMarkdownDoc(subSubCmd)
-							pterm.Fatal.PrintOnError(ioutil.WriteFile(filepath.Join(docsPath, fmt.Sprintf("%s.md", fileName)), []byte(doc.Markdown), 0777))
+							pterm.Fatal.PrintOnError(os.WriteFile(filepath.Join(docsPath, fmt.Sprintf("%s.md", fileName)), []byte(doc.Markdown), 0777))
 						}
 					}
 				}
