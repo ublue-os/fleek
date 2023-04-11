@@ -96,7 +96,7 @@ func generate(cmd *cobra.Command) error {
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("generate.applyFlag"))
 		}
-		fin.Info.Println(app.Trans("global.complete"))
+		fin.Info.Println(app.Trans("global.completed"))
 
 		return nil
 	}
