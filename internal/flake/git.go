@@ -8,9 +8,9 @@ import (
 	"os/exec"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/debug"
 	fgit "github.com/ublue-os/fleek/internal/git"
-	"github.com/ublue-os/fleek/internal/ux"
 )
 
 const gitbin = "git"
@@ -22,6 +22,9 @@ func (f *Flake) gitOpen() (*git.Repository, error) {
 }
 
 func (f *Flake) Clone(repo string) error {
+	if f.Config.Verbose {
+		fin.Verbose.Printfln("Cloning %s to %s", repo, f.Config.UserFlakeDir())
+	}
 	cloneCmdline := []string{"clone", repo, f.Config.UserFlakeDir()}
 
 	home, err := os.UserHomeDir()
@@ -47,7 +50,7 @@ func (f *Flake) runGit(cmd string, cmdLine []string) error {
 	command.Stdin = os.Stdin
 	command.Dir = f.Config.UserFlakeDir()
 	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
+	//command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	command.Env = os.Environ()
 	return command.Run()
@@ -68,55 +71,50 @@ func (f *Flake) IsGitRepo() (bool, error) {
 	}
 	return true, nil
 }
-func (f *Flake) mayCommit() error {
+func (f *Flake) mayCommit(message string) error {
 	git, err := f.IsGitRepo()
 	if err != nil {
-		ux.Debug.Printfln("git repo error: %s", err)
+		fin.Debug.Printfln("git repo error: %s", err)
 		return err
 	}
 	if git {
-		ux.Debug.Println("is git repo")
+		fin.Debug.Println("is git repo")
 		// add
-		ux.Debug.Println("git will add")
+		fin.Debug.Println("git will add")
 		if f.Config.Verbose {
-			ux.Verbose.Println(f.app.Trans("git.add"))
+			fin.Verbose.Println(f.app.Trans("git.add"))
 		}
 		err = f.add()
 		if err != nil {
-			ux.Debug.Printfln("git add error: %s", err)
+			fin.Debug.Printfln("git add error: %s", err)
 			return err
 		}
 		if f.Config.Git.AutoCommit {
-			ux.Debug.Println("git will commit")
+			fin.Debug.Println("git will commit")
 			if f.Config.Verbose {
-				ux.Verbose.Println(f.app.Trans("git.commit"))
+				fin.Verbose.Println(f.app.Trans("git.commit"))
 			}
-			err = f.commit()
+			err = f.commit(message)
 			if err != nil {
-				ux.Debug.Printfln("git commit error: %s", err)
+				fin.Debug.Printfln("git commit error: %s", err)
 				return err
 			}
-			// commit
-			err = f.commit()
-			if err != nil {
-				ux.Debug.Printfln("git commit error: %s", err)
-				return err
-			}
+
 		}
 
 		if f.Config.Git.AutoPush {
-			ux.Debug.Println("git will push")
+			fin.Debug.Println("git will push")
 			if f.Config.Verbose {
-				ux.Verbose.Println(f.app.Trans("git.push"))
+				fin.Verbose.Println(f.app.Trans("git.push"))
 			}
 			err = f.push()
 			if err != nil {
-				ux.Debug.Printfln("git push error: %s", err)
+				fin.Debug.Printfln("git push error: %s", err)
 				return err
 			}
 		}
 	} else {
-		ux.Debug.Println("skipping git")
+		fin.Debug.Println("skipping git")
 		return nil
 	}
 
@@ -125,29 +123,29 @@ func (f *Flake) mayCommit() error {
 func (f *Flake) MayPull() error {
 	git, err := f.IsGitRepo()
 	if err != nil {
-		ux.Debug.Printfln("git repo error: %s", err)
+		fin.Debug.Printfln("git repo error: %s", err)
 		return err
 	}
 	if git {
 		if f.Config.Verbose {
-			ux.Verbose.Println(f.app.Trans("git.commit"))
+			fin.Verbose.Println(f.app.Trans("git.commit"))
 		}
-		ux.Debug.Println("is git repo")
+		fin.Debug.Println("is git repo")
 
 		if f.Config.Git.AutoPull {
-			ux.Debug.Println("git will pull")
+			fin.Debug.Println("git will pull")
 			if f.Config.Verbose {
-				ux.Verbose.Println(f.app.Trans("git.pull"))
+				fin.Verbose.Println(f.app.Trans("git.pull"))
 			}
 			err = f.pull()
 			if err != nil {
-				ux.Debug.Printfln("git pull error: %s", err)
+				fin.Debug.Printfln("git pull error: %s", err)
 				return err
 			}
 		}
 
 	} else {
-		ux.Debug.Println("skipping git")
+		fin.Debug.Println("skipping git")
 		return nil
 	}
 
@@ -163,17 +161,20 @@ func (f *Flake) add() error {
 	return nil
 }
 
-func (f *Flake) commit() error {
+func (f *Flake) commit(message string) error {
 	status, err := f.gitStatus()
 	if err != nil {
 		return err
 	}
 	if status.Empty() {
-		ux.Debug.Println("git status is empty, skipping commit")
+		fin.Debug.Println("git status is empty, skipping commit")
 		return nil
 	}
+	if message == "" {
+		message = "fleek: commit"
+	}
 
-	commitCmdLine := []string{"commit", "-m", "fleek: commit"}
+	commitCmdLine := []string{"commit", "-m", message}
 	err = f.runGit(gitbin, commitCmdLine)
 	if err != nil {
 		return fmt.Errorf("git commit: %w", err)

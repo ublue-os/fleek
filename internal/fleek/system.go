@@ -9,7 +9,7 @@ import (
 
 	"os/user"
 
-	"github.com/ublue-os/fleek/internal/ux"
+	"github.com/ublue-os/fleek/fin"
 )
 
 var ErrSysNotFound = errors.New("system not found")
@@ -106,7 +106,7 @@ func UserShell() (string, error) {
 	if strings.Contains(shell, "bash") {
 		shell = "bash"
 	}
-	ux.Debug.Printfln("detected shell: %s", shell)
+	fin.Debug.Printfln("detected shell: %s", shell)
 	return shell, nil
 
 }

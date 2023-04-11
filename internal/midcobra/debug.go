@@ -12,6 +12,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/debug"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
 	"github.com/ublue-os/fleek/internal/ux"
@@ -67,9 +68,9 @@ func (d *DebugMiddleware) postRun(cmd *cobra.Command, _ []string, runErr error) 
 	st := debug.EarliestStackTrace(runErr)
 	var exitErr *exec.ExitError
 	if errors.As(runErr, &exitErr) {
-		ux.Debug.Printfln("Command stderr: %s\n", exitErr.Stderr)
+		fin.Debug.Printfln("Command stderr: %s\n", exitErr.Stderr)
 	}
-	ux.Debug.Printfln("\nExecutionID:%s\n%+v\n", d.executionID, st)
+	fin.Debug.Printfln("\nExecutionID:%s\n%+v\n", d.executionID, st)
 }
 
 func (d *DebugMiddleware) withExecutionID(execID string) Middleware {

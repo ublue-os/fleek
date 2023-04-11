@@ -1,4 +1,4 @@
-package ux
+package fin
 
 import (
 	"github.com/pterm/pterm"

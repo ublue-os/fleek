@@ -31,8 +31,28 @@ eject:
   short: "Manage your home configuration directly, without the .fleek.yml file."
   verboseFlag: "show more detailed output"
   start: "Applying current fleek configuration to your home flake."
-  complete: "Home configuration written. All changes should now be made in ~/.config/home-manager/ directly."
+  complete: "Home configuration written. All changes should now be made in ~/.local/share/fleek/ directly."
   confirm: "Are you sure you want to manage your home configuration files directly?"
+  ejected: "Fleek ejected. Use `home-manager` directly to apply any changes."
+
+generate:
+  use: "generate"
+  long: |
+    Generate does stuff
+  short: "Generate a new home-manager configuration using fleek's templates"
+  verboseFlag: "show more detailed output"
+  start: "Applying current fleek configuration to your home flake."
+  complete: "Home configuration written. All changes should now be made in %s directly."
+  confirm: "Are you sure you want to manage your home configuration files directly?"
+  ejected: "Fleek ejected. Use `home-manager` directly to apply any changes."
+  forceFlag: "force"
+  forceFlagDescription: "overwrite existing configuration files"
+  applyFlag: "apply"
+  applyFlagDescription: "apply configuration immediately after generating"
+  locationFlag: "location"
+  locationFlagDescription: "location of home-manager configuration, relative to home"
+  levelFlag: "level"
+  levelFlagDescription: "bling level: `none`,`low`,`default`,`high`"
 apply:
   use: "apply"
   long: |
@@ -190,7 +210,8 @@ info:
     fleek info fzf
   short: "Show detailed information about a fleek installed package"
   notFound: "That program or package is not part of fleek's bling set."
-  aliases: "Provides the following shell aliases:"
+  aliases: "Shell Aliases"
+  description: "Description"
 flake:
   noConfig: "No configuration files found. Try `fleek init`."
   configLoaded: "Configuration loaded"

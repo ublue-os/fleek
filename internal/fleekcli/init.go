@@ -5,9 +5,9 @@ package fleekcli
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
-	"github.com/ublue-os/fleek/internal/ux"
 	"github.com/ublue-os/fleek/internal/xdg"
 )
 
@@ -54,7 +54,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 	}
 	cfg.Verbose = verbose
 
-	ux.Description.Println(cmd.Short)
+	fin.Description.Println(cmd.Short)
 
 	loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
 	fl, err := flake.Load(cfg, app)
@@ -74,7 +74,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if join {
-		ux.Info.Println(app.Trans("init.joining"))
+		fin.Info.Println(app.Trans("init.joining"))
 		err := fl.Join()
 		if err != nil {
 			return err
@@ -82,7 +82,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 
 	} else {
 		fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
-		err = fl.Create(force)
+		err = fl.Create(force, true)
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("flake.creating"))
 		}
@@ -93,11 +93,11 @@ func initialize(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("init.applyFlag"))
 		}
-		ux.Info.Println(app.Trans("global.complete"))
+		fin.Info.Println(app.Trans("global.complete"))
 
 		return nil
 	}
-	ux.Info.Println(app.Trans("init.complete"))
+	fin.Info.Println(app.Trans("init.complete"))
 
 	return nil
 }

@@ -5,8 +5,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
-	"github.com/ublue-os/fleek/internal/ux"
 )
 
 type addCmdFlags struct {
@@ -34,7 +34,7 @@ func AddCommand() *cobra.Command {
 // initCmd represents the init command
 func add(cmd *cobra.Command, args []string) error {
 
-	ux.Description.Println(cmd.Short)
+	fin.Description.Println(cmd.Short)
 	err := mustConfig()
 	if err != nil {
 		return err
@@ -56,34 +56,34 @@ func add(cmd *cobra.Command, args []string) error {
 	var sb strings.Builder
 	sb.WriteString("add packages: ")
 	for _, p := range args {
-		ux.Info.Println(app.Trans("add.adding") + p)
+		fin.Info.Println(app.Trans("add.adding") + p)
 		err = fl.Config.AddPackage(p)
 		if err != nil {
-			ux.Debug.Printfln("add package error: %s", err)
+			fin.Debug.Printfln("add package error: %s", err)
 			return err
 		}
 		sb.WriteString(p + " ")
 
 	}
-	err = fl.Write(false)
+	err = fl.Write(false, sb.String())
 	if err != nil {
-		ux.Debug.Printfln("flake write error: %s", err)
+		fin.Debug.Printfln("flake write error: %s", err)
 		return err
 	}
 
 	if apply {
-		ux.Info.Println(app.Trans("add.applying"))
+		fin.Info.Println(app.Trans("add.applying"))
 
 		err = fl.Apply()
 		if err != nil {
 			if errors.Is(err, flake.ErrPackageConflict) {
-				ux.Fatal.Println(app.Trans("global.errConflict"))
+				fin.Fatal.Println(app.Trans("global.errConflict"))
 			}
 			return err
 		}
 	} else {
-		ux.Warning.Println(app.Trans("add.unapplied"))
+		fin.Warning.Println(app.Trans("add.unapplied"))
 	}
-	ux.Success.Println(app.Trans("global.completed"))
+	fin.Success.Println(app.Trans("global.completed"))
 	return nil
 }

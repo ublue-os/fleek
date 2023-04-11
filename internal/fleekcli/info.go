@@ -4,10 +4,13 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package fleekcli
 
 import (
+	"fmt"
+
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleek"
-	"github.com/ublue-os/fleek/internal/ux"
 )
 
 func InfoCommand() *cobra.Command {
@@ -26,7 +29,7 @@ func InfoCommand() *cobra.Command {
 
 func infoFleek(cmd *cobra.Command, args []string) error {
 
-	ux.Description.Println(cmd.Short)
+	fin.Description.Println(cmd.Short)
 	err := mustConfig()
 	if err != nil {
 		return err
@@ -51,33 +54,40 @@ func infoFleek(cmd *cobra.Command, args []string) error {
 		b, err = fleek.NoBling()
 		cobra.CheckErr(err)
 	}
-	ux.Info.Println("["+b.Name+" Bling]", b.Description)
+	fin.Info.Println("["+b.Name+" Bling]", b.Description)
 
 	needle := args[0]
 	var found bool
 	pkg, ok := b.PackageMap[needle]
 	if ok {
 		found = true
-		ux.Info.Println(" -- " + pkg.Name + " --")
-		ux.Description.Println(pkg.Description)
+
+		fmt.Println(fin.TitleSectionPrinter(pkg.Name))
+		fmt.Println(fin.DescriptionSectionPrinter(app.Trans("info.description")))
+		fmt.Println(fin.ParagraphPrinter(pkg.Description))
+
 	}
 	prog, ok := b.ProgramMap[needle]
 	if ok {
 		found = true
-		ux.Info.Println(" -- " + prog.Name + " --")
-		ux.Description.Println(prog.Description)
-		if len(prog.Aliases) > 0 {
+		fmt.Println(fin.TitleSectionPrinter(prog.Name))
+		fmt.Println(fin.DescriptionSectionPrinter(app.Trans("info.description")))
+		fmt.Println(fin.ParagraphPrinter(prog.Description))
 
-			ux.Info.Println(app.Trans("info.aliases"))
+		if len(prog.Aliases) > 0 {
+			fmt.Println(fin.DescriptionSectionPrinter(app.Trans("info.aliases")))
+			var td pterm.TableData
+			td = append(td, []string{"Alias", "Value", "Description"})
+
 			for _, a := range prog.Aliases {
-				ux.Description.Println("\t" + a.Description)
-				ux.Info.Println("\t\t"+a.Key+": ", a.Value)
+				td = append(td, []string{a.Key, a.Value, a.Description})
 			}
+			_ = fin.Table().WithHasHeader(true).WithHeaderRowSeparator("-").WithData(td).Render()
 
 		}
 	}
 	if !found {
-		ux.Warning.Println(needle, "-", app.Trans("info.notFound"))
+		fin.Warning.Println(needle, "-", app.Trans("info.notFound"))
 	}
 	return nil
 }

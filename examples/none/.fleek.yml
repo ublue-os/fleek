@@ -1,0 +1,26 @@
+aliases:
+    apply-ghanima: nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
+    fleeks: cd /var/home/bjk/projects/ublue/fleek/examples/none
+bling: none
+ejected: true
+flakedir: projects/ublue/fleek/examples/none
+git:
+    autocommit: false
+    autopull: false
+    autopush: false
+    enabled: false
+name: Fleek Configuration
+packages:
+    - helix
+paths:
+    - $HOME/bin
+    - $HOME/.local/bin
+programs:
+    - dircolors
+shell: zsh
+systems:
+    - arch: x86_64
+      hostname: ghanima
+      os: linux
+      username: bjk
+unfree: true

@@ -2,11 +2,12 @@ package fleekcli
 
 import (
 	"io"
+	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
-	"github.com/ublue-os/fleek/internal/ux"
 )
 
 var cfg *fleek.Config
@@ -28,12 +29,12 @@ func RootCmd() *cobra.Command {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
 			}
-			ux.Debug.Println("debug enabled")
+			fin.Debug.Println("debug enabled")
 			// try to get the config, which may not exist yet
 			c, err := fleek.ReadConfig()
 			if err == nil {
 				if flags.verbose {
-					ux.Info.Println(app.Trans("fleek.configLoaded"))
+					fin.Info.Println(app.Trans("fleek.configLoaded"))
 				}
 				cfg = c
 				cfgFound = true
@@ -44,9 +45,15 @@ func RootCmd() *cobra.Command {
 			if cfg != nil {
 				cfg.Quiet = flags.quiet
 				cfg.Verbose = flags.verbose
-				ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
-				ux.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
-				ux.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
+				fin.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
+				fin.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
+				fin.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
+				if cfg.Ejected {
+					if cmd.Name() != app.Trans("apply.use") {
+						fin.Error.Println(app.Trans("eject.ejected"))
+						os.Exit(1)
+					}
+				}
 
 			}
 
@@ -55,9 +62,9 @@ func RootCmd() *cobra.Command {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
 			}
-			ux.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
-			ux.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
-			ux.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
+			fin.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
+			fin.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
+			fin.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
 
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -101,7 +108,8 @@ func RootCmd() *cobra.Command {
 
 	ejectCmd := EjectCommand()
 	ejectCmd.GroupID = fleekGroup.ID
-
+	generateCmd := GenerateCommand()
+	generateCmd.GroupID = fleekGroup.ID
 	searchCmd := SearchCommand()
 	searchCmd.GroupID = packageGroup.ID
 
@@ -123,6 +131,7 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(ejectCmd)
 	command.AddCommand(searchCmd)
 	command.AddCommand(infoCmd)
+	command.AddCommand(generateCmd)
 
 	command.AddCommand(VersionCmd())
 

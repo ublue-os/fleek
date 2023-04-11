@@ -13,8 +13,8 @@ import (
 
 	"github.com/riywo/loginshell"
 	app "github.com/ublue-os/fleek"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/fleek"
-	"github.com/ublue-os/fleek/internal/ux"
 )
 
 const nixbin = "nix"
@@ -35,7 +35,7 @@ type Data struct {
 
 func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
 	if cfg.Verbose {
-		ux.Verbose.Println(app.Trans("flake.initializingTemplates"))
+		fin.Verbose.Println(app.Trans("flake.initializingTemplates"))
 	}
 	t, err := template.ParseFS(content, "*.tmpl")
 	if err != nil {
@@ -50,7 +50,7 @@ func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
 }
 
 func (f *Flake) Update() error {
-	spinner, err := ux.Spinner().Start(f.app.Trans("flake.update"))
+	spinner, err := fin.Spinner().Start(f.app.Trans("flake.update"))
 	if err != nil {
 		return err
 	}
@@ -61,18 +61,20 @@ func (f *Flake) Update() error {
 		return err
 	}
 	if f.Config.Verbose {
-		ux.Verbose.Println(out)
+		if len(out) > 0 {
+			fin.Verbose.Println(out)
+		}
 	}
 	spinner.Success()
-	err = f.mayCommit()
+	err = f.mayCommit("fleek: update flake.lock")
 
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (f *Flake) Create(force bool) error {
-	ux.Info.Println(f.app.Trans("init.writingConfigs"))
+func (f *Flake) Create(force bool, symlink bool) error {
+	fin.Info.Println(f.app.Trans("init.writingConfigs"))
 	err := f.ensureFlakeDir()
 	if err != nil {
 		return err
@@ -105,7 +107,7 @@ func (f *Flake) Create(force bool) error {
 		return err
 	}
 
-	ux.Info.Println(f.app.Trans("init.blingLevel", f.Config.Bling))
+	fin.Info.Println(f.app.Trans("init.blingLevel", f.Config.Bling))
 
 	data := Data{
 		Config: f.Config,
@@ -138,7 +140,7 @@ func (f *Flake) Create(force bool) error {
 		return err
 	}
 
-	err = f.Config.WriteInitialConfig(f.Config.Force)
+	err = f.Config.WriteInitialConfig(f.Config.Force, symlink)
 	if err != nil {
 		return err
 	}
@@ -179,7 +181,7 @@ func (f *Flake) IsJoin() (bool, error) {
 	return false, nil
 }
 func (f *Flake) Join() error {
-	ux.Info.Println(f.app.Trans("init.writingConfigs"))
+	fin.Info.Println(f.app.Trans("init.writingConfigs"))
 	err := f.ensureFlakeDir()
 	if err != nil {
 		return err
@@ -187,10 +189,10 @@ func (f *Flake) Join() error {
 	// Symlink the yaml file to home
 	cfile, err := f.Config.Location()
 	if err != nil {
-		ux.Debug.Printfln("location err: %s ", err)
+		fin.Debug.Printfln("location err: %s ", err)
 		return err
 	}
-	ux.Debug.Printfln("init cfile: %s ", cfile)
+	fin.Debug.Printfln("init cfile: %s ", cfile)
 
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -199,7 +201,7 @@ func (f *Flake) Join() error {
 	csym := filepath.Join(home, ".fleek.yml")
 	err = os.Symlink(cfile, csym)
 	if err != nil {
-		ux.Debug.Println("first symlink attempt failed")
+		fin.Debug.Println("first symlink attempt failed")
 		return err
 	}
 	err = f.ReadConfig()
@@ -210,13 +212,13 @@ func (f *Flake) Join() error {
 	if err != nil {
 		return err
 	}
-	ux.Debug.Println("new system")
+	fin.Debug.Println("new system")
 
 	sys, err := fleek.NewSystem()
 	if err != nil {
 		return err
 	}
-	ux.Debug.Println("write system")
+	fin.Debug.Println("write system")
 	err = f.writeSystem(*sys, true)
 	if err != nil {
 		return err
@@ -225,7 +227,7 @@ func (f *Flake) Join() error {
 	var found bool
 	for _, s := range f.Config.Systems {
 		if s.Hostname == sys.Hostname && s.Username == sys.Username && s.Arch == sys.Arch {
-			ux.Debug.Println("system already exists")
+			fin.Debug.Println("system already exists")
 			found = true
 		}
 	}
@@ -233,11 +235,11 @@ func (f *Flake) Join() error {
 		f.Config.Systems = append(f.Config.Systems, sys)
 
 	}
-	ux.Debug.Println("write config")
+	fin.Debug.Println("write config")
 
 	err = f.Config.Save()
 	if err != nil {
-		ux.Debug.Println("config save failed")
+		fin.Debug.Println("config save failed")
 		return err
 	}
 	git, err := f.IsGitRepo()
@@ -245,12 +247,12 @@ func (f *Flake) Join() error {
 		return err
 	}
 	if git {
-		ux.Warning.Println(f.app.Trans("git.warn"))
+		fin.Warning.Println(f.app.Trans("git.warn"))
 		err = f.setRebase()
 		if err != nil {
 			return err
 		}
-		err = f.mayCommit()
+		err = f.mayCommit("fleek: new system")
 		if err != nil {
 			return err
 		}
@@ -270,13 +272,14 @@ func (f *Flake) Check() ([]byte, error) {
 }
 
 // Write writes the applied flake configuration
-func (f *Flake) Write(includeSystems bool) error {
-	spinner, err := ux.Spinner().Start(f.app.Trans("flake.writing"))
+func (f *Flake) Write(includeSystems bool, message string) error {
+	spinner, err := fin.Spinner().Start(f.app.Trans("flake.writing"))
 	if err != nil {
 		return err
 	}
 
 	var bling *fleek.Bling
+	fmt.Println(f.Config.Bling)
 	switch f.Config.Bling {
 	case "high":
 		bling, err = fleek.HighBling()
@@ -292,6 +295,7 @@ func (f *Flake) Write(includeSystems bool) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(bling.Name)
 	data := Data{
 		Config: f.Config,
 		Bling:  bling,
@@ -329,9 +333,15 @@ func (f *Flake) Write(includeSystems bool) error {
 	if err != nil {
 		return err
 	}
+	if f.Config.Ejected {
+		err = f.writeFile("README.md", data, true)
+		if err != nil {
+			return err
+		}
+	}
 
 	spinner.Success()
-	err = f.mayCommit()
+	err = f.mayCommit(message)
 
 	if err != nil {
 		return err
@@ -342,7 +352,7 @@ func (f *Flake) Write(includeSystems bool) error {
 
 func (f *Flake) ensureFlakeDir() error {
 	if f.Config.Verbose {
-		ux.Verbose.Println(f.app.Trans("flake.ensureDir"))
+		fin.Verbose.Println(f.app.Trans("flake.ensureDir"))
 	}
 	err := f.Config.MakeFlakeDir()
 	if err != nil {
@@ -422,7 +432,7 @@ func (f *Flake) writeSystem(sys fleek.System, force bool) error {
 	return nil
 }
 func (f *Flake) Apply() error {
-	spinner, err := ux.Spinner().Start(f.app.Trans("flake.apply"))
+	spinner, err := fin.Spinner().Start(f.app.Trans("flake.apply"))
 	if err != nil {
 		return err
 	}
@@ -453,6 +463,7 @@ func (f *Flake) Apply() error {
 func (f *Flake) runNix(cmd string, cmdLine []string) ([]byte, error) {
 	command := exec.Command(cmd, cmdLine...)
 	command.Stdin = os.Stdin
+	fmt.Println(f.Config.UserFlakeDir())
 	command.Dir = f.Config.UserFlakeDir()
 	command.Env = os.Environ()
 	if f.Config.Unfree {

@@ -5,8 +5,8 @@ package fleekcli
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
-	"github.com/ublue-os/fleek/internal/ux"
 )
 
 type updateCmdFlags struct {
@@ -31,7 +31,7 @@ func UpdateCommand() *cobra.Command {
 
 // initCmd represents the init command
 func update(cmd *cobra.Command) error {
-	ux.Description.Println(cmd.Short)
+	fin.Description.Println(cmd.Short)
 	err := mustConfig()
 	if err != nil {
 		return err
@@ -53,9 +53,9 @@ func update(cmd *cobra.Command) error {
 			return err
 		}
 	} else {
-		ux.Warning.Println(app.Trans("update.needApply"))
+		fin.Warning.Println(app.Trans("update.needApply"))
 	}
 
-	ux.Success.Println(app.Trans("update.done"))
+	fin.Success.Println(app.Trans("update.done"))
 	return nil
 }

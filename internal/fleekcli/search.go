@@ -8,8 +8,8 @@ import (
 
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/cache"
-	"github.com/ublue-os/fleek/internal/ux"
 )
 
 type searchCmdFlags struct {
@@ -39,7 +39,7 @@ func SearchCommand() *cobra.Command {
 
 // initCmd represents the init command
 func search(cmd *cobra.Command, args []string) error {
-	ux.Description.Println(cmd.Short)
+	fin.Description.Println(cmd.Short)
 
 	var update bool
 	if cmd.Flag(app.Trans("search.updateFlag")).Changed {
@@ -50,30 +50,30 @@ func search(cmd *cobra.Command, args []string) error {
 		fuzzy = true
 	}
 	if fuzzy {
-		ux.Info.Println(app.Trans("search.fuzzyEnabled"))
+		fin.Info.Println(app.Trans("search.fuzzyEnabled"))
 	}
 
 	needle := args[0]
-	spinner, err := ux.Spinner().Start(app.Trans("search.openingCache"))
+	spinner, err := fin.Spinner().Start(app.Trans("search.openingCache"))
 	if err != nil {
 		return err
 	}
 	pc, err := cache.New()
 	if err != nil {
 		_ = spinner.Stop()
-		ux.Error.Println(app.Trans("search.cacheError"))
+		fin.Error.Println(app.Trans("search.cacheError"))
 		return err
 	}
 	spinner.Success()
 	if update {
-		spinner, err := ux.Spinner().Start(app.Trans("search.updatingCache"))
+		spinner, err := fin.Spinner().Start(app.Trans("search.updatingCache"))
 		if err != nil {
 			return err
 		}
 		err = pc.Update()
 		if err != nil {
 			_ = spinner.Stop()
-			ux.Error.Println(app.Trans("search.cacheError"))
+			fin.Error.Println(app.Trans("search.cacheError"))
 			return err
 		}
 		spinner.Success()
@@ -106,31 +106,31 @@ func search(cmd *cobra.Command, args []string) error {
 	// are at the bottom of the output
 	if fuzzy {
 		if len(hits) == 0 {
-			ux.Warning.Println(app.Trans("search.noResults"))
+			fin.Warning.Println(app.Trans("search.noResults"))
 		} else {
-			ux.Info.Println(app.Trans("search.fuzzyMatches"))
-			_ = ux.Table().WithHasHeader(true).WithData(toTableDataWithHeader(hits)).Render()
+			fin.Info.Println(app.Trans("search.fuzzyMatches"))
+			_ = fin.Table().WithHasHeader(true).WithData(toTableDataWithHeader(hits)).Render()
 		}
 	}
 	if len(exactHits) == 0 {
 		// don't display if we already displayed fuzzy results
 		if !fuzzy {
-			ux.Warning.Println(app.Trans("search.noResultsExact"))
+			fin.Warning.Println(app.Trans("search.noResultsExact"))
 		}
 	} else {
-		ux.Info.Println(app.Trans("search.exactMatches"))
-		_ = ux.Table().WithHasHeader(true).WithData(toTableDataWithHeader(exactHits)).Render()
+		fin.Info.Println(app.Trans("search.exactMatches"))
+		_ = fin.Table().WithHasHeader(true).WithData(toTableDataWithHeader(exactHits)).Render()
 
 	}
 
 	if len(exactHits) > 0 {
 		for _, h := range exactHits {
 			// TODO: i18n
-			ux.Info.Printfln(app.Trans("search.try", h.Name, h.Name))
+			fin.Info.Printfln(app.Trans("search.try", h.Name, h.Name))
 		}
 	}
 
-	ux.Success.Println(app.Trans("global.completed"))
+	fin.Success.Println(app.Trans("global.completed"))
 	return nil
 }
 

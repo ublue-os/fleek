@@ -1,8 +1,13 @@
 name: Default
 description: Just Enough bling
 packages:
+  - git
+  - htop 
+  - github-cli
+  - glab
   - fzf
   - ripgrep 
   - vscode
 programs:
   - direnv
+  - starship

@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/fleek"
-	"github.com/ublue-os/fleek/internal/ux"
 	"github.com/ublue-os/fleek/internal/xdg"
 )
 
@@ -33,7 +33,7 @@ var cacheName = "packages.json"
 
 func New() (*PackageCache, error) {
 	cacheDir := xdg.CacheSubpath("fleek")
-	ux.Debug.Printfln("package cache: %s", cacheDir)
+	fin.Debug.Printfln("package cache: %s", cacheDir)
 
 	pc := &PackageCache{
 		location: cacheDir,
@@ -45,14 +45,14 @@ func New() (*PackageCache, error) {
 		}
 	}
 	if pc.valid() {
-		ux.Debug.Println("package list exists")
+		fin.Debug.Println("package list exists")
 		// read it
 		bb, err := os.ReadFile(pc.cacheFile())
 		if err != nil {
 			return pc, err
 		}
 		var plist PackageList
-		ux.Debug.Println("unmarshal package list")
+		fin.Debug.Println("unmarshal package list")
 		err = json.Unmarshal(bb, &plist)
 		if err != nil {
 			return pc, err
@@ -77,20 +77,20 @@ func (pc *PackageCache) cacheFile() string {
 	return filepath.Join(pc.location, cacheName)
 }
 func (pc *PackageCache) Update() error {
-	ux.Debug.Println("updating package list")
+	fin.Debug.Println("updating package list")
 	// get it
 	bb, err := pc.packageIndex()
 	if err != nil {
 		return err
 	}
-	ux.Debug.Printfln("writing cache file: %s", pc.cacheFile())
+	fin.Debug.Printfln("writing cache file: %s", pc.cacheFile())
 
 	err = os.WriteFile(pc.cacheFile(), bb, 0755)
 	if err != nil {
 		return err
 	}
 	var plist PackageList
-	ux.Debug.Println("unmarshal package list")
+	fin.Debug.Println("unmarshal package list")
 	err = json.Unmarshal(bb, &plist)
 	if err != nil {
 		return err

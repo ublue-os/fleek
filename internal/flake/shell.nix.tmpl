@@ -1,10 +1,14 @@
 { pkgs, misc, ... }: {
-{{range $index, $element := .Bling.ProgramMap}}
-# {{ $index }}
-{{range  $v := $element.ConfigLines}}
-  {{ $v.Key }} = {{ $v.Value  }};
-  {{ end -}}
-{{ end -}}
+    {{- $programs := .Bling.Programs -}}
+    {{- $programmap := .Bling.ProgramMap -}}
+    {{- range $index, $element := $programs -}}
+    {{ $prog := index $programmap $element -}}
+    {{- if $prog }}
+    {{- range  $v, $line := $prog.ConfigLines}}
+    {{ $line.Key }} = {{ $line.Value  }};
+    {{ end -}}
+    {{ end -}}
+    {{ end -}}
 # {{ .Config.Shell }}
 {{- if eq .Config.Shell "bash" }}
   programs.bash.profileExtra = "[ -r ~/.nix-profile/etc/profile.d/nix.sh ] && source  ~/.nix-profile/etc/profile.d/nix.sh";
