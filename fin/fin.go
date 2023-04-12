@@ -40,7 +40,7 @@ func Setup() {
 	rootCmd.SetUsageFunc(UsageFunc())
 	rootCmd.SetUsageTemplate(UsageTemplate())
 	rootCmd.SetVersionTemplate(VersionTemplate())
-	rootCmd.SetOut(PcliOut())
+	//rootCmd.SetOut(PcliOut())
 	rootCmd.SetErr(Err())
 }
 

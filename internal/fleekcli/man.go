@@ -6,6 +6,7 @@ import (
 
 	mcoral "github.com/muesli/mango-cobra"
 	"github.com/muesli/roff"
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +20,7 @@ func ManCommand() *cobra.Command {
 		Hidden:                true,
 		Args:                  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			pterm.DisableColor()
 			manPage, err := mcoral.NewManPage(1, cmd.Root())
 			if err != nil {
 				return err
