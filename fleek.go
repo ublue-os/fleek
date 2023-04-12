@@ -15,7 +15,19 @@ func NewApp() *App {
 	if err != nil {
 		panic(err)
 	}
-	i18n.SetDefaultLocale(locale())
+	i18n.SetDefaultLocale("en")
+	preferred := locale()
+	available, err := fs.ReadDir("locales")
+	if err != nil {
+		panic(err)
+	}
+	for _, f := range available {
+		if f.Name() == preferred+".yml" {
+			i18n.SetDefaultLocale(preferred)
+			break
+		}
+	}
+
 	return &App{
 		I18n: i18n,
 	}
