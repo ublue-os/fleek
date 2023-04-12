@@ -1,338 +1,338 @@
-[34m[34m [i] [0m[0m [94m[94m# bash completion V2 for fleek                                -*- shell-script -*-[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m__fleek_debug()[0m[0m
-[34m[34m     [0m[0m [94m[94m{[0m[0m
-[34m[34m     [0m[0m [94m[94m    if [[ -n ${BASH_COMP_DEBUG_FILE-} ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m        echo "$*" >> "${BASH_COMP_DEBUG_FILE}"[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m# Macs have bash3 for which the bash-completion package doesn't include[0m[0m
-[34m[34m     [0m[0m [94m[94m# _init_completion. This is a minimal version of that function.[0m[0m
-[34m[34m     [0m[0m [94m[94m__fleek_init_completion()[0m[0m
-[34m[34m     [0m[0m [94m[94m{[0m[0m
-[34m[34m     [0m[0m [94m[94m    COMPREPLY=()[0m[0m
-[34m[34m     [0m[0m [94m[94m    _get_comp_words_by_ref "$@" cur prev words cword[0m[0m
-[34m[34m     [0m[0m [94m[94m}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m# This function calls the fleek program to obtain the completion[0m[0m
-[34m[34m     [0m[0m [94m[94m# results and the directive.  It fills the 'out' and 'directive' vars.[0m[0m
-[34m[34m     [0m[0m [94m[94m__fleek_get_completion_results() {[0m[0m
-[34m[34m     [0m[0m [94m[94m    local requestComp lastParam lastChar args[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    # Prepare the command to request completions for the program.[0m[0m
-[34m[34m     [0m[0m [94m[94m    # Calling ${words[0]} instead of directly fleek allows to handle aliases[0m[0m
-[34m[34m     [0m[0m [94m[94m    args=("${words[@]:1}")[0m[0m
-[34m[34m     [0m[0m [94m[94m    requestComp="${words[0]} __complete ${args[*]}"[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    lastParam=${words[$((${#words[@]}-1))]}[0m[0m
-[34m[34m     [0m[0m [94m[94m    lastChar=${lastParam:$((${#lastParam}-1)):1}[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_debug "lastParam ${lastParam}, lastChar ${lastChar}"[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    if [[ -z ${cur} && ${lastChar} != = ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m        # If the last parameter is complete (there is a space following it)[0m[0m
-[34m[34m     [0m[0m [94m[94m        # We add an extra empty parameter so we can indicate this to the go method.[0m[0m
-[34m[34m     [0m[0m [94m[94m        __fleek_debug "Adding extra empty parameter"[0m[0m
-[34m[34m     [0m[0m [94m[94m        requestComp="${requestComp} ''"[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    # When completing a flag with an = (e.g., fleek -n=<TAB>)[0m[0m
-[34m[34m     [0m[0m [94m[94m    # bash focuses on the part after the =, so we need to remove[0m[0m
-[34m[34m     [0m[0m [94m[94m    # the flag part from $cur[0m[0m
-[34m[34m     [0m[0m [94m[94m    if [[ ${cur} == -*=* ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m        cur="${cur#*=}"[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_debug "Calling ${requestComp}"[0m[0m
-[34m[34m     [0m[0m [94m[94m    # Use eval to handle any environment variables and such[0m[0m
-[34m[34m     [0m[0m [94m[94m    out=$(eval "${requestComp}" 2>/dev/null)[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    # Extract the directive integer at the very end of the output following a colon (:)[0m[0m
-[34m[34m     [0m[0m [94m[94m    directive=${out##*:}[0m[0m
-[34m[34m     [0m[0m [94m[94m    # Remove the directive[0m[0m
-[34m[34m     [0m[0m [94m[94m    out=${out%:*}[0m[0m
-[34m[34m     [0m[0m [94m[94m    if [[ ${directive} == "${out}" ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m        # There is not directive specified[0m[0m
-[34m[34m     [0m[0m [94m[94m        directive=0[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_debug "The completion directive is: ${directive}"[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_debug "The completions are: ${out}"[0m[0m
-[34m[34m     [0m[0m [94m[94m}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m__fleek_process_completion_results() {[0m[0m
-[34m[34m     [0m[0m [94m[94m    local shellCompDirectiveError=1[0m[0m
-[34m[34m     [0m[0m [94m[94m    local shellCompDirectiveNoSpace=2[0m[0m
-[34m[34m     [0m[0m [94m[94m    local shellCompDirectiveNoFileComp=4[0m[0m
-[34m[34m     [0m[0m [94m[94m    local shellCompDirectiveFilterFileExt=8[0m[0m
-[34m[34m     [0m[0m [94m[94m    local shellCompDirectiveFilterDirs=16[0m[0m
-[34m[34m     [0m[0m [94m[94m    local shellCompDirectiveKeepOrder=32[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    if (((directive & shellCompDirectiveError) != 0)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m        # Error code.  No completion.[0m[0m
-[34m[34m     [0m[0m [94m[94m        __fleek_debug "Received error from custom completion go code"[0m[0m
-[34m[34m     [0m[0m [94m[94m        return[0m[0m
-[34m[34m     [0m[0m [94m[94m    else[0m[0m
-[34m[34m     [0m[0m [94m[94m        if (((directive & shellCompDirectiveNoSpace) != 0)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m            if [[ $(type -t compopt) == builtin ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m                __fleek_debug "Activating no space"[0m[0m
-[34m[34m     [0m[0m [94m[94m                compopt -o nospace[0m[0m
-[34m[34m     [0m[0m [94m[94m            else[0m[0m
-[34m[34m     [0m[0m [94m[94m                __fleek_debug "No space directive not supported in this version of bash"[0m[0m
-[34m[34m     [0m[0m [94m[94m            fi[0m[0m
-[34m[34m     [0m[0m [94m[94m        fi[0m[0m
-[34m[34m     [0m[0m [94m[94m        if (((directive & shellCompDirectiveKeepOrder) != 0)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m            if [[ $(type -t compopt) == builtin ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m                # no sort isn't supported for bash less than < 4.4[0m[0m
-[34m[34m     [0m[0m [94m[94m                if [[ ${BASH_VERSINFO[0]} -lt 4 || ( ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -lt 4 ) ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m                    __fleek_debug "No sort directive not supported in this version of bash"[0m[0m
-[34m[34m     [0m[0m [94m[94m                else[0m[0m
-[34m[34m     [0m[0m [94m[94m                    __fleek_debug "Activating keep order"[0m[0m
-[34m[34m     [0m[0m [94m[94m                    compopt -o nosort[0m[0m
-[34m[34m     [0m[0m [94m[94m                fi[0m[0m
-[34m[34m     [0m[0m [94m[94m            else[0m[0m
-[34m[34m     [0m[0m [94m[94m                __fleek_debug "No sort directive not supported in this version of bash"[0m[0m
-[34m[34m     [0m[0m [94m[94m            fi[0m[0m
-[34m[34m     [0m[0m [94m[94m        fi[0m[0m
-[34m[34m     [0m[0m [94m[94m        if (((directive & shellCompDirectiveNoFileComp) != 0)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m            if [[ $(type -t compopt) == builtin ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m                __fleek_debug "Activating no file completion"[0m[0m
-[34m[34m     [0m[0m [94m[94m                compopt +o default[0m[0m
-[34m[34m     [0m[0m [94m[94m            else[0m[0m
-[34m[34m     [0m[0m [94m[94m                __fleek_debug "No file completion directive not supported in this version of bash"[0m[0m
-[34m[34m     [0m[0m [94m[94m            fi[0m[0m
-[34m[34m     [0m[0m [94m[94m        fi[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    # Separate activeHelp from normal completions[0m[0m
-[34m[34m     [0m[0m [94m[94m    local completions=()[0m[0m
-[34m[34m     [0m[0m [94m[94m    local activeHelp=()[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_extract_activeHelp[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    if (((directive & shellCompDirectiveFilterFileExt) != 0)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m        # File extension filtering[0m[0m
-[34m[34m     [0m[0m [94m[94m        local fullFilter filter filteringCmd[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m        # Do not use quotes around the $completions variable or else newline[0m[0m
-[34m[34m     [0m[0m [94m[94m        # characters will be kept.[0m[0m
-[34m[34m     [0m[0m [94m[94m        for filter in ${completions[*]}; do[0m[0m
-[34m[34m     [0m[0m [94m[94m            fullFilter+="$filter|"[0m[0m
-[34m[34m     [0m[0m [94m[94m        done[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m        filteringCmd="_filedir $fullFilter"[0m[0m
-[34m[34m     [0m[0m [94m[94m        __fleek_debug "File filtering command: $filteringCmd"[0m[0m
-[34m[34m     [0m[0m [94m[94m        $filteringCmd[0m[0m
-[34m[34m     [0m[0m [94m[94m    elif (((directive & shellCompDirectiveFilterDirs) != 0)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m        # File completion for directories only[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m        local subdir[0m[0m
-[34m[34m     [0m[0m [94m[94m        subdir=${completions[0]}[0m[0m
-[34m[34m     [0m[0m [94m[94m        if [[ -n $subdir ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m            __fleek_debug "Listing directories in $subdir"[0m[0m
-[34m[34m     [0m[0m [94m[94m            pushd "$subdir" >/dev/null 2>&1 && _filedir -d && popd >/dev/null 2>&1 || return[0m[0m
-[34m[34m     [0m[0m [94m[94m        else[0m[0m
-[34m[34m     [0m[0m [94m[94m            __fleek_debug "Listing directories in ."[0m[0m
-[34m[34m     [0m[0m [94m[94m            _filedir -d[0m[0m
-[34m[34m     [0m[0m [94m[94m        fi[0m[0m
-[34m[34m     [0m[0m [94m[94m    else[0m[0m
-[34m[34m     [0m[0m [94m[94m        __fleek_handle_completion_types[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_handle_special_char "$cur" :[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_handle_special_char "$cur" =[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    # Print the activeHelp statements before we finish[0m[0m
-[34m[34m     [0m[0m [94m[94m    if ((${#activeHelp[*]} != 0)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m        printf "\n";[0m[0m
-[34m[34m     [0m[0m [94m[94m        printf "%s\n" "${activeHelp[@]}"[0m[0m
-[34m[34m     [0m[0m [94m[94m        printf "\n"[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m        # The prompt format is only available from bash 4.4.[0m[0m
-[34m[34m     [0m[0m [94m[94m        # We test if it is available before using it.[0m[0m
-[34m[34m     [0m[0m [94m[94m        if (x=${PS1@P}) 2> /dev/null; then[0m[0m
-[34m[34m     [0m[0m [94m[94m            printf "%s" "${PS1@P}${COMP_LINE[@]}"[0m[0m
-[34m[34m     [0m[0m [94m[94m        else[0m[0m
-[34m[34m     [0m[0m [94m[94m            # Can't print the prompt.  Just print the[0m[0m
-[34m[34m     [0m[0m [94m[94m            # text the user had typed, it is workable enough.[0m[0m
-[34m[34m     [0m[0m [94m[94m            printf "%s" "${COMP_LINE[@]}"[0m[0m
-[34m[34m     [0m[0m [94m[94m        fi[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m# Separate activeHelp lines from real completions.[0m[0m
-[34m[34m     [0m[0m [94m[94m# Fills the $activeHelp and $completions arrays.[0m[0m
-[34m[34m     [0m[0m [94m[94m__fleek_extract_activeHelp() {[0m[0m
-[34m[34m     [0m[0m [94m[94m    local activeHelpMarker="_activeHelp_ "[0m[0m
-[34m[34m     [0m[0m [94m[94m    local endIndex=${#activeHelpMarker}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    while IFS='' read -r comp; do[0m[0m
-[34m[34m     [0m[0m [94m[94m        if [[ ${comp:0:endIndex} == $activeHelpMarker ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m            comp=${comp:endIndex}[0m[0m
-[34m[34m     [0m[0m [94m[94m            __fleek_debug "ActiveHelp found: $comp"[0m[0m
-[34m[34m     [0m[0m [94m[94m            if [[ -n $comp ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m                activeHelp+=("$comp")[0m[0m
-[34m[34m     [0m[0m [94m[94m            fi[0m[0m
-[34m[34m     [0m[0m [94m[94m        else[0m[0m
-[34m[34m     [0m[0m [94m[94m            # Not an activeHelp line but a normal completion[0m[0m
-[34m[34m     [0m[0m [94m[94m            completions+=("$comp")[0m[0m
-[34m[34m     [0m[0m [94m[94m        fi[0m[0m
-[34m[34m     [0m[0m [94m[94m    done <<<"${out}"[0m[0m
-[34m[34m     [0m[0m [94m[94m}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m__fleek_handle_completion_types() {[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_debug "__fleek_handle_completion_types: COMP_TYPE is $COMP_TYPE"[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    case $COMP_TYPE in[0m[0m
-[34m[34m     [0m[0m [94m[94m    37|42)[0m[0m
-[34m[34m     [0m[0m [94m[94m        # Type: menu-complete/menu-complete-backward and insert-completions[0m[0m
-[34m[34m     [0m[0m [94m[94m        # If the user requested inserting one completion at a time, or all[0m[0m
-[34m[34m     [0m[0m [94m[94m        # completions at once on the command-line we must remove the descriptions.[0m[0m
-[34m[34m     [0m[0m [94m[94m        # https://github.com/spf13/cobra/issues/1508[0m[0m
-[34m[34m     [0m[0m [94m[94m        local tab=$'\t' comp[0m[0m
-[34m[34m     [0m[0m [94m[94m        while IFS='' read -r comp; do[0m[0m
-[34m[34m     [0m[0m [94m[94m            [[ -z $comp ]] && continue[0m[0m
-[34m[34m     [0m[0m [94m[94m            # Strip any description[0m[0m
-[34m[34m     [0m[0m [94m[94m            comp=${comp%%$tab*}[0m[0m
-[34m[34m     [0m[0m [94m[94m            # Only consider the completions that match[0m[0m
-[34m[34m     [0m[0m [94m[94m            if [[ $comp == "$cur"* ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m                COMPREPLY+=("$comp")[0m[0m
-[34m[34m     [0m[0m [94m[94m            fi[0m[0m
-[34m[34m     [0m[0m [94m[94m        done < <(printf "%s\n" "${completions[@]}")[0m[0m
-[34m[34m     [0m[0m [94m[94m        ;;[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    *)[0m[0m
-[34m[34m     [0m[0m [94m[94m        # Type: complete (normal completion)[0m[0m
-[34m[34m     [0m[0m [94m[94m        __fleek_handle_standard_completion_case[0m[0m
-[34m[34m     [0m[0m [94m[94m        ;;[0m[0m
-[34m[34m     [0m[0m [94m[94m    esac[0m[0m
-[34m[34m     [0m[0m [94m[94m}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m__fleek_handle_standard_completion_case() {[0m[0m
-[34m[34m     [0m[0m [94m[94m    local tab=$'\t' comp[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    # Short circuit to optimize if we don't have descriptions[0m[0m
-[34m[34m     [0m[0m [94m[94m    if [[ "${completions[*]}" != *$tab* ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m        IFS=$'\n' read -ra COMPREPLY -d '' < <(compgen -W "${completions[*]}" -- "$cur")[0m[0m
-[34m[34m     [0m[0m [94m[94m        return 0[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    local longest=0[0m[0m
-[34m[34m     [0m[0m [94m[94m    local compline[0m[0m
-[34m[34m     [0m[0m [94m[94m    # Look for the longest completion so that we can format things nicely[0m[0m
-[34m[34m     [0m[0m [94m[94m    while IFS='' read -r compline; do[0m[0m
-[34m[34m     [0m[0m [94m[94m        [[ -z $compline ]] && continue[0m[0m
-[34m[34m     [0m[0m [94m[94m        # Strip any description before checking the length[0m[0m
-[34m[34m     [0m[0m [94m[94m        comp=${compline%%$tab*}[0m[0m
-[34m[34m     [0m[0m [94m[94m        # Only consider the completions that match[0m[0m
-[34m[34m     [0m[0m [94m[94m        [[ $comp == "$cur"* ]] || continue[0m[0m
-[34m[34m     [0m[0m [94m[94m        COMPREPLY+=("$compline")[0m[0m
-[34m[34m     [0m[0m [94m[94m        if ((${#comp}>longest)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m            longest=${#comp}[0m[0m
-[34m[34m     [0m[0m [94m[94m        fi[0m[0m
-[34m[34m     [0m[0m [94m[94m    done < <(printf "%s\n" "${completions[@]}")[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    # If there is a single completion left, remove the description text[0m[0m
-[34m[34m     [0m[0m [94m[94m    if ((${#COMPREPLY[*]} == 1)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m        __fleek_debug "COMPREPLY[0]: ${COMPREPLY[0]}"[0m[0m
-[34m[34m     [0m[0m [94m[94m        comp="${COMPREPLY[0]%%$tab*}"[0m[0m
-[34m[34m     [0m[0m [94m[94m        __fleek_debug "Removed description from single completion, which is now: ${comp}"[0m[0m
-[34m[34m     [0m[0m [94m[94m        COMPREPLY[0]=$comp[0m[0m
-[34m[34m     [0m[0m [94m[94m    else # Format the descriptions[0m[0m
-[34m[34m     [0m[0m [94m[94m        __fleek_format_comp_descriptions $longest[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m__fleek_handle_special_char()[0m[0m
-[34m[34m     [0m[0m [94m[94m{[0m[0m
-[34m[34m     [0m[0m [94m[94m    local comp="$1"[0m[0m
-[34m[34m     [0m[0m [94m[94m    local char=$2[0m[0m
-[34m[34m     [0m[0m [94m[94m    if [[ "$comp" == *${char}* && "$COMP_WORDBREAKS" == *${char}* ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m        local word=${comp%"${comp##*${char}}"}[0m[0m
-[34m[34m     [0m[0m [94m[94m        local idx=${#COMPREPLY[*]}[0m[0m
-[34m[34m     [0m[0m [94m[94m        while ((--idx >= 0)); do[0m[0m
-[34m[34m     [0m[0m [94m[94m            COMPREPLY[idx]=${COMPREPLY[idx]#"$word"}[0m[0m
-[34m[34m     [0m[0m [94m[94m        done[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m__fleek_format_comp_descriptions()[0m[0m
-[34m[34m     [0m[0m [94m[94m{[0m[0m
-[34m[34m     [0m[0m [94m[94m    local tab=$'\t'[0m[0m
-[34m[34m     [0m[0m [94m[94m    local comp desc maxdesclength[0m[0m
-[34m[34m     [0m[0m [94m[94m    local longest=$1[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    local i ci[0m[0m
-[34m[34m     [0m[0m [94m[94m    for ci in ${!COMPREPLY[*]}; do[0m[0m
-[34m[34m     [0m[0m [94m[94m        comp=${COMPREPLY[ci]}[0m[0m
-[34m[34m     [0m[0m [94m[94m        # Properly format the description string which follows a tab character if there is one[0m[0m
-[34m[34m     [0m[0m [94m[94m        if [[ "$comp" == *$tab* ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m            __fleek_debug "Original comp: $comp"[0m[0m
-[34m[34m     [0m[0m [94m[94m            desc=${comp#*$tab}[0m[0m
-[34m[34m     [0m[0m [94m[94m            comp=${comp%%$tab*}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m            # $COLUMNS stores the current shell width.[0m[0m
-[34m[34m     [0m[0m [94m[94m            # Remove an extra 4 because we add 2 spaces and 2 parentheses.[0m[0m
-[34m[34m     [0m[0m [94m[94m            maxdesclength=$(( COLUMNS - longest - 4 ))[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m            # Make sure we can fit a description of at least 8 characters[0m[0m
-[34m[34m     [0m[0m [94m[94m            # if we are to align the descriptions.[0m[0m
-[34m[34m     [0m[0m [94m[94m            if ((maxdesclength > 8)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m                # Add the proper number of spaces to align the descriptions[0m[0m
-[34m[34m     [0m[0m [94m[94m                for ((i = ${#comp} ; i < longest ; i++)); do[0m[0m
-[34m[34m     [0m[0m [94m[94m                    comp+=" "[0m[0m
-[34m[34m     [0m[0m [94m[94m                done[0m[0m
-[34m[34m     [0m[0m [94m[94m            else[0m[0m
-[34m[34m     [0m[0m [94m[94m                # Don't pad the descriptions so we can fit more text after the completion[0m[0m
-[34m[34m     [0m[0m [94m[94m                maxdesclength=$(( COLUMNS - ${#comp} - 4 ))[0m[0m
-[34m[34m     [0m[0m [94m[94m            fi[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m            # If there is enough space for any description text,[0m[0m
-[34m[34m     [0m[0m [94m[94m            # truncate the descriptions that are too long for the shell width[0m[0m
-[34m[34m     [0m[0m [94m[94m            if ((maxdesclength > 0)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m                if ((${#desc} > maxdesclength)); then[0m[0m
-[34m[34m     [0m[0m [94m[94m                    desc=${desc:0:$(( maxdesclength - 1 ))}[0m[0m
-[34m[34m     [0m[0m [94m[94m                    desc+="…"[0m[0m
-[34m[34m     [0m[0m [94m[94m                fi[0m[0m
-[34m[34m     [0m[0m [94m[94m                comp+="  ($desc)"[0m[0m
-[34m[34m     [0m[0m [94m[94m            fi[0m[0m
-[34m[34m     [0m[0m [94m[94m            COMPREPLY[ci]=$comp[0m[0m
-[34m[34m     [0m[0m [94m[94m            __fleek_debug "Final comp: $comp"[0m[0m
-[34m[34m     [0m[0m [94m[94m        fi[0m[0m
-[34m[34m     [0m[0m [94m[94m    done[0m[0m
-[34m[34m     [0m[0m [94m[94m}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m__start_fleek()[0m[0m
-[34m[34m     [0m[0m [94m[94m{[0m[0m
-[34m[34m     [0m[0m [94m[94m    local cur prev words cword split[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    COMPREPLY=()[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    # Call _init_completion from the bash-completion package[0m[0m
-[34m[34m     [0m[0m [94m[94m    # to prepare the arguments properly[0m[0m
-[34m[34m     [0m[0m [94m[94m    if declare -F _init_completion >/dev/null 2>&1; then[0m[0m
-[34m[34m     [0m[0m [94m[94m        _init_completion -n =: || return[0m[0m
-[34m[34m     [0m[0m [94m[94m    else[0m[0m
-[34m[34m     [0m[0m [94m[94m        __fleek_init_completion -n =: || return[0m[0m
-[34m[34m     [0m[0m [94m[94m    fi[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_debug[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_debug "========= starting completion logic =========="[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_debug "cur is ${cur}, words[*] is ${words[*]}, #words[@] is ${#words[@]}, cword is $cword"[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    # The user could have moved the cursor backwards on the command-line.[0m[0m
-[34m[34m     [0m[0m [94m[94m    # We need to trigger completion from the $cword location, so we need[0m[0m
-[34m[34m     [0m[0m [94m[94m    # to truncate the command-line ($words) up to the $cword location.[0m[0m
-[34m[34m     [0m[0m [94m[94m    words=("${words[@]:0:$cword+1}")[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_debug "Truncated words[*]: ${words[*]},"[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m    local out directive[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_get_completion_results[0m[0m
-[34m[34m     [0m[0m [94m[94m    __fleek_process_completion_results[0m[0m
-[34m[34m     [0m[0m [94m[94m}[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94mif [[ $(type -t compopt) = "builtin" ]]; then[0m[0m
-[34m[34m     [0m[0m [94m[94m    complete -o default -F __start_fleek fleek[0m[0m
-[34m[34m     [0m[0m [94m[94melse[0m[0m
-[34m[34m     [0m[0m [94m[94m    complete -o default -o nospace -F __start_fleek fleek[0m[0m
-[34m[34m     [0m[0m [94m[94mfi[0m[0m
-[34m[34m     [0m[0m [94m[94m[0m[0m
-[34m[34m     [0m[0m [94m[94m# ex: ts=4 sw=4 et filetype=sh[0m[0m
+# bash completion V2 for fleek                                -*- shell-script -*-
+
+__fleek_debug()
+{
+    if [[ -n ${BASH_COMP_DEBUG_FILE-} ]]; then
+        echo "$*" >> "${BASH_COMP_DEBUG_FILE}"
+    fi
+}
+
+# Macs have bash3 for which the bash-completion package doesn't include
+# _init_completion. This is a minimal version of that function.
+__fleek_init_completion()
+{
+    COMPREPLY=()
+    _get_comp_words_by_ref "$@" cur prev words cword
+}
+
+# This function calls the fleek program to obtain the completion
+# results and the directive.  It fills the 'out' and 'directive' vars.
+__fleek_get_completion_results() {
+    local requestComp lastParam lastChar args
+
+    # Prepare the command to request completions for the program.
+    # Calling ${words[0]} instead of directly fleek allows to handle aliases
+    args=("${words[@]:1}")
+    requestComp="${words[0]} __complete ${args[*]}"
+
+    lastParam=${words[$((${#words[@]}-1))]}
+    lastChar=${lastParam:$((${#lastParam}-1)):1}
+    __fleek_debug "lastParam ${lastParam}, lastChar ${lastChar}"
+
+    if [[ -z ${cur} && ${lastChar} != = ]]; then
+        # If the last parameter is complete (there is a space following it)
+        # We add an extra empty parameter so we can indicate this to the go method.
+        __fleek_debug "Adding extra empty parameter"
+        requestComp="${requestComp} ''"
+    fi
+
+    # When completing a flag with an = (e.g., fleek -n=<TAB>)
+    # bash focuses on the part after the =, so we need to remove
+    # the flag part from $cur
+    if [[ ${cur} == -*=* ]]; then
+        cur="${cur#*=}"
+    fi
+
+    __fleek_debug "Calling ${requestComp}"
+    # Use eval to handle any environment variables and such
+    out=$(eval "${requestComp}" 2>/dev/null)
+
+    # Extract the directive integer at the very end of the output following a colon (:)
+    directive=${out##*:}
+    # Remove the directive
+    out=${out%:*}
+    if [[ ${directive} == "${out}" ]]; then
+        # There is not directive specified
+        directive=0
+    fi
+    __fleek_debug "The completion directive is: ${directive}"
+    __fleek_debug "The completions are: ${out}"
+}
+
+__fleek_process_completion_results() {
+    local shellCompDirectiveError=1
+    local shellCompDirectiveNoSpace=2
+    local shellCompDirectiveNoFileComp=4
+    local shellCompDirectiveFilterFileExt=8
+    local shellCompDirectiveFilterDirs=16
+    local shellCompDirectiveKeepOrder=32
+
+    if (((directive & shellCompDirectiveError) != 0)); then
+        # Error code.  No completion.
+        __fleek_debug "Received error from custom completion go code"
+        return
+    else
+        if (((directive & shellCompDirectiveNoSpace) != 0)); then
+            if [[ $(type -t compopt) == builtin ]]; then
+                __fleek_debug "Activating no space"
+                compopt -o nospace
+            else
+                __fleek_debug "No space directive not supported in this version of bash"
+            fi
+        fi
+        if (((directive & shellCompDirectiveKeepOrder) != 0)); then
+            if [[ $(type -t compopt) == builtin ]]; then
+                # no sort isn't supported for bash less than < 4.4
+                if [[ ${BASH_VERSINFO[0]} -lt 4 || ( ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -lt 4 ) ]]; then
+                    __fleek_debug "No sort directive not supported in this version of bash"
+                else
+                    __fleek_debug "Activating keep order"
+                    compopt -o nosort
+                fi
+            else
+                __fleek_debug "No sort directive not supported in this version of bash"
+            fi
+        fi
+        if (((directive & shellCompDirectiveNoFileComp) != 0)); then
+            if [[ $(type -t compopt) == builtin ]]; then
+                __fleek_debug "Activating no file completion"
+                compopt +o default
+            else
+                __fleek_debug "No file completion directive not supported in this version of bash"
+            fi
+        fi
+    fi
+
+    # Separate activeHelp from normal completions
+    local completions=()
+    local activeHelp=()
+    __fleek_extract_activeHelp
+
+    if (((directive & shellCompDirectiveFilterFileExt) != 0)); then
+        # File extension filtering
+        local fullFilter filter filteringCmd
+
+        # Do not use quotes around the $completions variable or else newline
+        # characters will be kept.
+        for filter in ${completions[*]}; do
+            fullFilter+="$filter|"
+        done
+
+        filteringCmd="_filedir $fullFilter"
+        __fleek_debug "File filtering command: $filteringCmd"
+        $filteringCmd
+    elif (((directive & shellCompDirectiveFilterDirs) != 0)); then
+        # File completion for directories only
+
+        local subdir
+        subdir=${completions[0]}
+        if [[ -n $subdir ]]; then
+            __fleek_debug "Listing directories in $subdir"
+            pushd "$subdir" >/dev/null 2>&1 && _filedir -d && popd >/dev/null 2>&1 || return
+        else
+            __fleek_debug "Listing directories in ."
+            _filedir -d
+        fi
+    else
+        __fleek_handle_completion_types
+    fi
+
+    __fleek_handle_special_char "$cur" :
+    __fleek_handle_special_char "$cur" =
+
+    # Print the activeHelp statements before we finish
+    if ((${#activeHelp[*]} != 0)); then
+        printf "\n";
+        printf "%s\n" "${activeHelp[@]}"
+        printf "\n"
+
+        # The prompt format is only available from bash 4.4.
+        # We test if it is available before using it.
+        if (x=${PS1@P}) 2> /dev/null; then
+            printf "%s" "${PS1@P}${COMP_LINE[@]}"
+        else
+            # Can't print the prompt.  Just print the
+            # text the user had typed, it is workable enough.
+            printf "%s" "${COMP_LINE[@]}"
+        fi
+    fi
+}
+
+# Separate activeHelp lines from real completions.
+# Fills the $activeHelp and $completions arrays.
+__fleek_extract_activeHelp() {
+    local activeHelpMarker="_activeHelp_ "
+    local endIndex=${#activeHelpMarker}
+
+    while IFS='' read -r comp; do
+        if [[ ${comp:0:endIndex} == $activeHelpMarker ]]; then
+            comp=${comp:endIndex}
+            __fleek_debug "ActiveHelp found: $comp"
+            if [[ -n $comp ]]; then
+                activeHelp+=("$comp")
+            fi
+        else
+            # Not an activeHelp line but a normal completion
+            completions+=("$comp")
+        fi
+    done <<<"${out}"
+}
+
+__fleek_handle_completion_types() {
+    __fleek_debug "__fleek_handle_completion_types: COMP_TYPE is $COMP_TYPE"
+
+    case $COMP_TYPE in
+    37|42)
+        # Type: menu-complete/menu-complete-backward and insert-completions
+        # If the user requested inserting one completion at a time, or all
+        # completions at once on the command-line we must remove the descriptions.
+        # https://github.com/spf13/cobra/issues/1508
+        local tab=$'\t' comp
+        while IFS='' read -r comp; do
+            [[ -z $comp ]] && continue
+            # Strip any description
+            comp=${comp%%$tab*}
+            # Only consider the completions that match
+            if [[ $comp == "$cur"* ]]; then
+                COMPREPLY+=("$comp")
+            fi
+        done < <(printf "%s\n" "${completions[@]}")
+        ;;
+
+    *)
+        # Type: complete (normal completion)
+        __fleek_handle_standard_completion_case
+        ;;
+    esac
+}
+
+__fleek_handle_standard_completion_case() {
+    local tab=$'\t' comp
+
+    # Short circuit to optimize if we don't have descriptions
+    if [[ "${completions[*]}" != *$tab* ]]; then
+        IFS=$'\n' read -ra COMPREPLY -d '' < <(compgen -W "${completions[*]}" -- "$cur")
+        return 0
+    fi
+
+    local longest=0
+    local compline
+    # Look for the longest completion so that we can format things nicely
+    while IFS='' read -r compline; do
+        [[ -z $compline ]] && continue
+        # Strip any description before checking the length
+        comp=${compline%%$tab*}
+        # Only consider the completions that match
+        [[ $comp == "$cur"* ]] || continue
+        COMPREPLY+=("$compline")
+        if ((${#comp}>longest)); then
+            longest=${#comp}
+        fi
+    done < <(printf "%s\n" "${completions[@]}")
+
+    # If there is a single completion left, remove the description text
+    if ((${#COMPREPLY[*]} == 1)); then
+        __fleek_debug "COMPREPLY[0]: ${COMPREPLY[0]}"
+        comp="${COMPREPLY[0]%%$tab*}"
+        __fleek_debug "Removed description from single completion, which is now: ${comp}"
+        COMPREPLY[0]=$comp
+    else # Format the descriptions
+        __fleek_format_comp_descriptions $longest
+    fi
+}
+
+__fleek_handle_special_char()
+{
+    local comp="$1"
+    local char=$2
+    if [[ "$comp" == *${char}* && "$COMP_WORDBREAKS" == *${char}* ]]; then
+        local word=${comp%"${comp##*${char}}"}
+        local idx=${#COMPREPLY[*]}
+        while ((--idx >= 0)); do
+            COMPREPLY[idx]=${COMPREPLY[idx]#"$word"}
+        done
+    fi
+}
+
+__fleek_format_comp_descriptions()
+{
+    local tab=$'\t'
+    local comp desc maxdesclength
+    local longest=$1
+
+    local i ci
+    for ci in ${!COMPREPLY[*]}; do
+        comp=${COMPREPLY[ci]}
+        # Properly format the description string which follows a tab character if there is one
+        if [[ "$comp" == *$tab* ]]; then
+            __fleek_debug "Original comp: $comp"
+            desc=${comp#*$tab}
+            comp=${comp%%$tab*}
+
+            # $COLUMNS stores the current shell width.
+            # Remove an extra 4 because we add 2 spaces and 2 parentheses.
+            maxdesclength=$(( COLUMNS - longest - 4 ))
+
+            # Make sure we can fit a description of at least 8 characters
+            # if we are to align the descriptions.
+            if ((maxdesclength > 8)); then
+                # Add the proper number of spaces to align the descriptions
+                for ((i = ${#comp} ; i < longest ; i++)); do
+                    comp+=" "
+                done
+            else
+                # Don't pad the descriptions so we can fit more text after the completion
+                maxdesclength=$(( COLUMNS - ${#comp} - 4 ))
+            fi
+
+            # If there is enough space for any description text,
+            # truncate the descriptions that are too long for the shell width
+            if ((maxdesclength > 0)); then
+                if ((${#desc} > maxdesclength)); then
+                    desc=${desc:0:$(( maxdesclength - 1 ))}
+                    desc+="…"
+                fi
+                comp+="  ($desc)"
+            fi
+            COMPREPLY[ci]=$comp
+            __fleek_debug "Final comp: $comp"
+        fi
+    done
+}
+
+__start_fleek()
+{
+    local cur prev words cword split
+
+    COMPREPLY=()
+
+    # Call _init_completion from the bash-completion package
+    # to prepare the arguments properly
+    if declare -F _init_completion >/dev/null 2>&1; then
+        _init_completion -n =: || return
+    else
+        __fleek_init_completion -n =: || return
+    fi
+
+    __fleek_debug
+    __fleek_debug "========= starting completion logic =========="
+    __fleek_debug "cur is ${cur}, words[*] is ${words[*]}, #words[@] is ${#words[@]}, cword is $cword"
+
+    # The user could have moved the cursor backwards on the command-line.
+    # We need to trigger completion from the $cword location, so we need
+    # to truncate the command-line ($words) up to the $cword location.
+    words=("${words[@]:0:$cword+1}")
+    __fleek_debug "Truncated words[*]: ${words[*]},"
+
+    local out directive
+    __fleek_get_completion_results
+    __fleek_process_completion_results
+}
+
+if [[ $(type -t compopt) = "builtin" ]]; then
+    complete -o default -F __start_fleek fleek
+else
+    complete -o default -o nospace -F __start_fleek fleek
+fi
+
+# ex: ts=4 sw=4 et filetype=sh
