@@ -1,0 +1,8 @@
+user:
+  name: Name
+  email: Email
+  description: "Name: {name}, Email: {email}"
+
+hello:
+  world: World
+  foo: param %s
