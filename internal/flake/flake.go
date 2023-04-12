@@ -294,7 +294,7 @@ func (f *Flake) Write(includeSystems bool, message string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(bling.Name)
+
 	data := Data{
 		Config: f.Config,
 		Bling:  bling,
