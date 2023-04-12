@@ -38,7 +38,7 @@
           installShellFiles # Shell completion helper function (see postInstall below)
         ];
         subPackages = [ "cmd/fleek" ];
-        vendorSha256 = "sha256-cuhIB9Bfmaolym9DLUpjsuUGpE0z6YMrnb1yOmEUQaA=";
+        vendorSha256 = "sha256-8UZkPNryrl8oB/AkSP9IC45bmCkacwcbH1UiOuoisiE=";
         CGO_ENABLED = 0;
         ldflags = [
           "-s"
