@@ -279,7 +279,6 @@ func (f *Flake) Write(includeSystems bool, message string) error {
 	}
 
 	var bling *fleek.Bling
-	fmt.Println(f.Config.Bling)
 	switch f.Config.Bling {
 	case "high":
 		bling, err = fleek.HighBling()
@@ -295,7 +294,7 @@ func (f *Flake) Write(includeSystems bool, message string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(bling.Name)
+
 	data := Data{
 		Config: f.Config,
 		Bling:  bling,
@@ -463,7 +462,6 @@ func (f *Flake) Apply() error {
 func (f *Flake) runNix(cmd string, cmdLine []string) ([]byte, error) {
 	command := exec.Command(cmd, cmdLine...)
 	command.Stdin = os.Stdin
-	fmt.Println(f.Config.UserFlakeDir())
 	command.Dir = f.Config.UserFlakeDir()
 	command.Env = os.Environ()
 	if f.Config.Unfree {

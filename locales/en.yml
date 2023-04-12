@@ -53,6 +53,7 @@ generate:
   locationFlagDescription: "location of home-manager configuration, relative to home"
   levelFlag: "level"
   levelFlagDescription: "bling level: `none`,`low`,`default`,`high`"
+  runFlake: "Run the following commands from the flake directory to apply your changes:"
 apply:
   use: "apply"
   long: |
