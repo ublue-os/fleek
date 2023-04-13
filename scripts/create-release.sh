@@ -37,4 +37,4 @@ nix-build --no-out-link flake.nix
 git commit -m "chore: bump version ${version}"
 git tag -e "${version}"
 
-echo 'now run `git push --tags origin main`'
+echo 'now run `git push --follow-tags origin main`'
