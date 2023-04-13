@@ -80,4 +80,4 @@ push: man (cleanup "fleek" "fleek.1" "fleek.1.gz")
   {{CONTAINER_RUNNER}} push docker.io/bketelsen/fleek
 
 tag version: lint build examples man completions
-  ./scripts/create-relase.sh {{version}}
+  ./scripts/create-release.sh {{version}}
