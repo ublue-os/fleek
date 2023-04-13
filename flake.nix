@@ -27,7 +27,7 @@
     #
     # Or run it without installing:
     #
-    # nix run github:ublue-os/fleek
+    # nix run github:ublue-os/fleek -- --help
 
     packages = forEachSystem ({ pkgs }: {
       default = pkgs.buildGoModule {

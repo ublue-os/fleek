@@ -118,7 +118,7 @@ That's the quick start! From here, you can try `fleek add` to add packages from 
 
 Fancy animated gifs and long-winded README's are great, but what really happens when you run `fleek apply` the first time? I'm glad you asked...
 
-1. `fleek` creates a [nix home-manager][def] configuration based on the [templates here](https://github.com/ublue-os/fleek/blob/main/internal/nix/home.nix.tmpl).
+1. `fleek` creates a [nix home-manager][def] configuration based on the [templates here](https://github.com/ublue-os/fleek/blob/main/internal/flake/home.nix.tmpl).
 1. `fleek` compiles the templates and writes them to disk at `~/.config/home-manager` by default.
 1. `fleek` calls the `nix` command, which does `nix` things to download and install all the packages in your `.fleek.yml` file.
 1. The libraries and binaries you specify get installed in the `/nix` folder, and symlinked into your very own personal `nix` profile. This is stored in your $HOME directory under `~/.nix-profile`.
@@ -169,6 +169,13 @@ In my third rewrite, I looked at devbox and loved how they organized everything.
 
 - [devbox](https://github.com/jetpack-io/devbox)
 - [devbox license](https://github.com/jetpack-io/devbox/blob/main/LICENSE)
+
+Tasty release shell script inspired by and copied from ssh-to-age.
+
+- [ssh-to-age](https://github.com/Mic92/ssh-to-age/blob/main/bin/create-release.sh)
+- [ssh-to-age license](https://github.com/Mic92/ssh-to-age/blob/main/LICENSE)
+
+Fleek's development flake was created by [Luc Perkins](https://github.com/lucperkins).
 
 Great terminal display code inspired by and copied from pcli.
 
