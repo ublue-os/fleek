@@ -170,6 +170,13 @@ In my third rewrite, I looked at devbox and loved how they organized everything.
 - [devbox](https://github.com/jetpack-io/devbox)
 - [devbox license](https://github.com/jetpack-io/devbox/blob/main/LICENSE)
 
+Tasty release shell script inspired by and copied from ssh-to-age.
+
+- [ssh-to-age](https://github.com/Mic92/ssh-to-age/blob/main/bin/create-release.sh)
+- [ssh-to-age license](https://github.com/Mic92/ssh-to-age/blob/main/LICENSE)
+
+Fleek's development flake was created by [Luc Perkins](https://github.com/lucperkins).
+
 Great terminal display code inspired by and copied from pcli.
 
 - [pcli](https://github.com/pterm/pcli/)
