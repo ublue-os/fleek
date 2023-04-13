@@ -12,6 +12,13 @@ move +FILES:
   done
 
 [private]
+example NAME:
+  [ -e "./fleek" ] || just build
+  @rm -rf examples/{{NAME}}
+  @mkdir -p examples/{{NAME}}
+  @./fleek generate --level {{NAME}} -l projects/ublue/fleek/examples/{{NAME}}
+
+[private]
 unmove +FILES:
   for FILE in {{FILES}} ; do \
     mv "$FILE.bak" "$FILE" ; \
@@ -53,18 +60,10 @@ apply:
 
 examples:
   [ -e "./fleek" ] || just build
-  rm -rf examples/none
-  rm -rf examples/low
-  rm -rf examples/default
-  rm -rf examples/high
-  mkdir -p examples/none
-  mkdir -p examples/low
-  mkdir -p examples/default
-  mkdir -p examples/high
-  ./fleek generate --level none -l projects/ublue/fleek/examples/none
-  ./fleek generate --level default -l projects/ublue/fleek/examples/default
-  ./fleek generate --level low -l projects/ublue/fleek/examples/low
-  ./fleek generate --level high -l projects/ublue/fleek/examples/high
+  just example "none"
+  just example "low"
+  just example "default"
+  just example "high"
   
 completions:
   [ -e "./fleek" ] || just build
@@ -79,3 +78,6 @@ man: build
 push: man (cleanup "fleek" "fleek.1" "fleek.1.gz")
   {{CONTAINER_BUILDER}} build --no-cache -t docker.io/bketelsen/fleek .
   {{CONTAINER_RUNNER}} push docker.io/bketelsen/fleek
+
+tag version: lint build examples man completions
+  ./scripts/create-relase.sh {{version}}
