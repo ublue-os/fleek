@@ -93,7 +93,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("init.applyFlag"))
 		}
-		fin.Info.Println(app.Trans("global.complete"))
+		fin.Info.Println(app.Trans("global.completed"))
 
 		return nil
 	}
