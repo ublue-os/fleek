@@ -445,7 +445,7 @@ func (f *Flake) Apply() error {
 	if err != nil {
 		return err
 	}
-	applyCmdLine := []string{"run", "--impure", "home-manager/master", "--", "-b", "bak", "switch", "--flake", ".#" + user + "@" + host}
+	applyCmdLine := []string{"run", "--no-write-lock-file", "--impure", "home-manager/master", "--", "-b", "bak", "switch", "--flake", ".#" + user + "@" + host}
 	out, err := f.runNix(nixbin, applyCmdLine)
 	if err != nil {
 		if bytes.Contains(out, []byte("priority")) {
