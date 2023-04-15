@@ -1,8 +1,8 @@
 { pkgs, misc, ... }: {
    home.shellAliases = {
-    apply-ghanima = "nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima";
+    apply-beast = "nix run --impure home-manager/master -- -b bak switch --flake .#bjk@beast";
     
-    fleeks = "cd /var/home/bjk/projects/ublue/fleek/examples/high";
+    fleeks = "cd /home/bjk/projects/ublue/fleek/examples/high";
     
     # bat --plain for unformatted cat
     catp = "bat -P";

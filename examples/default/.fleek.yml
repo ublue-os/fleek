@@ -1,6 +1,6 @@
 aliases:
-    apply-ghanima: nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
-    fleeks: cd /var/home/bjk/projects/ublue/fleek/examples/default
+    apply-beast: nix run --impure home-manager/master -- -b bak switch --flake .#bjk@beast
+    fleeks: cd /home/bjk/projects/ublue/fleek/examples/default
 bling: default
 ejected: true
 flakedir: projects/ublue/fleek/examples/default
@@ -20,7 +20,7 @@ programs:
 shell: zsh
 systems:
     - arch: x86_64
-      hostname: ghanima
+      hostname: beast
       os: linux
       username: bjk
 unfree: true

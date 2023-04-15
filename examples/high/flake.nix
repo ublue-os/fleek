@@ -15,7 +15,7 @@
     # Available through 'home-manager --flake .#your-username@your-hostname'
     homeConfigurations = {
     
-      "bjk@ghanima" = home-manager.lib.homeManagerConfiguration {
+      "bjk@beast" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
         extraSpecialArgs = { inherit inputs; }; # Pass flake inputs to our config
         modules = [ 
@@ -26,8 +26,8 @@
           ./aliases.nix
           ./programs.nix
           # Host Specific configs
-          ./ghanima/ghanima.nix
-          ./ghanima/user.nix
+          ./beast/beast.nix
+          ./beast/user.nix
         ];
       };
       

@@ -18,6 +18,6 @@ $ apply-{hostname}
 ```
 
 Your actual aliases are listed below:
-    apply-ghanima = "nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima";
+    apply-beast = "nix run --impure home-manager/master -- -b bak switch --flake .#bjk@beast";
 
-    fleeks = "cd /var/home/bjk/projects/ublue/fleek/examples/low";
+    fleeks = "cd /home/bjk/projects/ublue/fleek/examples/low";
