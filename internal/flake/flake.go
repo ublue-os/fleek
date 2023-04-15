@@ -454,6 +454,10 @@ func (f *Flake) Apply() error {
 		if bytes.Contains(out, []byte("conflict")) {
 			return ErrPackageConflict
 		}
+		if bytes.Contains(out, []byte("warning:")) {
+			spinner.Success()
+			return nil
+		}
 		return err
 	}
 	spinner.Success()

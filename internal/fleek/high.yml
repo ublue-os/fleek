@@ -20,6 +20,5 @@ programs:
   - bat
   - atuin
   - zoxide
-
   - direnv
   - starship
