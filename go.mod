@@ -55,11 +55,11 @@ require (
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.1 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/pterm/pterm v0.12.58
+	github.com/pterm/pterm v0.12.59
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/pflag v1.0.5
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/term v0.7.0
-	golang.org/x/text v0.8.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
 )
