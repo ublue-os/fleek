@@ -35,6 +35,6 @@ sed -i -e "s!version = \".*\"!version = \"${version}\"!" flake.nix
 git add flake.nix
 nix-build --no-out-link flake.nix
 git commit -m "chore: bump version ${version}"
-git tag -e "${version}"
+git tag -s -e "${version}"
 
 echo 'now run `git push --follow-tags origin main`'
