@@ -41,7 +41,11 @@ mkdir -p ~/.config/nix
 echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 ```
 
-Next you'll need `fleek`. Download from the releases link and move it somewhere in your $PATH.
+Next you'll need `fleek`.
+
+```shell
+nix profile install github:ublue-os/fleek/main
+```
 
 Finally, run `fleek init`. This will create your configuration file and symlink it to `$HOME/.fleek.yml`. Open it with your favorite editor and take a look.
 
