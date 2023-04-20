@@ -748,18 +748,18 @@ func (f *Flake) Apply() error {
 	if err != nil {
 		return err
 	}
-	/*
-		user, err := fleek.Username()
 
-		if err != nil {
-			return err
-		}
-		host, err := fleek.Hostname()
-		if err != nil {
-			return err
-		}
-	*/
-	applyCmdLine := []string{"run"}
+	user, err := fleek.Username()
+
+	if err != nil {
+		return err
+	}
+	host, err := fleek.Hostname()
+	if err != nil {
+		return err
+	}
+
+	applyCmdLine := []string{"run", "--no-write-lock-file", "--impure", "home-manager", "--", "-b", "bak", "switch", "--flake", ".#" + user + "@" + host}
 	out, err := f.runNix(nixbin, applyCmdLine)
 	if err != nil {
 		if bytes.Contains(out, []byte("priority")) {
