@@ -182,6 +182,11 @@ Great terminal display code inspired by and copied from pcli.
 - [pcli](https://github.com/pterm/pcli/)
 - [pcli license](https://github.com/pterm/pcli/blob/main/LICENSE)
 
+Modular flake configuration:
+
+- [flake-parts](https://flake.parts/)
+- [nixos-flake](https://github.com/srid/nixos-flake)
+
 None of this is possible without Nix and Nix Home Manager:
 
 - [nix](https://nixos.org/)
