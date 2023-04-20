@@ -508,11 +508,11 @@ func (c *Config) MigrateV2() error {
 			}
 			if !found {
 				// create new user
-				email, err := pterm.DefaultInteractiveTextInput.Show("%s - Enter your email for git", sys.Hostname)
+				email, err := pterm.DefaultInteractiveTextInput.Show(sys.Hostname + " - Enter your email for git")
 				if err != nil {
 					return err
 				}
-				name, err := pterm.DefaultInteractiveTextInput.Show("%s - Enter your name for git", sys.Hostname)
+				name, err := pterm.DefaultInteractiveTextInput.Show(sys.Hostname + " - Enter your name for git")
 				if err != nil {
 					return err
 				}
@@ -545,6 +545,7 @@ func (c *Config) MigrateV2() error {
 		return err
 	}
 	newDir := filepath.Join(home, c.FlakeDir, "home", "users", uname)
+	fin.Debug.Println("newDir: ", newDir)
 	err = os.MkdirAll(newDir, 0755)
 	if err != nil {
 		return err
