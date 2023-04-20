@@ -4,7 +4,9 @@ nix home-manager configs created by [fleek](https://github.com/ublue-os/fleek)
 ## Reference
 
 [home-manager](https://nix-community.github.io/home-manager/)
+
 [home-manager options](https://nix-community.github.io/home-manager/options.html)
+
 [fleek](https://getfleek.dev)
 
 ## Usage
@@ -17,8 +19,8 @@ $ fleeks
 ```
 
 Your actual aliases are listed below:
+```bash
 {{- range $index, $element := .Config.Aliases }}
     {{$index}} = "{{$element}}";
 {{ end -}}
-
-
+```
