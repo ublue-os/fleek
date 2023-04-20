@@ -131,7 +131,11 @@ func (f *Flake) Create(force bool, symlink bool) error {
 	if err != nil {
 		return err
 	}
-	err = f.ReadConfig()
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	err = f.ReadConfig(filepath.Join(home, f.Config.FlakeDir))
 	if err != nil {
 		return err
 	}
@@ -325,7 +329,7 @@ func (f *Flake) Join() error {
 		fin.Debug.Println("first symlink attempt failed")
 		return err
 	}
-	err = f.ReadConfig()
+	err = f.ReadConfig(filepath.Join(home, f.Config.FlakeDir))
 	if err != nil {
 		return err
 	}
@@ -452,8 +456,11 @@ func (f *Flake) Write(message string) error {
 		Config: f.Config,
 		Bling:  bling,
 	}
-
-	err = f.ReadConfig()
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	err = f.ReadConfig(filepath.Join(home, f.Config.FlakeDir))
 	if err != nil {
 		return err
 	}
@@ -613,9 +620,9 @@ func (f *Flake) ensureFlakeDir() error {
 	return nil
 }
 
-func (f *Flake) ReadConfig() error {
+func (f *Flake) ReadConfig(loc string) error {
 	// load the new config
-	config, err := fleek.ReadConfig()
+	config, err := fleek.ReadConfig(loc)
 	if err != nil {
 		return err
 	}

@@ -60,10 +60,10 @@ apply:
 
 examples:
   [ -e "./fleek" ] || just build
-  just example "none"
+  just example "high"
   just example "low"
   just example "default"
-  just example "high"
+  just example "none"
   
 completions:
   [ -e "./fleek" ] || just build

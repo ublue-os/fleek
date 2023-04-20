@@ -1,36 +1,59 @@
 {
-  description = "Fleek Configuration";
-
   inputs = {
-    # Nixpkgs
+    # Principle inputs (updated by `nix run .#update`)
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    # Home manager
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    nixos-flake.url = "github:bketelsen/nixos-flake";
+    fleek.url = "github:ublue-os/fleek";
   };
 
-  outputs = { nixpkgs, home-manager, ... }@inputs: {
+  outputs = inputs@{ self, ... }:
+    let
+      inherit (self) outputs;
+    in
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
 
-    # Available through 'home-manager --flake .#your-username@your-hostname'
-    homeConfigurations = {
-    
-      "bjk@beast" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
-        extraSpecialArgs = { inherit inputs; }; # Pass flake inputs to our config
-        modules = [ 
-          ./home.nix 
-          ./path.nix
-          ./shell.nix
-          ./user.nix
-          ./aliases.nix
-          ./programs.nix
-          # Host Specific configs
-          ./beast/beast.nix
-          ./beast/user.nix
+      imports = [
+        inputs.nixos-flake.flakeModule
+        ./users
+      ];
+      perSystem = { self', pkgs, lib, config, inputs', ... }:
+        {
+          legacyPackages.homeConfigurations."${self.people.users.bjk}@beast" =
+            self.nixos-flake.lib.mkHomeConfiguration
+              pkgs
+              ({ pkgs, ... }: {
+                imports = [
+                  self.homeModules.high
+                  ./home/users/fleek
+                  ./home/hosts/beast.nix
+                  ./home/users/${self.people.users.bjk}/custom.nix
+                ];
+                home.username = "${self.people.users.bjk}";
+                home.homeDirectory = "/${if pkgs.stdenv.isDarwin then "Users" else "home"}/${self.people.users.bjk}";
+                home.stateVersion = "22.11";
+              });
+
+        # Enables 'nix run' to activate.
+            apps.default.program = self'.packages.activate-home;
+            # Enable 'nix build' to build the home configuration, but without
+            # activating.
+            apps.fleek.program = "${self.inputs.fleek.packages.${pkgs.system}.default}/bin/fleek";
+        };
+      flake = {
+        imports = [
+          ./users/default.nix
         ];
+        # All home-manager configurations are kept here.
+        templates.default = {
+          description = "A `home-manager` template providing useful tools & settings for Nix-based development";
+          path = builtins.path { path = inputs.nixpkgs.lib.cleanSource ./.; filter = path: _: baseNameOf path != "build.sh"; };
+        };
+        homeModules = inputs.nixpkgs.lib.genAttrs [ "high" "low" "none" "default" ] (x: ./home/bling/${x});
       };
-      
     };
-  };
 }

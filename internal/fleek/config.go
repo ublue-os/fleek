@@ -319,14 +319,21 @@ func (c *Config) Save() error {
 
 // ReadConfig returns the configuration data
 // stored in $HOME/.fleek.yml
-func ReadConfig() (*Config, error) {
+func ReadConfig(loc string) (*Config, error) {
 	c := &Config{}
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return c, err
+
+	if loc == "" {
+
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return c, err
+		}
+		csym := filepath.Join(home, ".fleek.yml")
+		loc = csym
+	} else {
+		loc = filepath.Join(loc, ".fleek.yml")
 	}
-	csym := filepath.Join(home, ".fleek.yml")
-	bb, err := os.ReadFile(csym)
+	bb, err := os.ReadFile(loc)
 	if err != nil {
 		return c, err
 	}

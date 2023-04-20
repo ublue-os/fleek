@@ -65,6 +65,8 @@ func generate(cmd *cobra.Command) error {
 
 	fl.Config.Bling = cmd.Flag(app.Trans("generate.levelFlag")).Value.String()
 	fin.Info.Println("Bling level:", fl.Config.Bling)
+	fin.Debug.Println("Force:", force)
+	fin.Debug.Println("creating flake at", loc)
 	err = fl.Create(force, false)
 	if err != nil {
 		return usererr.WithUserMessage(err, app.Trans("flake.creating"))

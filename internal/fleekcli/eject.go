@@ -5,6 +5,8 @@ package fleekcli
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
@@ -50,8 +52,12 @@ func eject(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
 	// reload config so it won't git push
-	err = fl.ReadConfig()
+	err = fl.ReadConfig(filepath.Join(home, fl.Config.FlakeDir))
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,6 @@
 aliases:
     apply-beast: nix run --impure home-manager/master -- -b bak switch --flake .#bjk@beast
-    fleeks: cd /home/bjk/projects/ublue/fleek/examples/high
+    fleeks: cd ~/projects/ublue/fleek/examples/high
 bling: high
 ejected: true
 flakedir: projects/ublue/fleek/examples/high
@@ -24,3 +24,9 @@ systems:
       os: linux
       username: bjk
 unfree: true
+users:
+    - email: bketelsen@gmail.com
+      name: Brian Ketelsen
+      ssh_private_key_file: ~/.ssh/id_rsa
+      ssh_public_key_file: ~/.ssh/id_rsa.pub
+      username: bjk
