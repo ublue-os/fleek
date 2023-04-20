@@ -4,7 +4,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-
+    systems.url = "github:nix-systems/default";
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixos-flake.url = "github:bketelsen/nixos-flake";
     fleek.url = "github:ublue-os/fleek";
@@ -15,7 +15,8 @@
       inherit (self) outputs;
     in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
+      systems = import inputs.systems;
+
 
       imports = [
         inputs.nixos-flake.flakeModule
