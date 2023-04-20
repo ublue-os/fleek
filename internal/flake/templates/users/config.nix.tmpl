@@ -1,0 +1,13 @@
+{
+  users = {
+{{- range .Config.Users }}
+    {{ .Username }} = {
+      name = "{{ .Name }}";
+      email = "{{ .Email }}";
+      sshPublicKey = "{{ .SSHPublicKeyFile }}";
+      sshPrivateKey = "{{ .SSHPrivateKeyFile }}";
+      outPath = "{{ .Username }}";
+    };
+{{ end -}}
+  };
+}

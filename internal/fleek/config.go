@@ -2,12 +2,15 @@ package fleek
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/pterm/pterm"
 	"github.com/ublue-os/fleek/fin"
 	"gopkg.in/yaml.v3"
 )
@@ -45,6 +48,7 @@ type Config struct {
 	Paths    []string          `yaml:"paths"`
 	Ejected  bool              `yaml:"ejected"`
 	Systems  []*System         `yaml:",flow"`
+	Users    []*User           `yaml:",flow"`
 	Git      Git               `yaml:"git"`
 }
 
@@ -64,6 +68,13 @@ type System struct {
 	Username string `yaml:"username"`
 	Arch     string `yaml:"arch"`
 	OS       string `yaml:"os"`
+}
+type User struct {
+	Username          string `yaml:"username"`
+	Name              string `yaml:"name"`
+	Email             string `yaml:"email"`
+	SSHPublicKeyFile  string `yaml:"ssh_public_key_file"`
+	SSHPrivateKeyFile string `yaml:"ssh_private_key_file"`
 }
 
 func (s System) HomeDir() string {
@@ -88,6 +99,75 @@ func NewSystem() (*System, error) {
 		Arch:     Arch(),
 		OS:       runtime.GOOS,
 		Username: user,
+	}, nil
+}
+func NewUser() (*User, error) {
+	user, err := Username()
+	if err != nil {
+		return nil, err
+	}
+	name, err := Name()
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "git"
+	cmdLine := []string{"config", "--global", "user.email"}
+	command := exec.Command(cmd, cmdLine...)
+	command.Stdin = os.Stdin
+
+	command.Env = os.Environ()
+	var email string
+	bb, err := command.Output()
+	if err != nil {
+		// get the email manually
+		email, err = pterm.DefaultInteractiveTextInput.Show("Enter your email for git")
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		email = strings.TrimSpace(string(bb))
+	}
+	privateKey := ""
+	publicKey := ""
+
+	// find and add ssh keys
+	sshDir := filepath.Join(os.Getenv("HOME"), ".ssh")
+	sshFiles, err := os.ReadDir(sshDir)
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			fmt.Println("not notexist", err)
+			return nil, err
+		}
+		fmt.Println("is notexist", err)
+
+		return &User{
+			SSHPublicKeyFile:  publicKey,
+			SSHPrivateKeyFile: privateKey,
+			Email:             email,
+			Name:              name,
+			Username:          user,
+		}, nil
+	}
+	candidates := []string{}
+	for _, f := range sshFiles {
+		if strings.HasSuffix(f.Name(), ".pub") {
+			candidates = append(candidates, f.Name())
+		}
+	}
+
+	result, _ := pterm.DefaultInteractiveSelect.
+		WithOptions(candidates).
+		Show("Select your ssh public key for git")
+	privateKey = strings.Replace(result, ".pub", "", 1)
+	privateKey = filepath.Join("~", ".ssh", privateKey)
+	publicKey = filepath.Join("~", ".ssh", result)
+	return &User{
+		SSHPublicKeyFile:  publicKey,
+		SSHPrivateKeyFile: privateKey,
+		Email:             email,
+		Name:              name,
+		Username:          user,
 	}, nil
 }
 
@@ -259,10 +339,15 @@ func ReadConfig() (*Config, error) {
 
 func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 	aliases := make(map[string]string)
-	aliases["fleeks"] = "cd " + c.UserFlakeDir()
+	aliases["fleeks"] = "cd ~/" + c.FlakeDir
 	sys, err := NewSystem()
 	if err != nil {
 		fin.Debug.Printfln("new system err: %s ", err)
+		return err
+	}
+	user, err := NewUser()
+	if err != nil {
+		fin.Debug.Printfln("new user err: %s ", err)
 		return err
 	}
 	c.Unfree = true
@@ -279,6 +364,7 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 		"$HOME/.local/bin",
 	}
 	c.Systems = []*System{sys}
+	c.Users = []*User{user}
 
 	cfile, err := c.Location()
 	if err != nil {
@@ -365,5 +451,153 @@ func (c *Config) Eject() error {
 		return err
 	}
 
+	return nil
+}
+
+func (c *Config) NeedsMigration() bool {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return false
+	}
+	count := 0
+	aliases := filepath.Join(home, c.FlakeDir, "aliases.nix")
+	_, err = os.Stat(aliases)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			count = count + 1
+		}
+	}
+	pathnix := filepath.Join(home, c.FlakeDir, "path.nix")
+	_, err = os.Stat(pathnix)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			count = count + 1
+		}
+	}
+	return count < 1
+
+}
+func (c *Config) MigrateV2() error {
+	if len(c.Users) < 1 {
+		user, err := NewUser()
+		if err != nil {
+			fin.Debug.Printfln("new user err: %s ", err)
+			return err
+		}
+		c.Users = append(c.Users, user)
+		err = c.Save()
+		if err != nil {
+			return err
+		}
+		// NEED TO LOOK THROUGH SYSTEMS
+		// and create users referenced there
+		for _, sys := range c.Systems {
+			u := sys.Username
+			found := false
+			for _, uu := range c.Users {
+				if uu.Email == u {
+					found = true
+				}
+			}
+			if !found {
+				// create new user
+				email, err := pterm.DefaultInteractiveTextInput.Show("%s - Enter your email for git", sys.Hostname)
+				if err != nil {
+					return err
+				}
+				name, err := pterm.DefaultInteractiveTextInput.Show("%s - Enter your name for git", sys.Hostname)
+				if err != nil {
+					return err
+				}
+				// TODO gracefully ask for keys
+				user := &User{
+					Email:    email,
+					Name:     name,
+					Username: sys.Username,
+				}
+				// save
+				c.Users = append(c.Users, user)
+				err = c.Save()
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+	}
+
+	// move user config
+	// from ./user.nix
+	// to home/users/{user}/custom.nix
+	uname, err := Username()
+	if err != nil {
+		return err
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	newDir := filepath.Join(home, c.FlakeDir, "home", "users", uname)
+	err = os.MkdirAll(newDir, 0755)
+	if err != nil {
+		return err
+	}
+	oldLocation := filepath.Join(home, c.FlakeDir, "user.nix")
+	newLocation := filepath.Join(newDir, "custom.nix")
+	err = os.Rename(oldLocation, newLocation)
+	if err != nil {
+		return err
+	}
+	// move system config
+	hostDir := filepath.Join(home, c.FlakeDir, "home", "hosts")
+	err = os.MkdirAll(hostDir, 0755)
+	if err != nil {
+		return err
+	}
+	for _, sys := range c.Systems {
+		oldLocation := filepath.Join(home, c.FlakeDir, sys.Hostname, "user.nix")
+		newLocation := filepath.Join(hostDir, sys.Hostname+".nix")
+		err = os.Rename(oldLocation, newLocation)
+		if err != nil {
+			return err
+		}
+		oldDir := filepath.Join(home, c.FlakeDir, sys.Hostname)
+		err = os.RemoveAll(oldDir)
+		if err != nil {
+			return err
+		}
+
+	}
+	// config files
+	aliases := filepath.Join(home, c.FlakeDir, "aliases.nix")
+	err = os.Remove(aliases)
+	if err != nil {
+		return err
+	}
+	homenix := filepath.Join(home, c.FlakeDir, "home.nix")
+	err = os.Remove(homenix)
+	if err != nil {
+		return err
+	}
+	pathnix := filepath.Join(home, c.FlakeDir, "path.nix")
+	err = os.Remove(pathnix)
+	if err != nil {
+		return err
+	}
+	prognix := filepath.Join(home, c.FlakeDir, "programs.nix")
+	err = os.Remove(prognix)
+	if err != nil {
+		return err
+	}
+	shellnix := filepath.Join(home, c.FlakeDir, "shell.nix")
+	err = os.Remove(shellnix)
+	if err != nil {
+		return err
+	}
+	flakelock := filepath.Join(home, c.FlakeDir, "flake.lock")
+	err = os.Remove(flakelock)
+	if err != nil {
+		return err
+	}
 	return nil
 }

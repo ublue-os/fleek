@@ -222,6 +222,11 @@ flake:
   writing: "Writing configuration files"
   apply: "Applying configuration"
   update: "Updating flake sources"
+migrate:
+  required: Migrating to new flake configuration
+  error: Error migrating configuration
+  success: Configuration migrated
+  user: Enter user details for system %s
 git:
   commit: "Git: Committing changes"
   add: "Git: Adding files"

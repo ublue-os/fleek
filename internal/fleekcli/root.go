@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
+	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
 )
@@ -53,6 +54,30 @@ func RootCmd() *cobra.Command {
 						fin.Error.Println(app.Trans("eject.ejected"))
 						os.Exit(1)
 					}
+				}
+
+				if cfg.NeedsMigration() {
+					fin.Warning.Println(app.Trans("migrate.required"))
+					err := cfg.MigrateV2()
+					if err != nil {
+						fin.Error.Println(app.Trans("migrate.error"))
+						fin.Error.Println(err)
+						os.Exit(1)
+					}
+					fl, err := flake.Load(cfg, app)
+					if err != nil {
+						fin.Error.Println(app.Trans("migrate.error"))
+						fin.Error.Println(err)
+						os.Exit(1)
+					}
+					err = fl.Write("fleek: migrate v2")
+					if err != nil {
+						fin.Error.Println(app.Trans("migrate.error"))
+						fin.Error.Println(err)
+						os.Exit(1)
+					}
+					fin.Warning.Println(app.Trans("migrate.success"))
+
 				}
 
 			}

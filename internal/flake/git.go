@@ -166,7 +166,8 @@ func (f *Flake) commit(message string) error {
 	if err != nil {
 		return err
 	}
-	if status.Empty() {
+
+	if status.MostlyEmpty() {
 		fin.Debug.Println("git status is empty, skipping commit")
 		return nil
 	}
@@ -234,6 +235,7 @@ func (f *Flake) gitStatus() (*fgit.Status, error) {
 	cmd.Env = os.Environ()
 	out, err := cmd.Output()
 	if err != nil {
+		fin.Debug.Println("git status error: ", err)
 		return nil, err
 	}
 	return fgit.ParseStatusPorcelainV2(out)

@@ -4,11 +4,7 @@
   # add your personalized program configuration in ./user.nix   
 
   # Bling supplied programs
-  {{- range $index, $element := .Bling.Programs}} 
-    programs.{{ $element }}.enable = true;{{ end }}
-
-  # User specified programs
-    {{- range $index, $element := .Config.Programs}} 
-    programs.{{ $element }}.enable = true;{{ end }}
+  programs.atuin.enable = true;
+  programs.zoxide.enable = true;
 
 }

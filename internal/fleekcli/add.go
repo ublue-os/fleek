@@ -65,7 +65,7 @@ func add(cmd *cobra.Command, args []string) error {
 		sb.WriteString(p + " ")
 
 	}
-	err = fl.Write(false, sb.String())
+	err = fl.Write(sb.String())
 	if err != nil {
 		fin.Debug.Printfln("flake write error: %s", err)
 		return err

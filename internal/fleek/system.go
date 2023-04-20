@@ -46,6 +46,14 @@ func Username() (string, error) {
 
 	return u.Username, nil
 }
+func Name() (string, error) {
+	u, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+
+	return u.Name, nil
+}
 
 func Hostname() (string, error) {
 	h, e := os.Hostname()
