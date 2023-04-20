@@ -609,3 +609,15 @@ func (c *Config) MigrateV2() error {
 	}
 	return nil
 }
+func (c *Config) ActiveUser() (*User, error) {
+	u, err := Username()
+	if err != nil {
+		return nil, err
+	}
+	for _, user := range c.Users {
+		if user.Username == u {
+			return user, nil
+		}
+	}
+	return nil, nil
+}

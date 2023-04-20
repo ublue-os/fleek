@@ -94,6 +94,11 @@ func (f *Flake) mayCommit(message string) error {
 			if f.Config.Verbose {
 				fin.Verbose.Println(f.app.Trans("git.commit"))
 			}
+			err = f.mayGitConfig()
+			if err != nil {
+				fin.Debug.Printfln("git config error: %s", err)
+				return err
+			}
 			err = f.commit(message)
 			if err != nil {
 				fin.Debug.Printfln("git commit error: %s", err)
@@ -181,6 +186,46 @@ func (f *Flake) commit(message string) error {
 		return fmt.Errorf("git commit: %w", err)
 	}
 	return err
+}
+
+func (f *Flake) mayGitConfig() error {
+	cmd := "git"
+	cmdLine := []string{"config", "--global", "user.email"}
+	command := exec.Command(cmd, cmdLine...)
+	command.Stdin = os.Stdin
+
+	command.Env = os.Environ()
+	_, err := command.Output()
+	if err != nil {
+		// email not set
+		if f.Config.Verbose {
+			fin.Verbose.Println("git email not set, setting")
+		}
+		u, err := f.Config.ActiveUser()
+		if err != nil {
+			return err
+		}
+		cmdLine := []string{"config", "--global", "user.email", u.Email}
+		command := exec.Command(cmd, cmdLine...)
+		command.Stdin = os.Stdin
+
+		command.Env = os.Environ()
+		_, err = command.Output()
+		if err != nil {
+			return err
+		}
+		cmdLine = []string{"config", "--global", "user.name", u.Name}
+		command = exec.Command(cmd, cmdLine...)
+		command.Stdin = os.Stdin
+
+		command.Env = os.Environ()
+		_, err = command.Output()
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
 }
 
 func (f *Flake) pull() error {
