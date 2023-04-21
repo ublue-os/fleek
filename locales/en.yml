@@ -87,8 +87,11 @@ init:
     fleek init git@github.com:your/repo
     fleek init -l .local/share/fleek
     fleek init -a
+    fleek init -i
   forceFlag: "force"
   forceFlagDescription: "overwrite existing configuration files"
+  interactiveFlag: "interactive"
+  interactiveFlagDescription: "create configuration interactively"
   flakeLocation: "Flake Location"
   start: "initializing fleek"
   applyFlag: "apply"

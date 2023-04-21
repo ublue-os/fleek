@@ -7,15 +7,18 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
+	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
+	"github.com/ublue-os/fleek/internal/ux"
 	"github.com/ublue-os/fleek/internal/xdg"
 )
 
 type initCmdFlags struct {
-	apply    bool
-	force    bool
-	location string
-	level    string
+	apply       bool
+	force       bool
+	location    string
+	level       string
+	interactive bool
 }
 
 func InitCommand() *cobra.Command {
@@ -32,6 +35,8 @@ func InitCommand() *cobra.Command {
 	}
 	command.Flags().BoolVarP(
 		&flags.apply, app.Trans("init.applyFlag"), "a", false, app.Trans("init.applyFlagDescription"))
+	command.Flags().BoolVarP(
+		&flags.interactive, app.Trans("init.interactiveFlag"), "i", false, app.Trans("init.interactiveFlagDescription"))
 	command.Flags().BoolVarP(
 		&flags.force, app.Trans("init.forceFlag"), "f", false, app.Trans("init.forceFlagDescription"))
 	command.Flags().StringVarP(
@@ -55,49 +60,132 @@ func initialize(cmd *cobra.Command, args []string) error {
 	cfg.Verbose = verbose
 
 	fin.Description.Println(cmd.Short)
-
-	loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
-	fl, err := flake.Load(cfg, app)
-	cfg.FlakeDir = loc
-	if err != nil {
-		return usererr.WithUserMessage(err, app.Trans("flake.initializingTemplates"))
+	var interactive bool
+	if cmd.Flag(app.Trans("init.interactiveFlag")).Changed {
+		interactive = true
 	}
-	if len(args) > 0 {
-		err = fl.Clone(args[0])
+	if interactive {
+		config, err := initInteractive()
 		if err != nil {
 			return err
 		}
-	}
-
-	join, err := fl.IsJoin()
-	if err != nil {
-		return err
-	}
-	if join {
-		fin.Info.Println(app.Trans("init.joining"))
-		err := fl.Join()
+		err = config.Validate()
 		if err != nil {
 			return err
 		}
-
 	} else {
-		fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
-		err = fl.Create(force, true)
+
+		loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
+		fl, err := flake.Load(cfg, app)
+		cfg.FlakeDir = loc
 		if err != nil {
-			return usererr.WithUserMessage(err, app.Trans("flake.creating"))
+			return usererr.WithUserMessage(err, app.Trans("flake.initializingTemplates"))
+		}
+		if len(args) > 0 {
+			err = fl.Clone(args[0])
+			if err != nil {
+				return err
+			}
+		}
+
+		join, err := fl.IsJoin()
+		if err != nil {
+			return err
+		}
+		if join {
+			fin.Info.Println(app.Trans("init.joining"))
+			err := fl.Join()
+			if err != nil {
+				return err
+			}
+
+		} else {
+			fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
+			err = fl.Create(force, true)
+			if err != nil {
+				return usererr.WithUserMessage(err, app.Trans("flake.creating"))
+			}
+		}
+		if cmd.Flag(app.Trans("init.applyFlag")).Changed {
+			err := fl.Apply()
+			if err != nil {
+				return usererr.WithUserMessage(err, app.Trans("init.applyFlag"))
+			}
+			fin.Info.Println(app.Trans("global.completed"))
+
+			return nil
 		}
 	}
 
-	if cmd.Flag(app.Trans("init.applyFlag")).Changed {
-		err := fl.Apply()
-		if err != nil {
-			return usererr.WithUserMessage(err, app.Trans("init.applyFlag"))
-		}
-		fin.Info.Println(app.Trans("global.completed"))
-
-		return nil
-	}
 	fin.Info.Println(app.Trans("init.complete"))
 
 	return nil
+}
+
+func initInteractive() (fleek.Config, error) {
+	config := fleek.Config{}
+	// Prompt for bling level
+	choices := fleek.Levels()
+	prompt := "Choose your Bling Level"
+	level, err := ux.PromptSingle(prompt, choices)
+	if err != nil {
+		return config, err
+	}
+	config.Bling = level
+
+	// Prompt for location
+	prompt = "Configuration Directory Location: $HOME/"
+	choices = []string{
+		xdg.ConfigSubpathRel("fleek"),
+		xdg.ConfigSubpathRel("home-manager"),
+		xdg.DataSubpathRel("fleek"),
+		"fleek",
+	}
+	loc, err := ux.PromptSingle(prompt, choices)
+	if err != nil {
+		return config, err
+	}
+	config.FlakeDir = loc
+	config.Aliases = map[string]string{}
+	config.Aliases["fleek"] = "cd ~/" + config.FlakeDir
+
+	// Prompt for shell
+	shell, err := fleek.UserShell()
+	if err != nil {
+		return config, err
+	}
+	use, err := ux.Confirm("Use detected shell: " + shell)
+	if err != nil {
+		return config, err
+	}
+	if use {
+		config.Shell = shell
+	} else {
+		prompt = "Shell"
+		choices = []string{
+			"bash",
+			"zsh",
+			"fish",
+		}
+		shell, err := ux.PromptSingle(prompt, choices)
+		if err != nil {
+			return config, err
+		}
+		config.Shell = shell
+	}
+
+	user, err := fleek.NewUser()
+	if err != nil {
+		return config, err
+	}
+	config.Users = append(config.Users, user)
+
+	// system
+	sys, err := fleek.NewSystem()
+	if err != nil {
+		return config, err
+	}
+	config.Systems = append(config.Systems, sys)
+
+	return config, nil
 }

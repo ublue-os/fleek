@@ -2,7 +2,6 @@ package fleek
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/pterm/pterm"
 	"github.com/ublue-os/fleek/fin"
+	"github.com/ublue-os/fleek/internal/ux"
 	"gopkg.in/yaml.v3"
 )
 
@@ -102,14 +102,37 @@ func NewSystem() (*System, error) {
 	}, nil
 }
 func NewUser() (*User, error) {
-	user, err := Username()
-	if err != nil {
-		return nil, err
-	}
+	fin.Info.Println("Enter User Details for Git Configuration:")
+	user := &User{}
 	name, err := Name()
 	if err != nil {
-		return nil, err
+		return user, err
 	}
+	// Prompt for name
+	var use bool
+	use, err = ux.Confirm("Use detected name: " + name)
+	if err != nil {
+		return user, err
+	}
+	if use {
+		user.Name = name
+	} else {
+		prompt := "Name"
+		name, err = ux.Input(prompt, name, "Your Name")
+		if err != nil {
+			return user, err
+		}
+		user.Name = name
+	}
+	// It doesn't make sense to change the username,
+	// so just use the detected one
+	uname, err := Username()
+	if err != nil {
+		return user, err
+	}
+	user.Username = uname
+
+	// email
 
 	cmd := "git"
 	cmdLine := []string{"config", "--global", "user.email"}
@@ -121,53 +144,69 @@ func NewUser() (*User, error) {
 	bb, err := command.Output()
 	if err != nil {
 		// get the email manually
-		email, err = pterm.DefaultInteractiveTextInput.Show("Enter your email for git")
+		prompt := "Email"
+		name, err = ux.Input(prompt, "", "Your Email Address")
 		if err != nil {
-			return nil, err
+			return user, err
 		}
+		user.Email = name
 	} else {
 		email = strings.TrimSpace(string(bb))
+		use, err = ux.Confirm("Use detected email: " + email)
+		if err != nil {
+			return user, err
+		}
+		if use {
+			user.Email = email
+		} else {
+			prompt := "Email"
+			name, err = ux.Input(prompt, "", "Your Email Address")
+			if err != nil {
+				return user, err
+			}
+			user.Email = name
+		}
 	}
+
+	// ssh keys
 	privateKey := ""
 	publicKey := ""
 
 	// find and add ssh keys
 	sshDir := filepath.Join(os.Getenv("HOME"), ".ssh")
 	sshFiles, err := os.ReadDir(sshDir)
+	hasSSH := true
 	if err != nil {
-		if !errors.Is(err, fs.ErrNotExist) {
-			fmt.Println("not notexist", err)
-			return nil, err
-		}
-		fmt.Println("is notexist", err)
-
-		return &User{
-			SSHPublicKeyFile:  publicKey,
-			SSHPrivateKeyFile: privateKey,
-			Email:             email,
-			Name:              name,
-			Username:          user,
-		}, nil
-	}
-	candidates := []string{}
-	for _, f := range sshFiles {
-		if strings.HasSuffix(f.Name(), ".pub") {
-			candidates = append(candidates, f.Name())
+		if errors.Is(err, fs.ErrNotExist) {
+			hasSSH = false
+		} else {
+			return user, err
 		}
 	}
+	if hasSSH {
+		candidates := []string{}
+		for _, f := range sshFiles {
+			if strings.HasSuffix(f.Name(), ".pub") {
+				candidates = append(candidates, f.Name())
+			}
+		}
+		key, err := ux.PromptSingle("Choose Git SSH Key", candidates)
+		if err != nil {
+			return user, err
+		}
+		privateKey = strings.Replace(key, ".pub", "", 1)
+		privateKey = filepath.Join("~", ".ssh", privateKey)
+		publicKey = filepath.Join("~", ".ssh", key)
+		user.SSHPrivateKeyFile = privateKey
+		user.SSHPublicKeyFile = publicKey
+	}
 
-	result, _ := pterm.DefaultInteractiveSelect.
-		WithOptions(candidates).
-		Show("Select your ssh public key for git")
-	privateKey = strings.Replace(result, ".pub", "", 1)
-	privateKey = filepath.Join("~", ".ssh", privateKey)
-	publicKey = filepath.Join("~", ".ssh", result)
 	return &User{
 		SSHPublicKeyFile:  publicKey,
 		SSHPrivateKeyFile: privateKey,
 		Email:             email,
 		Name:              name,
-		Username:          user,
+		Username:          uname,
 	}, nil
 }
 
