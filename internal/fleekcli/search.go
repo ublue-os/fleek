@@ -98,10 +98,10 @@ func search(cmd *cobra.Command, args []string) error {
 		secondPeriod := strings.Index(sanitizedPackageName, ".")
 		sanitizedPackageName = sanitizedPackageName[secondPeriod+1:]
 		if p.Name == needle {
-			exactHits = append(exactHits, cache.SearchResult{sanitizedPackageName, p})
+			exactHits = append(exactHits, cache.SearchResult{Name: sanitizedPackageName, Package: p})
 		}
 		if hit {
-			hits = append(hits, cache.SearchResult{sanitizedPackageName, p})
+			hits = append(hits, cache.SearchResult{Name: sanitizedPackageName, Package: p})
 		}
 	}
 
