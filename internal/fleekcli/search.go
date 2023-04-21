@@ -78,8 +78,8 @@ func search(cmd *cobra.Command, args []string) error {
 		}
 		spinner.Success()
 	}
-	var hits []cache.Package
-	var exactHits []cache.Package
+	var hits []cache.SearchResult
+	var exactHits []cache.SearchResult
 	for i, p := range pc.Packages {
 		var hit bool
 		if fuzzy {
@@ -93,12 +93,15 @@ func search(cmd *cobra.Command, args []string) error {
 				hit = true
 			}
 		}
-
+		firstPeriod := strings.Index(i, ".")
+		sanitizedPackageName := i[firstPeriod+1:]
+		secondPeriod := strings.Index(sanitizedPackageName, ".")
+		sanitizedPackageName = sanitizedPackageName[secondPeriod+1:]
 		if p.Name == needle {
-			exactHits = append(exactHits, p)
+			exactHits = append(exactHits, cache.SearchResult{sanitizedPackageName, p})
 		}
 		if hit {
-			hits = append(hits, p)
+			hits = append(hits, cache.SearchResult{sanitizedPackageName, p})
 		}
 	}
 
@@ -134,14 +137,15 @@ func search(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func toTableDataWithHeader(pp []cache.Package) pterm.TableData {
+func toTableDataWithHeader(pp []cache.SearchResult) pterm.TableData {
+
 	var table pterm.TableData
 
 	header := []string{app.Trans("search.package"), app.Trans("search.version"), app.Trans("search.description")}
 	table = append(table, header)
 
 	for _, p := range pp {
-		row := []string{p.Name, p.Version, p.Description}
+		row := []string{p.Name, p.Package.Version, p.Package.Description}
 		table = append(table, row)
 	}
 	return table
