@@ -626,23 +626,36 @@ func (f *Flake) ReadConfig(loc string) error {
 }
 func (f *Flake) writeFile(template string, path string, d Data, force bool) error {
 	fpath := filepath.Join(f.Config.UserFlakeDir(), path)
-	_ = os.MkdirAll(filepath.Dir(fpath), 0755)
-	_, err := os.Stat(fpath)
+	fin.Debug.Println("writing file", fpath)
+	err := os.MkdirAll(filepath.Dir(fpath), 0755)
+	if err != nil {
+		fin.Debug.Println("mkdir error", err)
+	}
+	_, err = os.Stat(fpath)
+	if err != nil {
+		fin.Debug.Println("stat error", err)
+	}
 	if force || errors.Is(err, fs.ErrNotExist) {
 		_, ok := f.Templates[template]
 
 		if ok {
 			file, err := os.Create(fpath)
 			if err != nil {
+				fin.Debug.Println("create error", err)
+
 				return err
 			}
 			defer file.Close()
 
 			if err = f.Templates[template].Execute(file, d); err != nil {
+				fin.Debug.Println("template error", err)
+
 				return err
 			}
 		} else {
-			return err
+			fin.Debug.Println("template not found", template)
+
+			return errors.New("template not found")
 		}
 	} else {
 		return errors.New("cowardly refusing to overwrite existing file without --force flag")
