@@ -174,7 +174,7 @@ func initInteractive() (fleek.Config, error) {
 	}
 	config.FlakeDir = loc
 	config.Aliases = make(map[string]string)
-	config.Aliases["fleek"] = "cd ~/" + config.FlakeDir
+	config.Aliases["fleeks"] = "cd ~/" + config.FlakeDir
 
 	// Prompt for shell
 	shell, err := fleek.UserShell()
