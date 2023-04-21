@@ -73,6 +73,19 @@ func initialize(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+		err = config.Save()
+		if err != nil {
+			return err
+		}
+		fl, err := flake.Load(&config, app)
+		if err != nil {
+			return usererr.WithUserMessage(err, app.Trans("flake.initializingTemplates"))
+		}
+		err = fl.Create(force, true)
+		if err != nil {
+			return usererr.WithUserMessage(err, app.Trans("flake.creating"))
+		}
+
 	} else {
 
 		loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
