@@ -629,14 +629,14 @@ func (f *Flake) writeFile(template string, path string, d Data, force bool) erro
 	_ = os.MkdirAll(filepath.Dir(fpath), 0755)
 	_, err := os.Stat(fpath)
 	if force || os.IsNotExist(err) {
-
-		file, err := os.Create(fpath)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
 		_, ok := f.Templates[template]
+
 		if ok {
+			file, err := os.Create(fpath)
+			if err != nil {
+				return err
+			}
+			defer file.Close()
 
 			if err = f.Templates[template].Execute(file, d); err != nil {
 				return err
