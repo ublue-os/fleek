@@ -4,6 +4,9 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package fleekcli
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
@@ -84,6 +87,16 @@ func initialize(cmd *cobra.Command, args []string) error {
 		err = fl.Create(force, true, true)
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("flake.creating"))
+		}
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+		cfile := filepath.Join(fl.Config.FlakeDir, ".fleek.yml")
+		csym := filepath.Join(home, ".fleek.yml")
+		err = os.Symlink(cfile, csym)
+		if err != nil {
+			return err
 		}
 
 	} else {
