@@ -88,6 +88,11 @@ init:
     fleek init -l .local/share/fleek
     fleek init -a
     fleek init -i
+  finalize: |
+    To finish installing Fleek, change into the configuration directory you specified and run `nix run`:
+    `cd %s`
+    `nix run`
+    This will install fleek and apply the configuration you've specified.
   forceFlag: "force"
   forceFlagDescription: "overwrite existing configuration files"
   interactiveFlag: "interactive"
