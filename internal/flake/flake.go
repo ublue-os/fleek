@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"text/template"
 
 	"github.com/riywo/loginshell"
@@ -43,9 +42,6 @@ func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
 		if err != nil {
 			return err
 		}
-		fin.Debug.Println("Walking", path)
-		fin.Debug.Println("IsDir", d.IsDir())
-		fin.Debug.Println("Is a Template", strings.Contains(path, ".tmpl"))
 		if filepath.Ext(path) == ".tmpl" {
 			bb, err := templates.ReadFile(path)
 			if err != nil {
@@ -629,15 +625,12 @@ func (f *Flake) ReadConfig(loc string) error {
 }
 func (f *Flake) writeFile(template string, path string, d Data, force bool) error {
 	fpath := filepath.Join(f.Config.UserFlakeDir(), path)
-	fin.Debug.Println("writing file", fpath)
 	err := os.MkdirAll(filepath.Dir(fpath), 0755)
 	if err != nil {
 		fin.Debug.Println("mkdir error", err)
 	}
 	_, err = os.Stat(fpath)
-	if err != nil {
-		fin.Debug.Println("stat error", err)
-	}
+
 	if force || errors.Is(err, fs.ErrNotExist) {
 		_, ok := f.Templates[template]
 
@@ -645,19 +638,16 @@ func (f *Flake) writeFile(template string, path string, d Data, force bool) erro
 			file, err := os.Create(fpath)
 			if err != nil {
 				fin.Debug.Println("create error", err)
-
 				return err
 			}
 			defer file.Close()
 
 			if err = f.Templates[template].Execute(file, d); err != nil {
 				fin.Debug.Println("template error", err)
-
 				return err
 			}
 		} else {
 			fin.Debug.Println("template not found", template)
-
 			return errors.New("template not found")
 		}
 	} else {

@@ -105,11 +105,7 @@ func generate(cmd *cobra.Command) error {
 	// TODO app trans
 	fin.Info.Println(app.Trans("generate.runFlake"))
 
-	for _, system := range fl.Config.Systems {
-		// nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
-		fmt.Printf("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s\n", system.Username, system.Hostname)
-		//fin.Info.Printfln("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
-	}
+	fmt.Printf("nix run")
 
 	return nil
 }
