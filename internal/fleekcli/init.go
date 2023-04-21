@@ -84,7 +84,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("flake.initializingTemplates"))
 		}
-		err = fl.Create(force, true, true)
+		err = fl.Create(true, true, true)
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("flake.creating"))
 		}
