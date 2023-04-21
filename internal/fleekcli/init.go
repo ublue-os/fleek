@@ -88,10 +88,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("flake.creating"))
 		}
-		err = fl.Write("fleek init")
-		if err != nil {
-			return usererr.WithUserMessage(err, app.Trans("flake.creating"))
-		}
+
 		home, err := os.UserHomeDir()
 		if err != nil {
 			return err
