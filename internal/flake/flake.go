@@ -133,14 +133,7 @@ func (f *Flake) Create(force bool, skipConfigWrite bool, symlink bool) error {
 			return err
 		}
 	}
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	err = f.ReadConfig(filepath.Join(home, f.Config.FlakeDir))
-	if err != nil {
-		return err
-	}
+
 	err = f.writeFile("templates/flake.nix.tmpl", "flake.nix", data, force)
 	if err != nil {
 		return err
