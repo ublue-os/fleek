@@ -628,7 +628,7 @@ func (f *Flake) writeFile(template string, path string, d Data, force bool) erro
 	fpath := filepath.Join(f.Config.UserFlakeDir(), path)
 	_ = os.MkdirAll(filepath.Dir(fpath), 0755)
 	_, err := os.Stat(fpath)
-	if force || os.IsNotExist(err) {
+	if force || errors.Is(err, fs.ErrNotExist) {
 		_, ok := f.Templates[template]
 
 		if ok {
