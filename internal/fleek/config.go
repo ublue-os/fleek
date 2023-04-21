@@ -330,6 +330,12 @@ func (c *Config) Save() error {
 	if err != nil {
 		return err
 	}
+	err = MkdirAll(filepath.Dir(cfile))
+	if err != nil {
+		if !errors.Is(err, fs.ErrExist) {
+			return err
+		}
+	}
 	cfg, err := os.Create(cfile)
 	if err != nil {
 		return err
