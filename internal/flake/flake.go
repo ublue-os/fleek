@@ -43,6 +43,9 @@ func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
 		if err != nil {
 			return err
 		}
+		fin.Debug.Println("Walking", path)
+		fin.Debug.Println("IsDir", d.IsDir())
+		fin.Debug.Println("Is a Template", strings.Contains(path, ".tmpl"))
 		if !d.IsDir() && strings.Contains(path, ".tmpl") {
 			bb, err := templates.ReadFile(path)
 			if err != nil {
