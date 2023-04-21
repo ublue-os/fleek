@@ -99,7 +99,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		fin.Info.Println(app.Trans("init.finalize", fl.Config.FlakeDir))
+		fin.Warning.Println(app.Trans("init.finalize", fl.Config.FlakeDir))
 
 		return nil
 
