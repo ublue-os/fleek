@@ -649,7 +649,7 @@ func (f *Flake) writeFile(template string, path string, d Data, force bool) erro
 				return err
 			}
 		} else {
-			panic("template not found")
+			return err
 		}
 	} else {
 		return errors.New("cowardly refusing to overwrite existing file without --force flag")

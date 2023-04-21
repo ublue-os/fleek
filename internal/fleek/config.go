@@ -118,11 +118,11 @@ func NewUser() (*User, error) {
 		user.Name = name
 	} else {
 		prompt := "Name"
-		name, err = ux.Input(prompt, name, "Your Name")
+		iname, err := ux.Input(prompt, name, "Your Name")
 		if err != nil {
 			return user, err
 		}
-		user.Name = name
+		user.Name = iname
 	}
 	// It doesn't make sense to change the username,
 	// so just use the detected one
@@ -145,11 +145,11 @@ func NewUser() (*User, error) {
 	if err != nil {
 		// get the email manually
 		prompt := "Email"
-		name, err = ux.Input(prompt, "", "Your Email Address")
+		email, err = ux.Input(prompt, "", "Your Email Address")
 		if err != nil {
 			return user, err
 		}
-		user.Email = name
+		user.Email = email
 	} else {
 		email = strings.TrimSpace(string(bb))
 		use, err = ux.Confirm("Use detected email: " + email)
@@ -160,11 +160,11 @@ func NewUser() (*User, error) {
 			user.Email = email
 		} else {
 			prompt := "Email"
-			name, err = ux.Input(prompt, "", "Your Email Address")
+			uemail, err := ux.Input(prompt, "", "Your Email Address")
 			if err != nil {
 				return user, err
 			}
-			user.Email = name
+			user.Email = uemail
 		}
 	}
 
@@ -201,13 +201,7 @@ func NewUser() (*User, error) {
 		user.SSHPublicKeyFile = publicKey
 	}
 
-	return &User{
-		SSHPublicKeyFile:  publicKey,
-		SSHPrivateKeyFile: privateKey,
-		Email:             email,
-		Name:              name,
-		Username:          uname,
-	}, nil
+	return user, nil
 }
 
 var (
