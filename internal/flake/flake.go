@@ -86,7 +86,7 @@ func (f *Flake) Update() error {
 	}
 	return nil
 }
-func (f *Flake) Create(force bool, symlink bool) error {
+func (f *Flake) Create(force bool, skipConfigWrite bool, symlink bool) error {
 	fin.Info.Println(f.app.Trans("init.writingConfigs"))
 	err := f.ensureFlakeDir()
 	if err != nil {
@@ -127,9 +127,11 @@ func (f *Flake) Create(force bool, symlink bool) error {
 		Bling:  bling,
 	}
 
-	err = f.Config.WriteInitialConfig(f.Config.Force, symlink)
-	if err != nil {
-		return err
+	if !skipConfigWrite {
+		err = f.Config.WriteInitialConfig(f.Config.Force, symlink)
+		if err != nil {
+			return err
+		}
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {

@@ -67,7 +67,7 @@ func generate(cmd *cobra.Command) error {
 	fin.Info.Println("Bling level:", fl.Config.Bling)
 	fin.Debug.Println("Force:", force)
 	fin.Debug.Println("creating flake at", loc)
-	err = fl.Create(force, false)
+	err = fl.Create(force, false, false)
 	if err != nil {
 		return usererr.WithUserMessage(err, app.Trans("flake.creating"))
 	}
