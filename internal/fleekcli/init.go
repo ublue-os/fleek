@@ -103,48 +103,48 @@ func initialize(cmd *cobra.Command, args []string) error {
 
 		return nil
 
-	} else {
+	}
 
-		loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
-		fl, err := flake.Load(cfg, app)
-		cfg.FlakeDir = loc
-		if err != nil {
-			return usererr.WithUserMessage(err, app.Trans("flake.initializingTemplates"))
-		}
-		if len(args) > 0 {
-			err = fl.Clone(args[0])
-			if err != nil {
-				return err
-			}
-		}
-
-		join, err := fl.IsJoin()
+	loc := cmd.Flag(app.Trans("init.locationFlag")).Value.String()
+	fl, err := flake.Load(cfg, app)
+	cfg.FlakeDir = loc
+	if err != nil {
+		return usererr.WithUserMessage(err, app.Trans("flake.initializingTemplates"))
+	}
+	if len(args) > 0 {
+		err = fl.Clone(args[0])
 		if err != nil {
 			return err
 		}
-		if join {
-			fin.Info.Println(app.Trans("init.joining"))
-			err := fl.Join()
-			if err != nil {
-				return err
-			}
+	}
 
-		} else {
-			fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
-			err = fl.Create(force, false, true)
-			if err != nil {
-				return usererr.WithUserMessage(err, app.Trans("flake.creating"))
-			}
+	join, err := fl.IsJoin()
+	if err != nil {
+		return err
+	}
+	if join {
+		fin.Info.Println(app.Trans("init.joining"))
+		err := fl.Join()
+		if err != nil {
+			return err
 		}
-		if cmd.Flag(app.Trans("init.applyFlag")).Changed {
-			err := fl.Apply()
-			if err != nil {
-				return usererr.WithUserMessage(err, app.Trans("init.applyFlag"))
-			}
-			fin.Info.Println(app.Trans("global.completed"))
 
-			return nil
+	} else {
+		fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
+		err = fl.Create(force, false, true)
+		if err != nil {
+			return usererr.WithUserMessage(err, app.Trans("flake.creating"))
 		}
+	}
+	if cmd.Flag(app.Trans("init.applyFlag")).Changed {
+		err := fl.Apply()
+		if err != nil {
+			return usererr.WithUserMessage(err, app.Trans("init.applyFlag"))
+		}
+		fin.Info.Println(app.Trans("global.completed"))
+
+		return nil
+
 	}
 
 	fin.Info.Println(app.Trans("init.complete"))
