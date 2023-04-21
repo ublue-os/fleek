@@ -1,0 +1,18 @@
+{ pkgs, misc, ... }: {
+   home.shellAliases = {
+    {{- range $index, $element := .Config.Aliases }}
+    {{$index}} = "{{$element}}";
+    {{ end -}}
+    {{- $programs := .Bling.Programs -}}
+    {{- $programmap := .Bling.ProgramMap -}}
+    {{- range $index, $element := $programs -}}
+    {{- $prog := index $programmap $element -}}
+    {{ if $prog }}
+    {{- range  $v := $prog.Aliases }}
+    # {{ $v.Description }}
+    {{ $v.Key }} = "{{ $v.Value }}";
+    {{ end -}}
+    {{ end -}}
+    {{ end -}}
+  };
+}

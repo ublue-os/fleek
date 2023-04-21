@@ -1,0 +1,6 @@
+{ pkgs, misc, ... }: {
+  # User specified programs
+    {{- range $index, $element := .Config.Programs}} 
+    programs.{{ $element }}.enable = true;{{ end }}
+
+}
