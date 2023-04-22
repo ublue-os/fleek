@@ -6,7 +6,6 @@
     # user selected packages
     {{- range .Config.Packages }}
     pkgs.{{ . }}{{ end }}
-    (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
   ];
 }
 
