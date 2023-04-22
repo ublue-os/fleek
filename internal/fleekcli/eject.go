@@ -43,11 +43,9 @@ func eject(cmd *cobra.Command) error {
 	fl.Config.Git.AutoPull = false
 	fl.Config.Git.AutoPush = false
 	fl.Config.Git.Enabled = false
-	for _, system := range fl.Config.Systems {
-		// nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
-		fl.Config.Aliases["apply-"+system.Hostname] = fmt.Sprintf("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
-		//fin.Info.Printfln("nix run --impure home-manager/master -- -b bak switch --flake .#%s@%s", system.Username, system.Hostname)
-	}
+
+	fl.Config.Aliases["fleek-apply"] = "nix run"
+
 	err = fl.Config.Save()
 	if err != nil {
 		return err
