@@ -411,6 +411,10 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 	}
 	c.Systems = []*System{sys}
 	c.Users = []*User{user}
+	c.Git.Enabled = true
+	c.Git.AutoCommit = true
+	c.Git.AutoPull = true
+	c.Git.AutoPush = true
 
 	cfile, err := c.Location()
 	if err != nil {
