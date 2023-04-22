@@ -128,6 +128,11 @@ func initialize(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+		err = fl.Write("join new system")
+		if err != nil {
+			fin.Debug.Printfln("flake write error: %s", err)
+			return err
+		}
 
 	} else {
 		fl.Config.Bling = cmd.Flag(app.Trans("init.levelFlag")).Value.String()
