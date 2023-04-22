@@ -108,7 +108,7 @@ func init() {
 	rootCmd.PersistentFlags().Bool("viper", true, "use Viper for configuration")
 	viper.BindPFlag("author", rootCmd.PersistentFlags().Lookup("author"))
 	viper.BindPFlag("useViper", rootCmd.PersistentFlags().Lookup("viper"))
-	viper.SetDefault("author", "NAME HERE <EMAIL ADDRESS>")
+	viper.SetDefault("author", "Brian Ketelsen <bketelsen@gmail.com>")
 	viper.SetDefault("license", "apache")
 
 	rootCmd.AddCommand(addCmd)
