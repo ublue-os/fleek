@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 
+	cp "github.com/otiai10/copy"
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
@@ -67,8 +68,7 @@ func join(cmd *cobra.Command, args []string) error {
 		return errors.New("target configuration directory already exists")
 	}
 	// move cloned repo
-
-	err = os.Rename(dirName, config.FlakeDir)
+	err = cp.Copy(dirName, config.FlakeDir)
 	if err != nil {
 		return err
 	}
