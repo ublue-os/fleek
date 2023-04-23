@@ -49,6 +49,7 @@ func join(cmd *cobra.Command, args []string) error {
 
 	dirName, err := flake.CloneRepository(args[0], &outBuffer)
 	if err != nil {
+		fmt.Println(outBuffer.String())
 		return err
 	}
 	if verbose {
@@ -65,12 +66,12 @@ func join(cmd *cobra.Command, args []string) error {
 		// exists
 		return errors.New("target configuration directory already exists")
 	}
+	// move cloned repo
 
 	err = os.Rename(dirName, config.FlakeDir)
 	if err != nil {
 		return err
 	}
-	// move cloned repo
 	fin.Info.Println(app.Trans("init.joining"))
 	fl, err := flake.Load(config, app)
 	if err != nil {
