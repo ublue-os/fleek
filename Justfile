@@ -1,6 +1,4 @@
 set dotenv-load
-CONTAINER_RUNNER := "podman"
-CONTAINER_BUILDER := "buildah"
 
 
 default: build
@@ -28,10 +26,8 @@ unmove +FILES:
 cleanup +FILES:
   rm -rf {{FILES}}
 
-backup: (move "$FLEEK_MANAGED/.fleek.yml" "$FLEEK_MANAGED/.config/home-manager")
 
 clean: (cleanup "$FLEEK_MANAGED/.fleek.yml" "$FLEEK_MANAGED/.config/home-manager" "dist")
-restore: clean (unmove "$FLEEK_MANAGED/.fleek.yml" "$FLEEK_MANAGED/.config/home-manager")
 
 default-env:
   cp .env.template .env
