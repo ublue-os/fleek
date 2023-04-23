@@ -4,6 +4,8 @@ Copyright © 2023 Brian Ketelsen <bketelsen@gmail.com>
 package fleekcli
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
@@ -40,16 +42,17 @@ func update(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-	err = fl.MayPull()
+	err = fl.MayPull(&outBuffer)
 	if err != nil {
 		return err
 	}
 
-	if err := fl.Update(); err != nil {
+	if err := fl.Update(&outBuffer); err != nil {
 		return err
 	}
 	if cmd.Flag(app.Trans("update.applyFlag")).Changed {
-		if err := fl.Apply(); err != nil {
+		if err := fl.Apply(&outBuffer); err != nil {
+			fmt.Println(outBuffer.String())
 			return err
 		}
 	} else {

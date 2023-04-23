@@ -1,6 +1,7 @@
 package fleekcli
 
 import (
+	"bytes"
 	"io"
 	"os"
 
@@ -13,6 +14,7 @@ import (
 
 var cfg *fleek.Config
 var cfgFound bool
+var outBuffer bytes.Buffer
 
 type rootCmdFlags struct {
 	quiet   bool
@@ -70,7 +72,7 @@ func RootCmd() *cobra.Command {
 						fin.Error.Println(err)
 						os.Exit(1)
 					}
-					err = fl.Write("fleek: migrate v2")
+					err = fl.Write("fleek: migrate v2", &outBuffer)
 					if err != nil {
 						fin.Error.Println(app.Trans("migrate.error"))
 						fin.Error.Println(err)
@@ -130,6 +132,8 @@ func RootCmd() *cobra.Command {
 
 	initCmd := InitCommand()
 	initCmd.GroupID = initGroup.ID
+	joinCmd := JoinCommand()
+	joinCmd.GroupID = initGroup.ID
 
 	ejectCmd := EjectCommand()
 	ejectCmd.GroupID = fleekGroup.ID
@@ -157,6 +161,7 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(searchCmd)
 	command.AddCommand(infoCmd)
 	command.AddCommand(generateCmd)
+	command.AddCommand(joinCmd)
 
 	command.AddCommand(VersionCmd())
 

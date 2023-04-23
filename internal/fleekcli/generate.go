@@ -88,14 +88,15 @@ func generate(cmd *cobra.Command) error {
 		return err
 	}
 	fin.Info.Println("writing,", fl.Config.Bling)
-	err = fl.Write("fleek: generate")
+	err = fl.Write("fleek: generate", &outBuffer)
 	if err != nil {
 		return err
 	}
 
 	if cmd.Flag(app.Trans("generate.applyFlag")).Changed {
-		err := fl.Apply()
+		err := fl.Apply(&outBuffer)
 		if err != nil {
+			fmt.Println(outBuffer.String())
 			return usererr.WithUserMessage(err, app.Trans("generate.applyFlag"))
 		}
 		fin.Info.Println(app.Trans("global.completed"))

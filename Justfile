@@ -38,17 +38,9 @@ default-env:
 
 deps:
   curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.52.2
-  mkdir -p grp
-  cd grp
-  wget -O grp.tar.gz https://github.com/goreleaser/goreleaser-pro/releases/download/v1.16.2-pro/goreleaser-pro_Linux_x86_64.tar.gz
-  tar -xvf grp.tar.gz
-
 
 lint:
   golangci-lint run
-
-snapshot:
-  goreleaser release --clean --snapshot
 
 build:
   @source ./.env
@@ -74,10 +66,6 @@ completions:
 
 man: build
   ./scripts/man.sh
-
-push: man (cleanup "fleek" "fleek.1" "fleek.1.gz")
-  {{CONTAINER_BUILDER}} build --no-cache -t docker.io/bketelsen/fleek .
-  {{CONTAINER_RUNNER}} push docker.io/bketelsen/fleek
 
 tag version: lint build examples man completions
   ./scripts/create-release.sh {{version}}

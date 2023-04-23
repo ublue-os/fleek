@@ -1,6 +1,7 @@
 package fleekcli
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -48,7 +49,7 @@ func add(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	err = fl.MayPull()
+	err = fl.MayPull(&outBuffer)
 	if err != nil {
 		return err
 	}
@@ -65,17 +66,19 @@ func add(cmd *cobra.Command, args []string) error {
 		sb.WriteString(p + " ")
 
 	}
-	err = fl.Write(sb.String())
+	err = fl.Write(sb.String(), &outBuffer)
 	if err != nil {
 		fin.Debug.Printfln("flake write error: %s", err)
+		fmt.Println(outBuffer.String())
 		return err
 	}
 
 	if apply {
 		fin.Info.Println(app.Trans("add.applying"))
 
-		err = fl.Apply()
+		err = fl.Apply(&outBuffer)
 		if err != nil {
+			fmt.Println(outBuffer.String())
 			if errors.Is(err, flake.ErrPackageConflict) {
 				fin.Fatal.Println(app.Trans("global.errConflict"))
 			}

@@ -41,7 +41,10 @@ mkdir -p ~/.config/nix
 echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 ```
 
-Next you'll need `fleek`. Download from the releases link and move it somewhere in your $PATH.
+UPDATED INSTALL INSTRUCTIONS TODO
+
+
+Finally, run `fleek init`. This will create your configuration file and symlink it to `$HOME/.fleek.yml`. Open it with your favorite editor and take a look.Next you'll need `fleek`. Download from the releases link and move it somewhere in your $PATH.
 
 Finally, run `fleek init`. This will create your configuration file and symlink it to `$HOME/.fleek.yml`. Open it with your favorite editor and take a look.
 

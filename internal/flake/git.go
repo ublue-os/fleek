@@ -3,6 +3,7 @@ package flake
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -21,7 +22,7 @@ func (f *Flake) gitOpen() (*git.Repository, error) {
 
 }
 
-func (f *Flake) Clone(repo string) error {
+func (f *Flake) Clone(repo string, out io.Writer) error {
 	if f.Config.Verbose {
 		fin.Verbose.Printfln("Cloning %s to %s", repo, f.Config.UserFlakeDir())
 	}
@@ -35,7 +36,7 @@ func (f *Flake) Clone(repo string) error {
 	command.Stdin = os.Stdin
 	command.Dir = home
 	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
+	command.Stdout = out
 	command.Stderr = os.Stderr
 	command.Env = os.Environ()
 	err = command.Run()
@@ -45,13 +46,35 @@ func (f *Flake) Clone(repo string) error {
 	return nil
 }
 
-func (f *Flake) runGit(cmd string, cmdLine []string) error {
+// CloneRepository clones the given URL into a temporary
+// directory, returning the temporary directory name
+func CloneRepository(repo string, out io.Writer) (string, error) {
+
+	dirname, err := os.MkdirTemp("", "fleek*")
+	if err != nil {
+		return "", err
+	}
+	cloneCmdline := []string{"clone", repo, dirname}
+
+	command := exec.Command(gitbin, cloneCmdline...)
+	command.Stdin = os.Stdin
+	command.Stdout = out
+	command.Stderr = out
+	command.Env = os.Environ()
+	err = command.Run()
+	if err != nil {
+		return "", fmt.Errorf("git clone: %w", err)
+	}
+	return dirname, nil
+}
+
+func (f *Flake) runGit(cmd string, cmdLine []string, out io.Writer) error {
 	command := exec.Command(cmd, cmdLine...)
 	command.Stdin = os.Stdin
 	command.Dir = f.Config.UserFlakeDir()
 	command.Stdin = os.Stdin
-	//command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
+	command.Stdout = out
+	command.Stderr = out
 	command.Env = os.Environ()
 	return command.Run()
 }
@@ -71,7 +94,7 @@ func (f *Flake) IsGitRepo() (bool, error) {
 	}
 	return true, nil
 }
-func (f *Flake) mayCommit(message string) error {
+func (f *Flake) mayCommit(message string, out io.Writer) error {
 	git, err := f.IsGitRepo()
 	if err != nil {
 		fin.Debug.Printfln("git repo error: %s", err)
@@ -84,7 +107,7 @@ func (f *Flake) mayCommit(message string) error {
 		if f.Config.Verbose {
 			fin.Verbose.Println(f.app.Trans("git.add"))
 		}
-		err = f.add()
+		err = f.add(out)
 		if err != nil {
 			fin.Debug.Printfln("git add error: %s", err)
 			return err
@@ -99,7 +122,7 @@ func (f *Flake) mayCommit(message string) error {
 				fin.Debug.Printfln("git config error: %s", err)
 				return err
 			}
-			err = f.commit(message)
+			err = f.commit(message, out)
 			if err != nil {
 				fin.Debug.Printfln("git commit error: %s", err)
 				return err
@@ -112,7 +135,7 @@ func (f *Flake) mayCommit(message string) error {
 			if f.Config.Verbose {
 				fin.Verbose.Println(f.app.Trans("git.push"))
 			}
-			err = f.push()
+			err = f.push(out)
 			if err != nil {
 				fin.Debug.Printfln("git push error: %s", err)
 				return err
@@ -125,7 +148,7 @@ func (f *Flake) mayCommit(message string) error {
 
 	return nil
 }
-func (f *Flake) MayPull() error {
+func (f *Flake) MayPull(out io.Writer) error {
 	git, err := f.IsGitRepo()
 	if err != nil {
 		fin.Debug.Printfln("git repo error: %s", err)
@@ -142,7 +165,7 @@ func (f *Flake) MayPull() error {
 			if f.Config.Verbose {
 				fin.Verbose.Println(f.app.Trans("git.pull"))
 			}
-			err = f.pull()
+			err = f.pull(out)
 			if err != nil {
 				fin.Debug.Printfln("git pull error: %s", err)
 				return err
@@ -157,16 +180,16 @@ func (f *Flake) MayPull() error {
 	return nil
 }
 
-func (f *Flake) add() error {
+func (f *Flake) add(out io.Writer) error {
 	addCmdline := []string{"add", "--all"}
-	err := f.runGit(gitbin, addCmdline)
+	err := f.runGit(gitbin, addCmdline, out)
 	if err != nil {
 		return fmt.Errorf("git add: %w", err)
 	}
 	return nil
 }
 
-func (f *Flake) commit(message string) error {
+func (f *Flake) commit(message string, out io.Writer) error {
 	status, err := f.gitStatus()
 	if err != nil {
 		return err
@@ -181,7 +204,7 @@ func (f *Flake) commit(message string) error {
 	}
 
 	commitCmdLine := []string{"commit", "-m", message}
-	err = f.runGit(gitbin, commitCmdLine)
+	err = f.runGit(gitbin, commitCmdLine, out)
 	if err != nil {
 		return fmt.Errorf("git commit: %w", err)
 	}
@@ -228,7 +251,7 @@ func (f *Flake) mayGitConfig() error {
 	return nil
 }
 
-func (f *Flake) pull() error {
+func (f *Flake) pull(out io.Writer) error {
 	remote, err := f.remote()
 	if err != nil {
 		return err
@@ -239,23 +262,23 @@ func (f *Flake) pull() error {
 	}
 	// totally stole --autostash --rebase from chezmoi, thanks twpayne
 	pullCmdline := []string{"pull", "--autostash", "--rebase", "origin", "main"}
-	err = f.runGit(gitbin, pullCmdline)
+	err = f.runGit(gitbin, pullCmdline, out)
 	if err != nil {
 		return fmt.Errorf("git pull: %w", err)
 	}
 	return nil
 }
 
-func (f *Flake) setRebase() error {
+func (f *Flake) setRebase(out io.Writer) error {
 
 	configCmdLine := []string{"config", "pull.rebase", "true"}
-	err := f.runGit(gitbin, configCmdLine)
+	err := f.runGit(gitbin, configCmdLine, out)
 	if err != nil {
 		return fmt.Errorf("git config: %w", err)
 	}
 	return err
 }
-func (f *Flake) push() error {
+func (f *Flake) push(out io.Writer) error {
 	remote, err := f.remote()
 	if err != nil {
 		return err
@@ -265,7 +288,7 @@ func (f *Flake) push() error {
 		return nil
 	}
 	pushCmdline := []string{"push", "origin", "main"}
-	err = f.runGit(gitbin, pushCmdline)
+	err = f.runGit(gitbin, pushCmdline, out)
 	if err != nil {
 		return fmt.Errorf("git push: %w", err)
 	}

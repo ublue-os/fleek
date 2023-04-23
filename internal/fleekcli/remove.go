@@ -4,6 +4,7 @@ Copyright © 2023 Brian Ketelsen <bketelsen@gmail.com>
 package fleekcli
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -55,7 +56,7 @@ func remove(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	err = fl.MayPull()
+	err = fl.MayPull(&outBuffer)
 	if err != nil {
 		return err
 	}
@@ -77,7 +78,7 @@ func remove(cmd *cobra.Command, args []string) error {
 		sb.WriteString(p + " ")
 
 	}
-	err = fl.Write(sb.String())
+	err = fl.Write(sb.String(), &outBuffer)
 	if err != nil {
 		fin.Debug.Printfln("flake write error: %s", err)
 		return err
@@ -87,8 +88,9 @@ func remove(cmd *cobra.Command, args []string) error {
 		if verbose {
 			fin.Info.Println(app.Trans("remove.applying"))
 		}
-		err = fl.Apply()
+		err = fl.Apply(&outBuffer)
 		if err != nil {
+			fmt.Println(outBuffer.String())
 			if errors.Is(err, flake.ErrPackageConflict) {
 				fin.Fatal.Println(app.Trans("global.errConflict"))
 			}

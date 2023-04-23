@@ -61,7 +61,7 @@ func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
 	}, nil
 }
 
-func (f *Flake) Update() error {
+func (f *Flake) Update(outWriter io.Writer) error {
 	spinner, err := fin.Spinner().Start(f.app.Trans("flake.update"))
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func (f *Flake) Update() error {
 		}
 	}
 	spinner.Success()
-	err = f.mayCommit("fleek: update flake.lock")
+	err = f.mayCommit("fleek: update flake.lock", outWriter)
 
 	if err != nil {
 		return err
@@ -299,12 +299,9 @@ func (f *Flake) IsJoin() (bool, error) {
 	}
 	return false, nil
 }
-func (f *Flake) Join() error {
+func (f *Flake) Join(out io.Writer) error {
 	fin.Info.Println(f.app.Trans("init.writingConfigs"))
-	err := f.ensureFlakeDir()
-	if err != nil {
-		return err
-	}
+
 	// Symlink the yaml file to home
 	cfile, err := f.Config.Location()
 	if err != nil {
@@ -323,10 +320,7 @@ func (f *Flake) Join() error {
 		fin.Debug.Println("first symlink attempt failed")
 		return err
 	}
-	err = f.ReadConfig(filepath.Join(home, f.Config.FlakeDir))
-	if err != nil {
-		return err
-	}
+
 	err = f.Config.Validate()
 	if err != nil {
 		return err
@@ -338,13 +332,7 @@ func (f *Flake) Join() error {
 		return err
 	}
 	fin.Debug.Println("write system")
-	err = f.writeSystem(*sys, "templates/home/hosts/host.nix.tmpl", true)
-	if err != nil {
-		return err
-	}
-	if err != nil {
-		return err
-	}
+
 	//
 	var found bool
 	for _, s := range f.Config.Systems {
@@ -355,6 +343,10 @@ func (f *Flake) Join() error {
 	}
 	if !found {
 		f.Config.Systems = append(f.Config.Systems, sys)
+		err = f.writeSystem(*sys, "templates/home/hosts/host.nix.tmpl", true)
+		if err != nil {
+			return err
+		}
 
 	}
 	username, err := fleek.Username()
@@ -373,6 +365,10 @@ func (f *Flake) Join() error {
 			return err
 		}
 		f.Config.Users = append(f.Config.Users, user)
+		err = f.writeUser(*user, "templates/home/users/user.nix.tmpl", true)
+		if err != nil {
+			return err
+		}
 	}
 
 	fin.Debug.Println("write config")
@@ -388,11 +384,11 @@ func (f *Flake) Join() error {
 	}
 	if git {
 		fin.Warning.Println(f.app.Trans("git.warn"))
-		err = f.setRebase()
+		err = f.setRebase(out)
 		if err != nil {
 			return err
 		}
-		err = f.mayCommit("fleek: new system")
+		err = f.mayCommit("fleek: new system", out)
 		if err != nil {
 			return err
 		}
@@ -422,7 +418,7 @@ func (f *Flake) Check() ([]byte, error) {
 }
 
 // Write writes the applied flake configuration
-func (f *Flake) Write(message string) error {
+func (f *Flake) Write(message string, out io.Writer) error {
 	force := true
 	spinner, err := fin.Spinner().Start(f.app.Trans("flake.writing"))
 	if err != nil {
@@ -591,7 +587,7 @@ func (f *Flake) Write(message string) error {
 	}
 
 	spinner.Success()
-	err = f.mayCommit(message)
+	err = f.mayCommit(message, out)
 
 	if err != nil {
 		return err
@@ -744,7 +740,7 @@ func (f *Flake) writeUser(user fleek.User, template string, force bool) error {
 
 	return nil
 }
-func (f *Flake) Apply() error {
+func (f *Flake) Apply(outWriter io.Writer) error {
 	spinner, err := fin.Spinner().Start(f.app.Trans("flake.apply"))
 	if err != nil {
 		return err
@@ -762,6 +758,7 @@ func (f *Flake) Apply() error {
 
 	applyCmdLine := []string{"run", "--no-write-lock-file", "--impure", "home-manager", "--", "-b", "bak", "switch", "--flake", ".#" + user + "@" + host}
 	out, err := f.runNix(nixbin, applyCmdLine)
+	io.Copy(outWriter, bytes.NewReader(out))
 	if err != nil {
 		if bytes.Contains(out, []byte("priority")) {
 			return ErrPackageConflict

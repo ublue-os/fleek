@@ -4,6 +4,7 @@ Copyright © 2023 Brian Ketelsen <bketelsen@gmail.com>
 package fleekcli
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -112,7 +113,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 		return usererr.WithUserMessage(err, app.Trans("flake.initializingTemplates"))
 	}
 	if len(args) > 0 {
-		err = fl.Clone(args[0])
+		err = fl.Clone(args[0], &outBuffer)
 		if err != nil {
 			return err
 		}
@@ -124,11 +125,11 @@ func initialize(cmd *cobra.Command, args []string) error {
 	}
 	if join {
 		fin.Info.Println(app.Trans("init.joining"))
-		err := fl.Join()
+		err := fl.Join(&outBuffer)
 		if err != nil {
 			return err
 		}
-		err = fl.Write("join new system")
+		err = fl.Write("join new system", &outBuffer)
 		if err != nil {
 			fin.Debug.Printfln("flake write error: %s", err)
 			return err
@@ -142,8 +143,9 @@ func initialize(cmd *cobra.Command, args []string) error {
 		}
 	}
 	if cmd.Flag(app.Trans("init.applyFlag")).Changed {
-		err := fl.Apply()
+		err := fl.Apply(&outBuffer)
 		if err != nil {
+			fmt.Println(outBuffer.String())
 			return usererr.WithUserMessage(err, app.Trans("init.applyFlag"))
 		}
 		fin.Info.Println(app.Trans("global.completed"))
