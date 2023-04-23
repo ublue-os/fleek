@@ -5,6 +5,7 @@ package fleekcli
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
@@ -65,8 +66,7 @@ func apply(cmd *cobra.Command) error {
 		return err
 	}
 	if !dry {
-		if err := fl.Apply(&outBuffer); err != nil {
-			fmt.Println(outBuffer.String())
+		if err := fl.Apply(os.Stdout); err != nil {
 			return err
 		}
 	} else {

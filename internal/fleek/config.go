@@ -110,6 +110,7 @@ func NewUser() (*User, error) {
 	}
 	// Prompt for name
 	var use bool
+	fin.Info.Println("Detected your name: " + name)
 	use, err = ux.Confirm("Use detected name: " + name)
 	if err != nil {
 		return user, err
