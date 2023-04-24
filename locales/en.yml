@@ -23,6 +23,34 @@ fleek:
   migrating: "Migrating .fleek.yml to current version"
   migrated: "Migrated .fleek.yml"
   configLoaded: "Loaded configuration"
+  unsupported: |
+    Fleek is installed in an deprecated location. 
+    The only supported installation method is with `nix profile`:
+    `nix profile install github:ublue-os/fleek`
+    Remove your installation of fleek and install it with `nix-profile`.
+join:
+  use: "join"
+  long: |
+    Join a computer to an existing Fleek configuration stored in Git.
+  short: "Join current computer to existing fleek configuration"
+  example: |
+    fleek join git@github.com:your/repo
+    fleek join --apply git@github.com:your/repo
+  finalize: |
+    To finish installing Fleek, change into the configuration directory you specified and run `nix run`:
+    `cd %s`
+    `nix run`
+    This will install fleek and apply the configuration you've specified.
+  start: "initializing fleek"
+  applyFlag: "apply"
+  applyFlagDescription: "apply configuration immediately after cloning"
+  checkNix: "checking for nix installation"
+  writingConfigs: "Writing configuration files"
+  nixNotFound: "can't find `nix` binary - is nix installed?"
+  complete: "Done. \n\nEdit ~/.fleek.yml to your taste and run `fleek apply`"
+  newSystem: "New System: %s@%s"
+  joining: "Adding current system to configuration"
+
 eject:
   use: "eject"
   long: |

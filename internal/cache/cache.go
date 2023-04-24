@@ -28,6 +28,10 @@ type Package struct {
 	Name        string `json:"pname"`
 	Version     string `json:"version"`
 }
+type SearchResult struct {
+	Name    string  `json:"name"`
+	Package Package `json:"package"`
+}
 
 var cacheName = "packages.json"
 

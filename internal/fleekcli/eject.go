@@ -51,11 +51,11 @@ func eject(cmd *cobra.Command) error {
 		return err
 	}
 	// reload config so it won't git push
-	err = fl.ReadConfig()
+	err = fl.ReadConfig(fl.Config.UserFlakeDir())
 	if err != nil {
 		return err
 	}
-	err = fl.Write(true, "fleek: eject")
+	err = fl.Write("fleek: eject")
 	if err != nil {
 		return err
 	}

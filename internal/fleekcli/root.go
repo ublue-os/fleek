@@ -3,6 +3,9 @@ package fleekcli
 import (
 	"io"
 	"os"
+	"path/filepath"
+	"runtime/debug"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
@@ -30,8 +33,27 @@ func RootCmd() *cobra.Command {
 				cmd.SetErr(io.Discard)
 			}
 			fin.Debug.Println("debug enabled")
+			info, ok := debug.ReadBuildInfo()
+			if ok {
+
+				fin.Debug.Println(info.String())
+
+			}
+			warn := os.Getenv("WARN_FLEEK")
+			if warn == "" {
+				ex, err := os.Executable()
+				if err != nil {
+					panic(err)
+				}
+				exePath := filepath.Dir(ex)
+				if !strings.Contains(exePath, "nix-profile") {
+					fin.Warning.Println(app.Trans("fleek.unsupported"))
+
+				}
+			}
+
 			// try to get the config, which may not exist yet
-			c, err := fleek.ReadConfig()
+			c, err := fleek.ReadConfig("")
 			if err == nil {
 				if flags.verbose {
 					fin.Info.Println(app.Trans("fleek.configLoaded"))
@@ -105,7 +127,8 @@ func RootCmd() *cobra.Command {
 
 	initCmd := InitCommand()
 	initCmd.GroupID = initGroup.ID
-
+	joinCmd := JoinCommand()
+	joinCmd.GroupID = initGroup.ID
 	ejectCmd := EjectCommand()
 	ejectCmd.GroupID = fleekGroup.ID
 	generateCmd := GenerateCommand()
@@ -128,6 +151,8 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(updateCmd)
 
 	command.AddCommand(initCmd)
+	command.AddCommand(joinCmd)
+
 	command.AddCommand(ejectCmd)
 	command.AddCommand(searchCmd)
 	command.AddCommand(infoCmd)

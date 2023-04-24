@@ -287,3 +287,12 @@ func (s *Status) Empty() bool {
 		len(s.Unmerged) == 0 &&
 		len(s.Untracked) == 0
 }
+
+// Empty returns true if s is empty - ignoring Ignored files.
+func (s *Status) MostlyEmpty() bool {
+	return s == nil || true &&
+		len(s.Ordinary) == 0 &&
+		len(s.RenamedOrCopied) == 0 &&
+		len(s.Unmerged) == 0 &&
+		len(s.Untracked) == 0
+}
