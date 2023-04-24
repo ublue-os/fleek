@@ -1,11 +1,13 @@
 package fleekcli
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
+	"github.com/ublue-os/fleek/internal/cache"
 	"github.com/ublue-os/fleek/internal/flake"
 )
 
@@ -52,10 +54,61 @@ func add(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	pc, err := cache.New()
+	if err != nil {
+		fin.Error.Println(app.Trans("search.cacheError"))
+		return err
+	}
+	var hits []cache.SearchResult
+	var exactHits []cache.SearchResult
 
 	var sb strings.Builder
 	sb.WriteString("add packages: ")
 	for _, p := range args {
+		for i, pack := range pc.Packages {
+			var hit bool
+			if strings.Contains(i, p) {
+				hit = true
+			}
+			if strings.Contains(pack.Name, p) {
+				hit = true
+			}
+			if strings.Contains(pack.Description, p) {
+				hit = true
+			}
+			firstPeriod := strings.Index(i, ".")
+			sanitizedPackageName := i[firstPeriod+1:]
+			secondPeriod := strings.Index(sanitizedPackageName, ".")
+			sanitizedPackageName = sanitizedPackageName[secondPeriod+1:]
+			if p == sanitizedPackageName {
+				exactHits = append(exactHits, cache.SearchResult{Name: sanitizedPackageName, Package: pack})
+			}
+			if hit {
+				hits = append(hits, cache.SearchResult{Name: sanitizedPackageName, Package: pack})
+			}
+		}
+		if len(exactHits) == 1 {
+			fin.Info.Println("Found exact match for " + p)
+		}
+		if len(exactHits) < 1 {
+			if len(hits) > 0 {
+				fin.Info.Println("Found " + fmt.Sprint(len(hits)) + " matche(s) for " + p)
+				for _, hit := range hits {
+					fin.Info.Println("\tName: ", hit.Name)
+					fin.Info.Println("\tDescription: ", hit.Package.Description)
+					fin.Warning.Printfln("\tRun `fleek add %s` to add it.", hit.Name)
+
+				}
+				return nil
+
+			} else {
+				fin.Info.Println("Found no matches for " + p + "!")
+				return nil
+			}
+		}
+		fin.Info.Println("exact hits", len(exactHits))
+		fin.Info.Println("possible matches", len(hits))
+
 		fin.Info.Println(app.Trans("add.adding") + p)
 		err = fl.Config.AddPackage(p)
 		if err != nil {
