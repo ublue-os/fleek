@@ -401,7 +401,7 @@ func ReadConfig(loc string) (*Config, error) {
 
 func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 	aliases := make(map[string]string)
-	aliases["fleeks"] = "cd " + c.UserFlakeDir()
+	aliases["fleeks"] = "cd ~/" + c.FlakeDir
 	sys, err := NewSystem()
 	if err != nil {
 		fin.Debug.Printfln("new system err: %s ", err)
