@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -32,6 +33,12 @@ func RootCmd() *cobra.Command {
 				cmd.SetErr(io.Discard)
 			}
 			fin.Debug.Println("debug enabled")
+			info, ok := debug.ReadBuildInfo()
+			if ok {
+
+				fin.Debug.Println(info.String())
+
+			}
 			warn := os.Getenv("WARN_FLEEK")
 			if warn == "" {
 				ex, err := os.Executable()
