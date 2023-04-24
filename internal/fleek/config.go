@@ -4,11 +4,14 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/hashicorp/go-version"
 	"github.com/ublue-os/fleek/fin"
+	"github.com/ublue-os/fleek/internal/ux"
 	"gopkg.in/yaml.v3"
 )
 
@@ -28,12 +31,13 @@ var (
 // Config holds the options that will be
 // merged into the home-manager flake.
 type Config struct {
-	Debug    bool   `yaml:"-"`
-	Verbose  bool   `yaml:"-"`
-	Force    bool   `yaml:"-"`
-	Quiet    bool   `yaml:"-"`
-	FlakeDir string `yaml:"flakedir"`
-	Unfree   bool   `yaml:"unfree"`
+	MinVersion string `yaml:"min_version"`
+	Debug      bool   `yaml:"-"`
+	Verbose    bool   `yaml:"-"`
+	Force      bool   `yaml:"-"`
+	Quiet      bool   `yaml:"-"`
+	FlakeDir   string `yaml:"flakedir"`
+	Unfree     bool   `yaml:"unfree"`
 	// bash or zsh
 	Shell string `yaml:"shell"`
 	// low, default, high
@@ -46,6 +50,7 @@ type Config struct {
 	Ejected  bool              `yaml:"ejected"`
 	Systems  []*System         `yaml:",flow"`
 	Git      Git               `yaml:"git"`
+	Users    []*User           `yaml:",flow"`
 }
 
 func Levels() []string {
@@ -64,6 +69,14 @@ type System struct {
 	Username string `yaml:"username"`
 	Arch     string `yaml:"arch"`
 	OS       string `yaml:"os"`
+}
+
+type User struct {
+	Username          string `yaml:"username"`
+	Name              string `yaml:"name"`
+	Email             string `yaml:"email"`
+	SSHPublicKeyFile  string `yaml:"ssh_public_key_file"`
+	SSHPrivateKeyFile string `yaml:"ssh_private_key_file"`
 }
 
 func (s System) HomeDir() string {
@@ -89,6 +102,109 @@ func NewSystem() (*System, error) {
 		OS:       runtime.GOOS,
 		Username: user,
 	}, nil
+}
+func NewUser() (*User, error) {
+	fin.Info.Println("Enter User Details for Git Configuration:")
+	user := &User{}
+	name, err := Name()
+	if err != nil {
+		return user, err
+	}
+	// Prompt for name
+	var use bool
+	fin.Info.Println("Detected your name: " + name)
+	use, err = ux.Confirm("Use detected name: " + name)
+	if err != nil {
+		return user, err
+	}
+	if use {
+		user.Name = name
+	} else {
+		prompt := "Name"
+		iname, err := ux.Input(prompt, name, "Your Name")
+		if err != nil {
+			return user, err
+		}
+		user.Name = iname
+	}
+	// It doesn't make sense to change the username,
+	// so just use the detected one
+	uname, err := Username()
+	if err != nil {
+		return user, err
+	}
+	user.Username = uname
+
+	// email
+
+	cmd := "git"
+	cmdLine := []string{"config", "--global", "user.email"}
+	command := exec.Command(cmd, cmdLine...)
+	command.Stdin = os.Stdin
+
+	command.Env = os.Environ()
+	var email string
+	bb, err := command.Output()
+	if err != nil {
+		// get the email manually
+		prompt := "Email"
+		email, err = ux.Input(prompt, "", "Your Email Address")
+		if err != nil {
+			return user, err
+		}
+		user.Email = email
+	} else {
+		email = strings.TrimSpace(string(bb))
+		use, err = ux.Confirm("Use detected email: " + email)
+		if err != nil {
+			return user, err
+		}
+		if use {
+			user.Email = email
+		} else {
+			prompt := "Email"
+			uemail, err := ux.Input(prompt, "", "Your Email Address")
+			if err != nil {
+				return user, err
+			}
+			user.Email = uemail
+		}
+	}
+
+	// ssh keys
+	privateKey := ""
+	publicKey := ""
+
+	// find and add ssh keys
+	sshDir := filepath.Join(os.Getenv("HOME"), ".ssh")
+	sshFiles, err := os.ReadDir(sshDir)
+	hasSSH := true
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			hasSSH = false
+		} else {
+			return user, err
+		}
+	}
+	if hasSSH {
+		candidates := []string{}
+		for _, f := range sshFiles {
+			if strings.HasSuffix(f.Name(), ".pub") {
+				candidates = append(candidates, f.Name())
+			}
+		}
+		key, err := ux.PromptSingle("Choose Git SSH Key", candidates)
+		if err != nil {
+			return user, err
+		}
+		privateKey = strings.Replace(key, ".pub", "", 1)
+		privateKey = filepath.Join("~", ".ssh", privateKey)
+		publicKey = filepath.Join("~", ".ssh", key)
+		user.SSHPrivateKeyFile = privateKey
+		user.SSHPublicKeyFile = publicKey
+	}
+
+	return user, nil
 }
 
 var (
@@ -135,6 +251,21 @@ func isValueInList(value string, list []string) bool {
 func (c *Config) UserFlakeDir() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, c.FlakeDir)
+}
+
+func (c *Config) UserForSystem(system string) *User {
+	var userSystem *System
+	for _, sys := range c.Systems {
+		if sys.Hostname == system {
+			userSystem = sys
+		}
+	}
+	for _, u := range c.Users {
+		if u.Username == userSystem.Username {
+			return u
+		}
+	}
+	return nil
 }
 
 func (c *Config) AddPackage(pack string) error {
@@ -238,15 +369,22 @@ func (c *Config) Save() error {
 }
 
 // ReadConfig returns the configuration data
-// stored in $HOME/.fleek.yml
-func ReadConfig() (*Config, error) {
+// pointed to in the $HOME/.fleek.yml symlink
+func ReadConfig(loc string) (*Config, error) {
 	c := &Config{}
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return c, err
+
+	if loc == "" {
+
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return c, err
+		}
+		csym := filepath.Join(home, ".fleek.yml")
+		loc = csym
+	} else {
+		loc = filepath.Join(loc, ".fleek.yml")
 	}
-	csym := filepath.Join(home, ".fleek.yml")
-	bb, err := os.ReadFile(csym)
+	bb, err := os.ReadFile(loc)
 	if err != nil {
 		return c, err
 	}
@@ -279,6 +417,17 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 		"$HOME/.local/bin",
 	}
 	c.Systems = []*System{sys}
+	c.MinVersion = "0.8.4"
+	c.Git.Enabled = true
+	c.Git.AutoCommit = true
+	c.Git.AutoPull = true
+	c.Git.AutoPush = true
+	user, err := NewUser()
+	if err != nil {
+		fin.Debug.Printfln("new user err: %s ", err)
+		return err
+	}
+	c.Users = []*User{user}
 
 	cfile, err := c.Location()
 	if err != nil {
@@ -366,4 +515,8 @@ func (c *Config) Eject() error {
 	}
 
 	return nil
+}
+
+func (c *Config) AsVersion() (*version.Version, error) {
+	return version.NewVersion(c.MinVersion)
 }

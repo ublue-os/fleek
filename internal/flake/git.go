@@ -50,7 +50,7 @@ func (f *Flake) runGit(cmd string, cmdLine []string) error {
 	command.Stdin = os.Stdin
 	command.Dir = f.Config.UserFlakeDir()
 	command.Stdin = os.Stdin
-	//command.Stdout = os.Stdout
+	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	command.Env = os.Environ()
 	return command.Run()

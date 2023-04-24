@@ -56,7 +56,7 @@ func apply(cmd *cobra.Command) error {
 		return err
 	}
 
-	if err := fl.Write(true, "fleek: apply"); err != nil {
+	if err := fl.Write("fleek: apply"); err != nil {
 		return err
 	}
 	if !dry {
@@ -65,9 +65,8 @@ func apply(cmd *cobra.Command) error {
 		}
 	} else {
 		fin.Info.Println(app.Trans("apply.dryApplyingConfig"))
-		if bb, err := fl.Check(); err != nil {
+		if err := fl.Check(); err != nil {
 			if err != nil {
-				fin.Warning.Println(string(bb))
 				return err
 			}
 		}

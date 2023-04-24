@@ -1,10 +1,8 @@
 package flake
 
 import (
-	"bytes"
 	"embed"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -22,7 +20,7 @@ const nixbin = "nix"
 var ErrPackageConflict = errors.New("package exists in fleek and nix profile")
 
 type Flake struct {
-	Templates *template.Template
+	Templates map[string]*template.Template
 	Config    *fleek.Config
 	app       *app.App
 }
@@ -32,40 +30,48 @@ type Data struct {
 	Home     string
 	Bling    *fleek.Bling
 }
+type SystemData struct {
+	System fleek.System
+	User   fleek.User
+}
 
 func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
 	if cfg.Verbose {
 		fin.Verbose.Println(app.Trans("flake.initializingTemplates"))
 	}
-	t, err := template.ParseFS(content, "*.tmpl")
+	tt := make(map[string]*template.Template)
+	err := fs.WalkDir(templates, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if filepath.Ext(path) == ".tmpl" {
+			bb, err := templates.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			tt[path] = template.Must(template.New(path).Parse(string(bb)))
+		}
+		return nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("parsing templates: %w", err)
+		return nil, err
 	}
-
 	return &Flake{
-		Templates: t,
+		Templates: tt,
 		Config:    cfg,
 		app:       app,
 	}, nil
 }
 
 func (f *Flake) Update() error {
-	spinner, err := fin.Spinner().Start(f.app.Trans("flake.update"))
-	if err != nil {
-		return err
-	}
+	fin.Info.Println(f.app.Trans("flake.update"))
+
 	updateCmdLine := []string{"flake", "update"}
-	out, err := f.runNix(nixbin, updateCmdLine)
+	err := f.runNix(nixbin, updateCmdLine)
 
 	if err != nil {
 		return err
 	}
-	if f.Config.Verbose {
-		if len(out) > 0 {
-			fin.Verbose.Println(out)
-		}
-	}
-	spinner.Success()
 	err = f.mayCommit("fleek: update flake.lock")
 
 	if err != nil {
@@ -108,56 +114,70 @@ func (f *Flake) Create(force bool, symlink bool) error {
 	}
 
 	fin.Info.Println(f.app.Trans("init.blingLevel", f.Config.Bling))
-
+	err = f.Config.WriteInitialConfig(f.Config.Force, symlink)
+	if err != nil {
+		return err
+	}
+	// read the config again, because it may have changed
+	loc := f.Config.UserFlakeDir()
+	config, err := fleek.ReadConfig(loc)
+	if err != nil {
+		return err
+	}
+	f.Config = config
+	sys, err := f.Config.CurrentSystem()
+	if err != nil {
+		return err
+	}
+	user := f.Config.UserForSystem(sys.Hostname)
 	data := Data{
 		Config: f.Config,
 		Bling:  bling,
 	}
 
-	err = f.writeFile("flake.nix", data, force)
+	err = f.writeFile("templates/flake.nix.tmpl", "flake.nix", data, force)
+	if err != nil {
+		return err
+	}
+	err = f.writeFile("templates/README.md.tmpl", "README.md", data, force)
 	if err != nil {
 		return err
 	}
 
-	err = f.writeFile("home.nix", data, force)
+	err = f.writeFile("templates/home.nix.tmpl", "home.nix", data, force)
 	if err != nil {
 		return err
 	}
-	err = f.writeFile("aliases.nix", data, force)
+	err = f.writeFile("templates/aliases.nix.tmpl", "aliases.nix", data, force)
 	if err != nil {
 		return err
 	}
-	err = f.writeFile("path.nix", data, force)
+	err = f.writeFile("templates/path.nix.tmpl", "path.nix", data, force)
 	if err != nil {
 		return err
 	}
-	err = f.writeFile("programs.nix", data, force)
+	err = f.writeFile("templates/programs.nix.tmpl", "programs.nix", data, force)
 	if err != nil {
 		return err
 	}
-	err = f.writeFile("shell.nix", data, force)
-	if err != nil {
-		return err
-	}
-
-	err = f.Config.WriteInitialConfig(f.Config.Force, symlink)
-	if err != nil {
-		return err
-	}
-	sys, err := f.Config.CurrentSystem()
-	if err != nil {
-		return err
-	}
-	err = f.writeSystem(*sys, force)
+	err = f.writeFile("templates/shell.nix.tmpl", "shell.nix", data, force)
 	if err != nil {
 		return err
 	}
 
-	err = f.writeFile("user.nix", data, force)
+	err = f.writeSystem(*sys, "templates/host.nix.tmpl", force)
 	if err != nil {
 		return err
 	}
 
+	err = f.writeFile("templates/user.nix.tmpl", "user.nix", data, force)
+	if err != nil {
+		return err
+	}
+	err = f.writeUser(*sys, *user, "templates/user.nix.tmpl", force)
+	if err != nil {
+		return err
+	}
 	return nil
 
 }
@@ -182,10 +202,7 @@ func (f *Flake) IsJoin() (bool, error) {
 }
 func (f *Flake) Join() error {
 	fin.Info.Println(f.app.Trans("init.writingConfigs"))
-	err := f.ensureFlakeDir()
-	if err != nil {
-		return err
-	}
+
 	// Symlink the yaml file to home
 	cfile, err := f.Config.Location()
 	if err != nil {
@@ -204,10 +221,7 @@ func (f *Flake) Join() error {
 		fin.Debug.Println("first symlink attempt failed")
 		return err
 	}
-	err = f.ReadConfig()
-	if err != nil {
-		return err
-	}
+
 	err = f.Config.Validate()
 	if err != nil {
 		return err
@@ -219,10 +233,7 @@ func (f *Flake) Join() error {
 		return err
 	}
 	fin.Debug.Println("write system")
-	err = f.writeSystem(*sys, true)
-	if err != nil {
-		return err
-	}
+
 	//
 	var found bool
 	for _, s := range f.Config.Systems {
@@ -233,8 +244,34 @@ func (f *Flake) Join() error {
 	}
 	if !found {
 		f.Config.Systems = append(f.Config.Systems, sys)
+		err = f.writeSystem(*sys, "templates/host.nix.tmpl", true)
+		if err != nil {
+			return err
+		}
 
 	}
+	username, err := fleek.Username()
+	if err != nil {
+		return err
+	}
+	userFound := false
+	for _, u := range f.Config.Users {
+		if u.Username == username {
+			userFound = true
+		}
+	}
+	if !userFound {
+		user, err := fleek.NewUser()
+		if err != nil {
+			return err
+		}
+		f.Config.Users = append(f.Config.Users, user)
+		err = f.writeUser(*sys, *user, "templates/user.nix.tmpl", true)
+		if err != nil {
+			return err
+		}
+	}
+
 	fin.Debug.Println("write config")
 
 	err = f.Config.Save()
@@ -261,18 +298,19 @@ func (f *Flake) Join() error {
 
 }
 
-func (f *Flake) Check() ([]byte, error) {
+func (f *Flake) Check() error {
 	checkCmdLine := []string{"run", "--impure", "home-manager/master", "build", "--impure", "--", "--flake", "."}
-	out, err := f.runNix(nixbin, checkCmdLine)
+	err := f.runNix(nixbin, checkCmdLine)
 
 	if err != nil {
-		return out, err
+		return err
 	}
-	return out, nil
+	return nil
 }
 
 // Write writes the applied flake configuration
-func (f *Flake) Write(includeSystems bool, message string) error {
+func (f *Flake) Write(message string) error {
+	force := true
 	spinner, err := fin.Spinner().Start(f.app.Trans("flake.writing"))
 	if err != nil {
 		return err
@@ -299,44 +337,60 @@ func (f *Flake) Write(includeSystems bool, message string) error {
 		Config: f.Config,
 		Bling:  bling,
 	}
-	err = f.writeFile("flake.nix", data, true)
+
+	home, err := os.UserHomeDir()
 	if err != nil {
 		return err
 	}
-	err = f.writeFile("home.nix", data, true)
+	err = f.ReadConfig(filepath.Join(home, f.Config.FlakeDir))
 	if err != nil {
 		return err
 	}
-	err = f.writeFile("aliases.nix", data, true)
+	err = f.writeFile("templates/flake.nix.tmpl", "flake.nix", data, force)
 	if err != nil {
 		return err
 	}
-	err = f.writeFile("path.nix", data, true)
+	err = f.writeFile("templates/README.md.tmpl", "README.md", data, force)
 	if err != nil {
 		return err
 	}
-	err = f.writeFile("programs.nix", data, true)
+	err = f.writeFile("templates/.gitignore.tmpl", ".gitignore", data, force)
 	if err != nil {
 		return err
-	}
-	if includeSystems {
-		for _, sys := range data.Config.Systems {
-			err = f.writeSystem(*sys, true)
-			if err != nil {
-				return err
-			}
-		}
 	}
 
-	err = f.writeFile("shell.nix", data, true)
+	err = f.writeFile("templates/home.nix.tmpl", "home.nix", data, force)
 	if err != nil {
 		return err
 	}
-	if f.Config.Ejected {
-		err = f.writeFile("README.md", data, true)
-		if err != nil {
-			return err
-		}
+	err = f.writeFile("templates/aliases.nix.tmpl", "aliases.nix", data, force)
+	if err != nil {
+		return err
+	}
+	err = f.writeFile("templates/path.nix.tmpl", "path.nix", data, force)
+	if err != nil {
+		return err
+	}
+	err = f.writeFile("templates/programs.nix.tmpl", "programs.nix", data, force)
+	if err != nil {
+		return err
+	}
+	err = f.writeFile("templates/shell.nix.tmpl", "shell.nix", data, force)
+	if err != nil {
+		return err
+	}
+	sys, err := f.Config.CurrentSystem()
+	if err != nil {
+		return err
+	}
+	user := f.Config.UserForSystem(sys.Hostname)
+	err = f.writeSystem(*sys, "templates/host.nix.tmpl", force)
+	if err != nil {
+		return err
+	}
+	err = f.writeUser(*sys, *user, "templates/user.nix.tmpl", true)
+	if err != nil {
+		return err
 	}
 
 	spinner.Success()
@@ -362,36 +416,57 @@ func (f *Flake) ensureFlakeDir() error {
 	return nil
 }
 
-func (f *Flake) ReadConfig() error {
+func (f *Flake) ReadConfig(loc string) error {
 	// load the new config
-	config, err := fleek.ReadConfig()
+	config, err := fleek.ReadConfig(loc)
 	if err != nil {
 		return err
 	}
 	f.Config = config
 	return nil
 }
-func (f *Flake) writeFile(fname string, d Data, force bool) error {
+func (f *Flake) writeFile(template string, path string, d Data, force bool) error {
+	fpath := filepath.Join(f.Config.UserFlakeDir(), path)
+	err := os.MkdirAll(filepath.Dir(fpath), 0755)
+	if err != nil {
+		fin.Debug.Println("mkdir error", err)
+	}
+	_, err = os.Stat(fpath)
 
-	fpath := filepath.Join(f.Config.UserFlakeDir(), fname)
-	_, err := os.Stat(fpath)
-	if force || os.IsNotExist(err) {
+	if force || errors.Is(err, fs.ErrNotExist) {
+		_, ok := f.Templates[template]
 
-		file, err := os.Create(fpath)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		tmplName := fname + ".tmpl"
-		if err = f.Templates.ExecuteTemplate(file, tmplName, d); err != nil {
-			return err
+		if ok {
+			file, err := os.Create(fpath)
+			if err != nil {
+				fin.Debug.Println("create error", err)
+				return err
+			}
+			defer file.Close()
+
+			if err = f.Templates[template].Execute(file, d); err != nil {
+				fin.Debug.Println("template error", err)
+				return err
+			}
+		} else {
+			fin.Debug.Println("template not found", template)
+			return errors.New("template not found")
 		}
 	} else {
 		return errors.New("cowardly refusing to overwrite existing file without --force flag")
 	}
 	return nil
 }
-func (f *Flake) writeSystem(sys fleek.System, force bool) error {
+
+func (f *Flake) writeSystem(sys fleek.System, template string, force bool) error {
+	user := f.Config.UserForSystem(sys.Hostname)
+	if user == nil {
+		return errors.New("user not found")
+	}
+	sysData := SystemData{
+		System: sys,
+		User:   *user,
+	}
 
 	hostPath := filepath.Join(f.Config.UserFlakeDir(), sys.Hostname)
 	err := os.MkdirAll(hostPath, 0755)
@@ -407,34 +482,46 @@ func (f *Flake) writeSystem(sys fleek.System, force bool) error {
 			return err
 		}
 		defer file.Close()
-		tmplName := "host.nix.tmpl"
-		if err = f.Templates.ExecuteTemplate(file, tmplName, sys); err != nil {
+
+		if err = f.Templates[template].Execute(file, sysData); err != nil {
 			return err
 		}
+
 	} else {
 		return errors.New("cowardly refusing to overwrite existing file without --force flag")
 	}
-	upath := filepath.Join(hostPath, "user.nix")
-	_, err = os.Stat(upath)
-	if os.IsNotExist(err) {
 
-		file, err := os.Create(upath)
+	return nil
+}
+func (f *Flake) writeUser(sys fleek.System, user fleek.User, template string, force bool) error {
+
+	hostPath := filepath.Join(f.Config.UserFlakeDir(), sys.Hostname)
+	err := os.MkdirAll(hostPath, 0755)
+	if err != nil {
+		return err
+	}
+	fpath := filepath.Join(hostPath, "user.nix")
+	_, err = os.Stat(fpath)
+	if force || os.IsNotExist(err) {
+
+		file, err := os.Create(fpath)
 		if err != nil {
 			return err
 		}
 		defer file.Close()
-		tmplName := "user.nix.tmpl"
-		if err = f.Templates.ExecuteTemplate(file, tmplName, sys); err != nil {
+
+		if err = f.Templates[template].Execute(file, user); err != nil {
 			return err
 		}
+
+	} else {
+		return errors.New("cowardly refusing to overwrite existing file without --force flag")
 	}
+
 	return nil
 }
 func (f *Flake) Apply() error {
-	spinner, err := fin.Spinner().Start(f.app.Trans("flake.apply"))
-	if err != nil {
-		return err
-	}
+	fin.Info.Println(f.app.Trans("flake.apply"))
 
 	user, err := fleek.Username()
 
@@ -446,37 +533,26 @@ func (f *Flake) Apply() error {
 		return err
 	}
 	applyCmdLine := []string{"run", "--no-write-lock-file", "--impure", "home-manager/master", "--", "-b", "bak", "switch", "--flake", ".#" + user + "@" + host}
-	out, err := f.runNix(nixbin, applyCmdLine)
+	err = f.runNix(nixbin, applyCmdLine)
 	if err != nil {
-		if bytes.Contains(out, []byte("priority")) {
-			return ErrPackageConflict
-		}
-		if bytes.Contains(out, []byte("conflict")) {
-			return ErrPackageConflict
-		}
-		if bytes.Contains(out, []byte("warning:")) {
-			spinner.Success()
-			return nil
-		}
 		return err
 	}
-	spinner.Success()
 	return nil
 }
-func (f *Flake) runNix(cmd string, cmdLine []string) ([]byte, error) {
+func (f *Flake) runNix(cmd string, cmdLine []string) error {
 	command := exec.Command(cmd, cmdLine...)
 	command.Stdin = os.Stdin
+	command.Stderr = os.Stderr
+	command.Stdout = os.Stdout
 	command.Dir = f.Config.UserFlakeDir()
 	command.Env = os.Environ()
 	if f.Config.Unfree {
 		command.Env = append(command.Env, "NIXPKGS_ALLOW_UNFREE=1")
 	}
 
-	return command.Output()
+	return command.Run()
 
 }
 
-var (
-	//go:embed *.tmpl
-	content embed.FS
-)
+//go:embed all:templates
+var templates embed.FS

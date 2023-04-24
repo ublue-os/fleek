@@ -1,0 +1,27 @@
+{ pkgs, misc, ... }: {
+    home.username = "{{.User.Username}}";
+    home.homeDirectory = "{{.System.HomeDir}}";
+    programs.git = {
+        enable = true;
+        aliases = {
+            pushall = "!git remote | xargs -L1 git push --all";
+            graph = "log --decorate --oneline --graph";
+            add-nowhitespace = "!git diff -U0 -w --no-color | git apply --cached --ignore-whitespace --unidiff-zero -";
+        };
+        userName = "{{.User.Name}}";
+        userEmail = "{{.User.Email}}";
+        extraConfig = {
+            feature.manyFiles = true;
+            init.defaultBranch = "main";
+            gpg.format = "ssh";
+        };
+
+        signing = {
+            key = "{{.User.SSHPrivateKeyFile}}";
+            signByDefault = builtins.stringLength "{{.User.SSHPrivateKeyFile}}" > 0;
+        };
+
+        lfs.enable = true;
+        ignores = [ ".direnv" "result" ];
+  };
+}

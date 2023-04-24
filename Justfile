@@ -1,6 +1,4 @@
 set dotenv-load
-CONTAINER_RUNNER := "podman"
-CONTAINER_BUILDER := "buildah"
 
 
 default: build
@@ -28,10 +26,7 @@ unmove +FILES:
 cleanup +FILES:
   rm -rf {{FILES}}
 
-backup: (move "$FLEEK_MANAGED/.fleek.yml" "$FLEEK_MANAGED/.config/home-manager")
-
 clean: (cleanup "$FLEEK_MANAGED/.fleek.yml" "$FLEEK_MANAGED/.config/home-manager" "dist")
-restore: clean (unmove "$FLEEK_MANAGED/.fleek.yml" "$FLEEK_MANAGED/.config/home-manager")
 
 default-env:
   cp .env.template .env
@@ -74,10 +69,6 @@ completions:
 
 man: build
   ./scripts/man.sh
-
-push: man (cleanup "fleek" "fleek.1" "fleek.1.gz")
-  {{CONTAINER_BUILDER}} build --no-cache -t docker.io/bketelsen/fleek .
-  {{CONTAINER_RUNNER}} push docker.io/bketelsen/fleek
 
 tag version: lint build examples man completions
   ./scripts/create-release.sh {{version}}

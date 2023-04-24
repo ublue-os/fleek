@@ -86,7 +86,7 @@ func generate(cmd *cobra.Command) error {
 		return err
 	}
 	fin.Info.Println("writing,", fl.Config.Bling)
-	err = fl.Write(true, "fleek: generate")
+	err = fl.Write("fleek: generate")
 	if err != nil {
 		return err
 	}

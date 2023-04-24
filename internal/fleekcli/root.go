@@ -31,7 +31,7 @@ func RootCmd() *cobra.Command {
 			}
 			fin.Debug.Println("debug enabled")
 			// try to get the config, which may not exist yet
-			c, err := fleek.ReadConfig()
+			c, err := fleek.ReadConfig("")
 			if err == nil {
 				if flags.verbose {
 					fin.Info.Println(app.Trans("fleek.configLoaded"))
