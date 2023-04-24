@@ -263,3 +263,22 @@ func (f *Flake) remote() (string, error) {
 	}
 	return urls, nil
 }
+func CloneRepository(repo string) (string, error) {
+
+	dirname, err := os.MkdirTemp("", "fleek*")
+	if err != nil {
+		return "", err
+	}
+	cloneCmdline := []string{"clone", repo, dirname}
+
+	command := exec.Command(gitbin, cloneCmdline...)
+	command.Stdin = os.Stdin
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	command.Env = os.Environ()
+	err = command.Run()
+	if err != nil {
+		return "", fmt.Errorf("git clone: %w", err)
+	}
+	return dirname, nil
+}

@@ -459,9 +459,16 @@ func (f *Flake) writeFile(template string, path string, d Data, force bool) erro
 }
 
 func (f *Flake) writeSystem(sys fleek.System, template string, force bool) error {
-	user := f.Config.UserForSystem(sys.Hostname)
+	var user *fleek.User
+	var err error
+	user = f.Config.UserForSystem(sys.Hostname)
 	if user == nil {
-		return errors.New("user not found")
+		user, err = fleek.NewUser()
+		if err != nil {
+			return err
+		}
+		f.Config.Users = append(f.Config.Users, user)
+		f.Config.Save()
 	}
 	sysData := SystemData{
 		System: sys,
@@ -469,7 +476,7 @@ func (f *Flake) writeSystem(sys fleek.System, template string, force bool) error
 	}
 
 	hostPath := filepath.Join(f.Config.UserFlakeDir(), sys.Hostname)
-	err := os.MkdirAll(hostPath, 0755)
+	err = os.MkdirAll(hostPath, 0755)
 	if err != nil {
 		return err
 	}

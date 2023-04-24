@@ -11,6 +11,7 @@ require (
 	github.com/hashicorp/go-version v1.6.0
 	github.com/muesli/mango-cobra v1.2.0
 	github.com/muesli/roff v0.1.0
+	github.com/otiai10/copy v1.11.0
 	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab
 	github.com/spf13/cobra v1.7.0
 	gopkg.in/yaml.v3 v3.0.1

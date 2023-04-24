@@ -127,7 +127,8 @@ func RootCmd() *cobra.Command {
 
 	initCmd := InitCommand()
 	initCmd.GroupID = initGroup.ID
-
+	joinCmd := JoinCommand()
+	joinCmd.GroupID = initGroup.ID
 	ejectCmd := EjectCommand()
 	ejectCmd.GroupID = fleekGroup.ID
 	generateCmd := GenerateCommand()
@@ -150,6 +151,8 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(updateCmd)
 
 	command.AddCommand(initCmd)
+	command.AddCommand(joinCmd)
+
 	command.AddCommand(ejectCmd)
 	command.AddCommand(searchCmd)
 	command.AddCommand(infoCmd)
