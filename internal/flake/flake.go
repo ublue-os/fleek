@@ -468,7 +468,10 @@ func (f *Flake) writeSystem(sys fleek.System, template string, force bool) error
 			return err
 		}
 		f.Config.Users = append(f.Config.Users, user)
-		f.Config.Save()
+		err = f.Config.Save()
+		if err != nil {
+			return err
+		}
 	}
 	sysData := SystemData{
 		System: sys,
