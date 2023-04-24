@@ -1,7 +1,6 @@
 package flake
 
 import (
-	"bytes"
 	"embed"
 	"errors"
 	"io"
@@ -67,16 +66,12 @@ func (f *Flake) Update(outWriter io.Writer) error {
 		return err
 	}
 	updateCmdLine := []string{"run", ".#update"}
-	out, err := f.runNix(nixbin, updateCmdLine)
+	err = f.runNix(nixbin, updateCmdLine, outWriter)
 
 	if err != nil {
 		return err
 	}
-	if f.Config.Verbose {
-		if len(out) > 0 {
-			fin.Verbose.Println(out)
-		}
-	}
+
 	spinner.Success()
 	err = f.mayCommit("fleek: update flake.lock", outWriter)
 
@@ -397,24 +392,24 @@ func (f *Flake) Join(out io.Writer) error {
 
 }
 
-func (f *Flake) Check() ([]byte, error) {
+func (f *Flake) Check(out io.Writer) error {
 	user, err := fleek.Username()
 
 	if err != nil {
-		return []byte{}, err
+		return err
 	}
 	host, err := fleek.Hostname()
 	if err != nil {
-		return []byte{}, err
+		return err
 	}
 	checkCmdLine := []string{"build", ".#homeConfigurations." + "\"" + user + "@" + host + "\"" + ".activationPackage"}
 
-	out, err := f.runNix(nixbin, checkCmdLine)
+	err = f.runNix(nixbin, checkCmdLine, out)
 
 	if err != nil {
-		return out, err
+		return err
 	}
-	return out, nil
+	return nil
 }
 
 // Write writes the applied flake configuration
@@ -757,34 +752,25 @@ func (f *Flake) Apply(outWriter io.Writer) error {
 	}
 
 	applyCmdLine := []string{"run", "--no-write-lock-file", "--impure", "home-manager", "--", "-b", "bak", "switch", "--flake", ".#" + user + "@" + host}
-	out, err := f.runNix(nixbin, applyCmdLine)
-	io.Copy(outWriter, bytes.NewReader(out))
+	err = f.runNix(nixbin, applyCmdLine, outWriter)
 	if err != nil {
-		if bytes.Contains(out, []byte("priority")) {
-			return ErrPackageConflict
-		}
-		if bytes.Contains(out, []byte("conflict")) {
-			return ErrPackageConflict
-		}
-		if bytes.Contains(out, []byte("warning:")) {
-			spinner.Success()
-			return nil
-		}
 		return err
 	}
 	spinner.Success()
 	return nil
 }
-func (f *Flake) runNix(cmd string, cmdLine []string) ([]byte, error) {
+func (f *Flake) runNix(cmd string, cmdLine []string, out io.Writer) error {
 	command := exec.Command(cmd, cmdLine...)
 	command.Stdin = os.Stdin
+	command.Stderr = out
+	command.Stdout = out
 	command.Dir = f.Config.UserFlakeDir()
 	command.Env = os.Environ()
 	if f.Config.Unfree {
 		command.Env = append(command.Env, "NIXPKGS_ALLOW_UNFREE=1")
 	}
 
-	return command.Output()
+	return command.Run()
 
 }
 
