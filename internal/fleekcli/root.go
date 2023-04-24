@@ -3,6 +3,8 @@ package fleekcli
 import (
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
@@ -30,6 +32,19 @@ func RootCmd() *cobra.Command {
 				cmd.SetErr(io.Discard)
 			}
 			fin.Debug.Println("debug enabled")
+			warn := os.Getenv("WARN_FLEEK")
+			if warn == "" {
+				ex, err := os.Executable()
+				if err != nil {
+					panic(err)
+				}
+				exePath := filepath.Dir(ex)
+				if !strings.Contains(exePath, "nix-profile") {
+					fin.Warning.Println(app.Trans("fleek.unsupported"))
+
+				}
+			}
+
 			// try to get the config, which may not exist yet
 			c, err := fleek.ReadConfig("")
 			if err == nil {

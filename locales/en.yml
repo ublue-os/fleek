@@ -23,6 +23,12 @@ fleek:
   migrating: "Migrating .fleek.yml to current version"
   migrated: "Migrated .fleek.yml"
   configLoaded: "Loaded configuration"
+  unsupported: |
+    Fleek is installed in an deprecated location. 
+    The only supported installation method is with `nix profile`:
+    `nix profile install github:ublue-os/fleek`
+    Remove your installation of fleek and install it with `nix-profile`.
+    
 eject:
   use: "eject"
   long: |
