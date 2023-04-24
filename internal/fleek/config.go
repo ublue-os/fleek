@@ -112,10 +112,14 @@ func NewUser() (*User, error) {
 	}
 	// Prompt for name
 	var use bool
-	fin.Info.Println("Detected your name: " + name)
-	use, err = ux.Confirm("Use detected name: " + name)
-	if err != nil {
-		return user, err
+	name = strings.TrimSpace(name)
+	if name != "" {
+
+		fin.Info.Println("Detected your name: " + name)
+		use, err = ux.Confirm("Use detected name: " + name)
+		if err != nil {
+			return user, err
+		}
 	}
 	if use {
 		user.Name = name
