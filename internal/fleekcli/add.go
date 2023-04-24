@@ -101,10 +101,10 @@ func add(cmd *cobra.Command, args []string) error {
 				}
 				return nil
 
-			} else {
-				fin.Info.Println("Found no matches for " + p + "!")
-				return nil
 			}
+			fin.Info.Println("Found no matches for " + p + "!")
+			return nil
+
 		}
 		fin.Info.Println("exact hits", len(exactHits))
 		fin.Info.Println("possible matches", len(hits))
