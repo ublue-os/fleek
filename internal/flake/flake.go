@@ -736,10 +736,7 @@ func (f *Flake) writeUser(user fleek.User, template string, force bool) error {
 	return nil
 }
 func (f *Flake) Apply(outWriter io.Writer) error {
-	spinner, err := fin.Spinner().Start(f.app.Trans("flake.apply"))
-	if err != nil {
-		return err
-	}
+	fin.Info.Println(f.app.Trans("flake.apply"))
 
 	user, err := fleek.Username()
 
@@ -756,7 +753,6 @@ func (f *Flake) Apply(outWriter io.Writer) error {
 	if err != nil {
 		return err
 	}
-	spinner.Success()
 	return nil
 }
 func (f *Flake) runNix(cmd string, cmdLine []string, out io.Writer) error {
