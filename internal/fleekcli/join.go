@@ -81,6 +81,15 @@ func join(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	// reload config and flake
+	config, err = fleek.ReadConfig(config.FlakeDir)
+	if err != nil {
+		return err
+	}
+	fl, err = flake.Load(config, app)
+	if err != nil {
+		return err
+	}
 	err = fl.Write("join new system", &outBuffer)
 	if err != nil {
 		fin.Debug.Printfln("flake write error: %s", err)
