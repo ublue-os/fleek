@@ -33,6 +33,7 @@
           # Host Specific configs
           ./{{.Hostname}}/{{.Hostname}}.nix
           ./{{.Hostname}}/user.nix
+          # self-manage fleek
           {
            home.packages = [
             fleek.packages.{{ .Arch }}-{{ .OS }}.default
