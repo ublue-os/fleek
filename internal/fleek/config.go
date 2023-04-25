@@ -197,15 +197,17 @@ func NewUser() (*User, error) {
 				candidates = append(candidates, f.Name())
 			}
 		}
-		key, err := ux.PromptSingle("Choose Git SSH Key", candidates)
-		if err != nil {
-			return user, err
+		if len(candidates) > 0 {
+			key, err := ux.PromptSingle("Choose Git SSH Key", candidates)
+			if err != nil {
+				return user, err
+			}
+			privateKey = strings.Replace(key, ".pub", "", 1)
+			privateKey = filepath.Join("~", ".ssh", privateKey)
+			publicKey = filepath.Join("~", ".ssh", key)
+			user.SSHPrivateKeyFile = privateKey
+			user.SSHPublicKeyFile = publicKey
 		}
-		privateKey = strings.Replace(key, ".pub", "", 1)
-		privateKey = filepath.Join("~", ".ssh", privateKey)
-		publicKey = filepath.Join("~", ".ssh", key)
-		user.SSHPrivateKeyFile = privateKey
-		user.SSHPublicKeyFile = publicKey
 	}
 
 	return user, nil
