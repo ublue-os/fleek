@@ -77,7 +77,7 @@ func remove(cmd *cobra.Command, args []string) error {
 		sb.WriteString(p + " ")
 
 	}
-	err = fl.Write(sb.String())
+	err = fl.Write(sb.String(), false)
 	if err != nil {
 		fin.Debug.Printfln("flake write error: %s", err)
 		return err
