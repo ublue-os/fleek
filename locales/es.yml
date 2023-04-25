@@ -1,0 +1,284 @@
+fleek:
+  use: "fleek"
+  long: |
+    Fleek instala y gestiona paquetes en tu instalación de Nix con un archivo de configuración amigable y accesible.
+    Fleek utiliza el poder de `nix` y `home-manager` detrás de escena para darte acceso al repositorio de paquetes más grande del mundo.
+
+    Fleek oculta la complejidad de `nix` al proporcionarte una interfaz de línea de comandos (CLI) y un archivo YAML para administrar tus aplicaciones instaladas.
+
+    Para comenzar, prueba `fleek init`.
+
+    Para compartir configuraciones con otras computadoras, consulta https://getfleek.dev/docs/multiple
+  short: "Fleek hace que Nix sea amigable"
+  debugFlag: "debug"
+  traceFlag: "trace"
+  quietFlag: "quiet"
+  quietFlagDescription: "suprimir registros"
+  verboseFlag: "verbose"
+  verboseFlagDescription: "mostrar salida más detallada"
+  nixGarbage: "ejecutar recolección de basura para eliminar elementos no utilizados"
+  installNix: "¡No se encontró una instalación de Nix! Recomendamos comenzar en https://zero-to-nix.com/"
+  noConfigFound: "El archivo de configuración no existe."
+  noFlakeFound: "El directorio de configuración de Fleek no existe."
+  migrating: "Migrando .fleek.yml a la versión actual"
+  migrated: "Migrado .fleek.yml"
+  configLoaded: "Configuración cargada"
+  unsupported: |
+    Fleek está instalado en una ubicación obsoleta.
+    El único método de instalación admitido es con `nix profile`:
+    `nix profile install github:ublue-os/fleek`
+    Elimine su instalación de Fleek e instálelo con `nix-profile`.
+join:
+  use: "join"
+  long: |
+    Unir una computadora a una configuración existente de Fleek almacenada en Git.
+  short: "Unir la computadora actual a la configuración existente de Fleek."
+  example: |
+    fleek join git@github.com:your/repo
+    fleek join --apply git@github.com:your/repo
+  finalize: |
+    Para finalizar la instalación de Fleek, cambie al directorio de configuración que especificó y ejecute `nix run`:
+    `cd %s`
+    `nix run`
+    Esto instalará Fleek y aplicará la configuración que ha especificado.
+  start: "inicializando Fleek"
+  applyFlag: "apply"
+  applyFlagDescription: "aplicar configuración inmediatamente después de clonar"
+  checkNix: "comprobando la instalación de Nix"
+  writingConfigs: "Escribiendo archivos de configuración"
+  nixNotFound: "no se puede encontrar el binario `nix` - ¿está instalado Nix?"
+  complete: "Hecho. \n\nEdita ~/.fleek.yml a tu gusto y ejecuta `nix run github:ublue-os/fleek -- apply`"
+  newSystem: "Nuevo sistema: %s@%s"
+  joining: "Agregando el sistema actual a la configuración"
+eject:
+  use: "eject"
+  long: |
+    Eject escribe tu configuración actual en el disco y elimina las plantillas de Fleek.
+    Los cambios en .fleek.yml serán ignorados; modificarás tus configuraciones de Nix directamente.
+  short: "Administra la configuración de tu home directamente, sin el archivo .fleek.yml."
+  verboseFlag: "mostrar salida más detallada"
+  start: "Aplicando la configuración actual de Fleek al flake de tu home."
+  complete: "Configuración del home escrita. A partir de ahora, todos los cambios deben realizarse directamente en ~/.local/share/fleek/."
+  confirm: "¿Estás seguro de que deseas administrar los archivos de configuración de tu home directamente?"
+  ejected: "Fleek expulsado. Usa `home-manager` directamente para aplicar cualquier cambio."
+generate:
+  use: "generate"
+  long: |
+    Generate hace cosas
+  short: "Generar una nueva configuración de Home Manager utilizando las plantillas de Fleek"
+  verboseFlag: "mostrar salida más detallada"
+  start: "Aplicando la configuración actual de Fleek al flake de tu home."
+  complete: "Configuración del hogar escrita. Todos los cambios ahora deben realizarse directamente en %s."
+  confirm: "¿Estás seguro/a que deseas administrar los archivos de configuración de tu home directamente?"
+  ejected: "Fleek expulsado. Usa `home-manager` directamente para aplicar cualquier cambio."
+  forceFlag: "force"
+  forceFlagDescription: "sobrescribir archivos de configuración existentes"
+  applyFlag: "apply"
+  applyFlagDescription: "aplicar configuración inmediatamente después de generarla"
+  locationFlag: "location"
+  locationFlagDescription: "ubicación de la configuración de Home Manager, relativa al directorio home"
+  levelFlag: "level"
+  levelFlagDescription: "nivel de bling: `none`,`low`,`default`,`high`"
+  runFlake: "Ejecuta los siguientes comandos desde el directorio de flake para aplicar los cambios:"
+apply:
+  use: "apply"
+  long: |
+    Aplicar la configuración de Fleek leyendo el archivo ~/.fleek.yml, actualizando las plantillas de flakes y aplicando los cambios.
+
+    Usa la opción `--dry-run` para probar tus cambios sin aplicarlos.
+    Usa la opción `--push` para enviar tus cambios locales a tu remoto git, si se ha configurado uno.
+  short: "Aplicar configuración de Fleek"
+  example: |
+    fleek apply
+    fleek apply --dry-run
+  behind: "No se pueden aplicar cambios con cambios remotos no fusionados. Utilice la opción `--sync` para obtener cambios remotos."
+  dryRunFlag: "dry-run"
+  dryRunFlagDescription: "dry-run - simular la configuración"
+  writingConfig: "Escribiendo plantillas de configuración"
+  writingFlake: "Escribiendo flake de Nix"
+  checkingSystem: "Verificando el sistema actual en el flake"
+  newSystem: "Nuevo sistema detectado"
+  applyingConfig: "Aplicando configuración al flake, por favor espera..."
+  dryApplyingConfig: "Sin aplicar configuración al flake, simulando"
+  done: "¡Completado!"
+init:
+  use: "init"
+  long: |
+    Inicializa Fleek con opciones de configuración estándar.
+    La configuración se guarda en $HOME/.local/share/fleek de manera predeterminada. Puede cambiar esta opción con el flag -l/--location.
+    Para obtener información sobre cómo compartir configuraciones con múltiples computadoras, consulta https://getfleek.dev/docs/multiple
+  short: "Inicializar fleek"
+  example: |
+    fleek init
+    fleek init -l .local/share/fleek
+    fleek init -a
+  forceFlag: "force"
+  forceFlagDescription: "sobreescribir el archivo de configuración existente"
+  flakeLocation: "Ubicación de Flake"
+  start: "inicializando Fleek"
+  applyFlag: "apply"
+  applyFlagDescription: "aplicar configuración inmediatamente luego de clonar"
+  checkNix: "comprobando la instalación de Nix"
+  writingConfigs: "Escribiendo el archivo de configuración"
+  nixNotFound: "no se puede encontrar el binario `nix` - ¿está instalado Nix?"
+  complete: "Hecho. \n\nEdita ~/.fleek.yml a tu gusto y ejecuta `fleek apply`"
+  locationFlag: "ubicación"
+  locationFlagDescription: "ubicación del repositorio de Fleek, relativa a tu home"
+  levelFlag: "level"
+  levelFlagDescription: "nivel de bling: `none`,`low`,`default`,`high`"
+  newSystem: "Nuevo sistema: %s@%s"
+  blingLevel: "Nivel de bling: %s"
+  joining: "Agregando el sistema actual a la configuración"
+add:
+  use: "add [paquete] [paquete] ..."
+  long: "Agregar paquetes a tu configuración."
+  short: "Agregar paquetes a tu configuración."
+  program: "agregar un programa en vez de un paquete"
+  example: |
+    fleek add --apply neovim
+    fleek add emacs
+  applyFlag: "apply"
+  applyFlagDescription: "aplicar configuración luego de agregar paquetes o programas"
+  adding: "Agregando paquete"
+  applying: "Aplicando configuración"
+  unapplied: "Paquete(s) agregado(s), pero cambio(s) no aplicado(s). Ejecuta `fleek apply` para aplicar la configuración."
+  done: "¡Completado!"
+remove:
+  use: "remove [paquete] [paquete] ..."
+  long: "Remover un paquete de tu configuración."
+  short: "Remover un paquete de tu configuración."
+  example: |
+    fleek remove emacs htop
+    fleek remove --apply neovim
+  program: "remover un programa en vez de un paquete"
+  applyFlag: "apply"
+  applyFlagDescription: "aplicar configuración luego de remover paquetes o programas"
+  config: "Remover paquete %s de la configuración"
+  applying: "Removiendo paquete y aplicando la configuración"
+  needApply: "Paquete removido. Ejecuta `fleek apply` para aplicar los cambios."
+  done: "¡Completado!"
+update:
+  use: "update"
+  long: |
+    Actualizar índice de paquetes, paquetes instalados, y Fleek
+    Usa el flag `--apply` para aplicar las actualizaciones.
+  short: "Actualizar índice de paquetes"
+  applyStart: "Aplicando actualizaciones"
+  applyFlag: "apply"
+  applyFlagDescription: "aplicar actualizaciones luego de actualizar índice y paquetes"
+  needApply: "Ejecuta el commando `apply` para aplicar estas actualizaciones"
+  applied: "Actualizaciones aplicadas."
+  done: "Actualización completa."
+show:
+  use: "show"
+  long: "Mostrar paquetes, paquetes gestionados, y alias agregados al nivel actual de tu configuración."
+  short: "Mostrar detalles del nivel de bling"
+  example: |
+    fleek show
+    fleek show --level high
+  packages: "Paquetes"
+  managedPackages: "Paquetes gestionados"
+  userPackages: "Paquetes del usuario"
+  jsonFlag: "json"
+  jsonFlagDescription: "salida en formato JSON"
+  levelFlag: "level"
+  levelFlagDescription: "mostrar los differentes niveles de bling"
+  invalidLevel: "Nivel %s de bling inválido"
+search:
+  use: "search <paquete>"
+  long: |
+    Buscar en el repositorio de paquetes.
+    En la primer ejecución, `search` descargará una copia local del índice de paquetes de Nix en formato JSON.
+
+    Actualiza el cache local de paquetes usando el flag `--update`.
+  short: "Buscar en el repositorio de paquetes"
+  example: |
+    fleek search neovim
+    fleek search --update emacs
+  exactMatches: "Coincidencia exacta"
+  fuzzyMatches: "Coincidencia difusa"
+  openingCache: "Leyendo el cache de paquetes"
+  cacheError: "Error leyendo el cache de paquetes"
+  noResults: "No se encontraron paquetes coincidentes con el patrón de búsqueda"
+  noResultsExact: "No se encontraron paquetes coincidentes con el patrón de búsqued, prueba con `--fuzzy`"
+  updatingCache: "Actualizando el cache de paquetes"
+  updateFlag: "update"
+  updateFlagDescription: "actualizar el cache de paquetes"
+  fuzzyFlag: "fuzzy"
+  fuzzyFlagDescription: "buscar por nombre y descripción"
+  fuzzyEnabled: "Habilitada la búsqueda difusa"
+  try: "Prueba `fleek add %s` para instalar %s"
+  package: "Paquetes"
+  version: "Versión"
+  description: "Descriptión"
+version:
+  use: "version"
+  short: "Imprimir información de la versión"
+  flagVerbose: "verbose"
+  flagVerboseDescription: "muestra información adicional sobre la versión"
+  version: "Versión:       %v\n"
+  platform: "Plataforma:    %v\n"
+  commit: "Commit:        %v\n"
+  time: "Hora commit:   %v\n"
+  go: "Versión Go:    %v\n"
+global:
+  completed: "Operación completada exitosamente"
+  failed: "Operación fallida"
+  applying: "Aplicando configuración"
+  initGroup: "Comenzando"
+  fleekGroup: "Comandos de configuración"
+  packageGroup: "Comandos para la gestión de paquetes"
+  errConflict: "Un paquete en tu .fleek.yml existe en tu perfil de Nix.\nEsto puede suceder si instalas manualmente algo con `nix profile install ...`.\nPara arreglar este error, ejecuta `run profile list` para encontrar el número de perfil del paquete conflictivo, y luego ejecuta `nix profile remove [el número]`\nantes de correr `fleek` nuevamente."
+info:
+  use: "info <paquete>"
+  long: "Mostrar información detallada de un paquete instalado con Fleek"
+  example: |
+    fleek info fzf
+  short: "Mostrar información detallada de un paquete instalado con Fleek"
+  notFound: "Ese programa o paquete no es parte del set de bling de Fleek."
+  aliases: "Alias del shell"
+  description: "Descripción"
+flake:
+  noConfig: "No se encontraron archivos de configuración. Prueba `fleek init`."
+  configLoaded: "Configuración cargada"
+  initializingTemplates: "Inicializando plantillas"
+  ensureDir: "Comprobando que existe el directorio de flake"
+  creating: "Creando archivos de configuración"
+  writing: "Escribiendo archivos de configuración"
+  apply: "Aplicando configuración"
+  update: "Actualizando fuentes de flake"
+git:
+  commit: "Git: Commiteando cambios"
+  add: "Git: Agregando archivos"
+  push: "Git: Enviando cambios"
+  pull: "Git: Obteniendo cambios"
+  warn: |
+    Fleek utiliza `nix` detrás de escena para administrar tu configuración.
+
+    `nix` ignorará cualquier archivo en tu configuración que no esté gestionado por
+    git, o que haya sido modificado pero no confirmado.
+
+    Puedes elegir administrar manualmente tu repositorio de git o dejar que Fleek haga parte
+    de la administración por vos.
+
+    De cualquier manera, si tu configuración de Fleek está en un repositorio de git, Fleek
+    automáticamente hará `git add` en cualquier cambio que realices para evitar sorpresas.
+
+    Fleek configurará automáticamente `pull.rebase = true` en la configuración de
+    tu repositorio para asegurarse que los cambios locales se apliquen siempre encima de
+    los últimos cambios remotos.
+
+    Establece `git: autocommit: true` en tu archivo .fleek.yml para que Fleek confirme
+    automáticamente los cambios locales en git.
+    Establece `git: autopush: true` en tu archivo .fleek.yml para que Fleek
+    envíe automáticamente los cambios locales a tu repositorio remoto.
+    Establece `git: autopull: true` en tu archivo .fleek.yml para obtener los cambios remotos
+    antes que se realicen cambios locales.
+
+    Recomendación:
+      Edita tu archivo .fleek.yml y establece `git: autoadd: true` para que Fleek
+      agregue automáticamente los cambios locales a git.
+      Edita tu archivo .fleek.yml y establece `git: autopush: true` para que Fleek
+      envíe automáticamente los cambios locales a tu repositorio remoto.
+      Edita tu archivo .fleek.yml y establece `git: autopull: true` para que Fleek
+      obtenga automáticamente los cambios remotos a tu repositorio local.
