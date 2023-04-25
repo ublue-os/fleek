@@ -46,7 +46,7 @@ func RootCmd() *cobra.Command {
 					panic(err)
 				}
 				exePath := filepath.Dir(ex)
-				if !strings.Contains(exePath, "nix-profile") {
+				if !strings.Contains(exePath, "profiles") {
 					fin.Warning.Println(app.Trans("fleek.unsupported"))
 
 				}
