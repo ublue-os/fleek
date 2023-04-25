@@ -7,7 +7,7 @@
 
   outputs = { self, nixpkgs }: let
     # Current version
-    version = "v0.9.2";
+    version = "v0.9.3";
     # Supported systems
     systems = [
       "aarch64-linux" # 64-bit ARM Linux
