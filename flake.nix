@@ -23,10 +23,6 @@
 
     # Output Fleek as a Nix package so that others can easily install it using Nix:
     #
-    # nix profile install github:ublue-os/fleek
-    #
-    # Or run it without installing:
-    #
     # nix run github:ublue-os/fleek -- --help
 
     packages = forEachSystem ({ pkgs }: {

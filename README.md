@@ -2,7 +2,11 @@
 
 Fleek is an all-in-one management system for everything you need to be productive on your computer.
 
-Status: ALPHA.  Probably won't eat your computer. Probably won't break your system, at least beyond simple recoverability.
+Status: BETA.  Probably won't eat your computer. Probably won't break your system, at least beyond simple recoverability.
+
+What follows is a brief overview and quick start. See full documentation at [https://getfleek.dev](https://getfleek.dev).
+
+Fleek v0.9.0 introduced some changes to how it should be installed. If you already have fleek installed, see [upgrade instructions](https://getfleek.dev/upgrade) on the website.
 
 ## Own your $HOME
 
@@ -40,16 +44,37 @@ After Nix is installed you need to enable [flakes and the nix command](https://n
 mkdir -p ~/.config/nix
 echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 ```
+Rather than downloading and installing Fleek, we're going to use the power of `nix` to run it directly from GitHub. This will let Fleek manage itself, and you'll always have the latest version.
 
-Next you'll need `fleek`.
+First let's bootstrap `fleek`:
 
 ```shell
-nix profile install github:ublue-os/fleek/main
+nix run github:ublue-os/fleek -- init
 ```
 
-Finally, run `fleek init`. This will create your configuration file and symlink it to `$HOME/.fleek.yml`. Open it with your favorite editor and take a look.
+This will create your configuration file and symlink it to `$HOME/.fleek.yml`. Open it with your favorite editor and take a look.
 
-![fleek-init.gif](fleek-init.gif)
+Make any changes to the `~/.fleek.yml` file you want... we recommend Bling Level `high` for the best experience.  
+
+Now let's apply your configuration:
+
+```shell
+nix run github:ublue-os/fleek -- apply
+```
+It will take a bit to download and install everything, but when it's done you should see something like this:
+       
+```shell
+... more text above this ...
+Activating onFilesChange
+Activating reloadSystemd
+ [✓]  Operation completed successfully
+```
+
+*What happened here?* We just installed Nix Home Manager, configured it with your preferences, and applied it to your system. Note that up until this point you haven't even installed Fleek. The power of `nix` did it for you. 
+
+You may need to close and re-open your terminal or even log out to see the changes.
+
+## ~/.fleek.yml
 
 Here's what mine looks like:
 
@@ -58,72 +83,85 @@ Here's what mine looks like:
        │ File: .fleek.yml
 ───────┼───────────────────────────────────────────────────
    1   │ aliases:
-   3   │     cdfleek: cd ~/projects/ublue/fleek
-   4   │     fleeks: cd ~/.config/home-manager
-   5   │     projects: cd ~/projects
-   7   │ bling: high
-   8   │ ejected: false
-   9   │ flakedir: .config/home-manager
-  10   │ name: Brians Fleek Configuration
-  11   │ packages:
-  12   │     - go
-  13   │     - gcc
-  14   │     - nodejs
-  15   │     - yarn
-  16   │     - rustup
-  17   │     - vhs
-  18   │ paths:
-  19   │     - $HOME/bin
-  20   │     - $HOME/.local/bin
-  21   │ programs:
-  22   │     - dircolors
-  23   │ repo: git@github.com:bketelsen/fleeks
-  24   │ shell: zsh
-  25   │ systems:
-  26   │     - arch: x86_64
-  27   │       git:
-  28   │         email: bketelsen@gmail.com
-  29   │         name: Brian Ketelsen
-  30   │       hostname: ghanima
-  31   │       os: linux
-  32   │       username: bjk
-  47   │     - arch: aarch64
-  48   │       git:
-  49   │         email: Brian Ketelsen
-  50   │         name: bketelsen@gmail.com
-  51   │       hostname: chapterhouse
-  52   │       os: darwin
-  53   │       username: bjk
-  68   │ unfree: true
+   2   │     fleeks: cd ~/.local/share/fleek
+   3   │ bling: high
+   4   │ ejected: false
+   5   │ flakedir: .local/share/fleek
+   6   │ git:
+   7   │     autocommit: true
+   8   │     autopull: true
+   9   │     autopush: true
+  10   │     enabled: true
+  11   │ min_version: 0.8.4
+  12   │ name: Fleek Configuration
+  13   │ packages:
+  14   │     - helix
+  15   │     - go
+  16   │     - gcc
+  17   │     - nodejs
+  18   │     - yarn
+  19   │     - rustup
+  20   │     - vhs
+  21   │     - rnix-lsp
+  22   │     - duf
+  23   │ paths:
+  24   │     - $HOME/bin
+  25   │     - $HOME/.local/bin
+  26   │     - $HOME/go/bin
+  27   │ programs:
+  28   │     - dircolors
+  29   │ shell: zsh
+  30   │ systems:
+  31   │     - arch: aarch64
+  32   │       hostname: f84d89911e5d.ant.amazon.com
+  33   │       os: darwin
+  34   │       username: brianjk
+  35   │     - arch: x86_64
+  36   │       hostname: beast
+  37   │       os: linux
+  38   │       username: bjk
+  39   │ unfree: true
+  40   │ users:
+  41   │     - email: bketelsen@gmail.com
+  42   │       name: Brian Ketelsen
+  43   │       ssh_private_key_file: ~/.ssh/id_rsa
+  44   │       ssh_public_key_file: ~/.ssh/id_rsa.pub
+  45   │       username: brianjk
+  46   │     - email: bketelsen@gmail.com
+  47   │       name: Brian Ketelsen
+  48   │       ssh_private_key_file: ~/.ssh/id_rsa
+  49   │       ssh_public_key_file: ~/.ssh/id_rsa.pub
+  50   │       username: bjk
 ───────┴──────────────────────────────────────────
 ```
 
-I removed some of the aliases and systems just to make the example shorter, that's why the line numbering isn't sequential.
+I removed some of the aliases and systems just to make the example shorter.
 
-Line 7: `bling: high` tells `fleek` that I want lots of extras in my $HOME setup. If you don't have a strong opinion I recommend `high`, it isn't a lot of extra stuff and the set we chose to add is really strong. Options are `none`, `low`, `default`, `high`.
+Line 3: `bling: high` tells `fleek` how many extras I want in my $HOME setup. If you don't have a strong opinion I recommend `high`, because it isn't a really much stuff and the set we chose to add is really strong. Options are `none`, `low`, `default`, `high`.
 
-Line 11: `packages:` starts a list of the packages I want installed. Mine are mostly focused around software development, but any package available in [nixpkgs](https://search.nixos.org/packages) is available.
+Line 13: `packages:` starts a list of the packages I want installed. Mine are mostly focused around software development, but any package available in [nixpkgs](https://search.nixos.org/packages) is available. You can search for packages to install with the `fleek search` command.
 
-Line 18: `paths:` starts a list of directories I want to add to my $PATH.
+Line 23: `paths:` starts a list of directories I want to add to my $PATH.
 
-Line 24: `shell: zsh` tells fleek which shell I use so it can write the proper configurations.
+Line 27: `programs: ` - starts a list of programs to install. Programs are packages, but with optional configuration. See [the documentation](https://getfleek.dev/docs/programs) for more information.
 
-Line 25: `systems:` These are added by `fleek` when you run `fleek init`, you shouldn't need to edit this part manually. Note that `fleek` and `nix` support macOS, Linux and more, so your configurations are fully portable.
+Line 29: `shell: zsh` - this line isn't currently used, but will may be in the future. For now, it's just a placeholder.
+
+Line 30: `systems:` These are added by `fleek` when you run `fleek init`, you shouldn't need to edit this part manually. Note that `fleek` and `nix` support macOS, Linux and WSL on Windows, so your configurations are fully portable.
 
 Now that you've seen some of the possibile changes you can make, edit your `~/.fleek.yml` file and save it.
 
 To apply your changes run `fleek apply`. `fleek` spins for a bit, and makes all the changes you requested. You may need to close and re-open your terminal application to see some of the changes, particularly if you add or remove fonts.
 
-![fleek-add.gif](fleek-add.gif)
 
-That's the quick start! From here, you can try `fleek add` to add packages from the CLI, `fleek search` to search for available packages, and explore `fleek remote` to share the same `fleek` configurations with multiple computers.
+That's the quick start! From here, you can try `fleek add` to add packages from the CLI, `fleek search` to search for available packages. The full documentation is on the [fleek website](https://getfleek.dev).
 
 ### Behind the Scenes
 
 Fancy animated gifs and long-winded README's are great, but what really happens when you run `fleek apply` the first time? I'm glad you asked...
 
 1. `fleek` creates a [nix home-manager][def] configuration based on the [templates here](https://github.com/ublue-os/fleek/blob/main/internal/flake/home.nix.tmpl).
-1. `fleek` compiles the templates and writes them to disk at `~/.config/home-manager` by default.
+1. `fleek` compiles the templates and writes them to disk at `~/.local/share/fleek` by default.
 1. `fleek` calls the `nix` command, which does `nix` things to download and install all the packages in your `.fleek.yml` file.
 1. The libraries and binaries you specify get installed in the `/nix` folder, and symlinked into your very own personal `nix` profile. This is stored in your $HOME directory under `~/.nix-profile`.
 1. The `home-manager` command in the configuration assembles shell scripts and configurations for you based on the shell specified in your `.fleek.yml` file.
