@@ -475,6 +475,8 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 			return err
 		}
 		if symlink {
+			// ignore the error. Delete if it exists
+			_ = os.Remove(filepath.Join(home, ".fleek.yml"))
 			csym := filepath.Join(home, ".fleek.yml")
 			err = os.Symlink(cfile, csym)
 			if err != nil {
