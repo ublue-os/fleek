@@ -51,35 +51,34 @@
 #   Hide                            Hide the subsequent commands from the output
 #   Show                            Show the subsequent commands in the output
 
-Output ../fleek-add.gif
+Output ../fleek-search.gif
 Require echo
 
 Set Shell "bash"
-Set FontSize 32
+Set FontSize 20
 Set Width 1200
 Set Height 600
 
-Type "which duf"
+Type "which ruby"
 Sleep 500ms
 Enter
 Sleep 2s
 
-Type "../fleek add duf" 
+Type "fleek search ruby" 
 Sleep 500ms  
 Enter
 
 Sleep 2s
 
-Type "../fleek apply" 
+Type "fleek add --apply ruby_3_2" 
 Sleep 500ms  
 Enter
 
 # show duf
 Sleep 10s
 
-Type "which duf"
+Type "which ruby"
 Sleep 500ms
 Enter
-Sleep 2s
 
 Sleep 5s

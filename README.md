@@ -8,6 +8,8 @@ What follows is a brief overview and quick start. See full documentation at [htt
 
 Fleek v0.9.0 introduced some changes to how it should be installed. If you already have fleek installed, see [upgrade instructions](https://getfleek.dev/docs/upgrade) on the website.
 
+![Fleek add](fleek-add.gif)
+
 ## Own your $HOME
 
 ### Instant Productivity
@@ -25,6 +27,8 @@ You don't need to master a fancy DSL or spelunk through pages of online manuals 
 ### Every Tool At Your Fingertips
 
 Whether you need to install a new programming language's toolset or the latest social media application, Fleek has you covered with the largest set of programs and packages in the world. Add a line to your `.fleek.yml` file and `fleek apply` yourself into freedom.
+
+![Fleek search](fleek-search.gif)
 
 ### Eject Button Optional
 
