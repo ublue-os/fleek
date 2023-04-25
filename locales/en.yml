@@ -25,9 +25,7 @@ fleek:
   configLoaded: "Loaded configuration"
   unsupported: |
     Fleek is installed in an deprecated location. 
-    The only supported installation method is with `nix profile`:
-    `nix profile install github:ublue-os/fleek`
-    Remove your installation of fleek and install it with `nix-profile`.
+    See upgrade instructions at https://getfleek.dev/docs/upgrade 
 join:
   use: "join"
   long: |
