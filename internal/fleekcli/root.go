@@ -47,10 +47,8 @@ func RootCmd() *cobra.Command {
 				}
 				exePath := filepath.Dir(ex)
 				fin.Debug.Println("installed at: " + exePath)
-
-				if !strings.Contains(exePath, "profiles") {
+				if !strings.Contains(exePath, "store") {
 					fin.Warning.Println(app.Trans("fleek.unsupported"))
-
 				}
 			}
 
