@@ -86,7 +86,7 @@ func join(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	err = fl.Write("join new system")
+	err = fl.Write("join new system", false)
 	if err != nil {
 		fin.Debug.Printfln("flake write error: %s", err)
 		return err

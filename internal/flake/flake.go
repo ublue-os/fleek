@@ -309,7 +309,7 @@ func (f *Flake) Check() error {
 }
 
 // Write writes the applied flake configuration
-func (f *Flake) Write(message string) error {
+func (f *Flake) Write(message string, writeCustoms bool) error {
 	force := true
 	spinner, err := fin.Spinner().Start(f.app.Trans("flake.writing"))
 	if err != nil {
@@ -379,18 +379,21 @@ func (f *Flake) Write(message string) error {
 	if err != nil {
 		return err
 	}
-	sys, err := f.Config.CurrentSystem()
-	if err != nil {
-		return err
-	}
-	user := f.Config.UserForSystem(sys.Hostname)
-	err = f.writeSystem(*sys, "templates/host.nix.tmpl", force)
-	if err != nil {
-		return err
-	}
-	err = f.writeUser(*sys, *user, "templates/user.nix.tmpl", true)
-	if err != nil {
-		return err
+	if writeCustoms {
+		sys, err := f.Config.CurrentSystem()
+		if err != nil {
+			return err
+		}
+		user := f.Config.UserForSystem(sys.Hostname)
+		err = f.writeSystem(*sys, "templates/host.nix.tmpl", force)
+		if err != nil {
+			return err
+		}
+
+		err = f.writeUser(*sys, *user, "templates/user.nix.tmpl", true)
+		if err != nil {
+			return err
+		}
 	}
 
 	spinner.Success()
