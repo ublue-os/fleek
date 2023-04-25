@@ -47,7 +47,7 @@ join:
   checkNix: "checking for nix installation"
   writingConfigs: "Writing configuration files"
   nixNotFound: "can't find `nix` binary - is nix installed?"
-  complete: "Done. \n\nEdit ~/.fleek.yml to your taste and run `fleek apply`"
+  complete: "Done. \n\nEdit ~/.fleek.yml to your taste and run `nix run github:ublue-os/fleek -- apply`"
   newSystem: "New System: %s@%s"
   joining: "Adding current system to configuration"
 
@@ -112,7 +112,6 @@ init:
   short: "Initialize fleek"
   example: |
     fleek init
-    fleek init git@github.com:your/repo
     fleek init -l .local/share/fleek
     fleek init -a
   forceFlag: "force"
@@ -134,8 +133,8 @@ init:
   joining: "Adding current system to configuration"
 add:
   use: "add [package] [package] ..."
-  long: "Add a new package or program to your configuration.\nUse the `--program` flag to specify a program which can also be configured by nix."
-  short: "Add a new package or program to your configuration"
+  long: "Add a new package to your configuration."
+  short: "Add a new package to your configuration"
   program: "add a program instead of package"
   example: |
     fleek add --apply neovim
@@ -148,8 +147,8 @@ add:
   done: "Complete!"
 remove:
   use: "remove [package] [package] ..."
-  long: "Remove a package or program from your configuration.\nUse the `--program` flag to specify a program which can also be configured by nix."
-  short: "Remove a package or program from your configuration"
+  long: "Remove a package from your configuration."
+  short: "Remove a package from your configuration"
   example: |
     fleek remove emacs htop
     fleek remove --apply neovim
@@ -163,7 +162,7 @@ remove:
 update:
   use: "update"
   long: |
-    Update package index.
+    Update package index, installed packages, and fleek itself
     Use `--apply` flag to apply the updates.
   short: "Update package index"
   applyStart: "Applying updates"
