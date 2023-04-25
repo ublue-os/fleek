@@ -6,7 +6,7 @@ Status: BETA.  Probably won't eat your computer. Probably won't break your syste
 
 What follows is a brief overview and quick start. See full documentation at [https://getfleek.dev](https://getfleek.dev).
 
-Fleek v0.9.0 introduced some changes to how it should be installed. If you already have fleek installed, see [upgrade instructions](https://getfleek.dev/upgrade) on the website.
+Fleek v0.9.0 introduced some changes to how it should be installed. If you already have fleek installed, see [upgrade instructions](https://getfleek.dev/docs/upgrade) on the website.
 
 ## Own your $HOME
 
