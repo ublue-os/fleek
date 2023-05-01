@@ -13,18 +13,24 @@
     # Fleek
     fleek.url = "github:ublue-os/fleek";
 
+    # Overlays
+    {{ range $index, $element := .Config.Overlays }}
+    {{$index}}.url = "{{$element.Url}}";
+    {{ if $element.Follow }}{{$index}}.inputs.nixpkgs.follows = "nixpkgs";{{end}}
+    {{ end }}
+
   };
 
-  outputs = { nixpkgs, home-manager, fleek, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, fleek, ... }@inputs: {
 
     # Available through 'home-manager --flake .#your-username@your-hostname'
+    {{ $overlays := .Config.Overlays  }}
     homeConfigurations = {
     {{ range .Config.Systems }}
       "{{ .Username }}@{{ .Hostname }}" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.{{ .Arch }}-{{ .OS }}; # Home-manager requires 'pkgs' instance
         extraSpecialArgs = { inherit inputs; }; # Pass flake inputs to our config
-
-        modules = [ 
+        modules = [
           ./home.nix 
           ./path.nix
           ./shell.nix
@@ -35,11 +41,12 @@
           ./{{.Hostname}}/{{.Hostname}}.nix
           ./{{.Hostname}}/user.nix
           # self-manage fleek
-          {
+          ({
+           nixpkgs.overlays = [{{ range $index, $element := $overlays }}inputs.{{$index}}.overlay {{ end }}];
            home.packages = [
             fleek.packages.{{ .Arch }}-{{ .OS }}.default
           ];
-          }
+          })
 
         ];
       };

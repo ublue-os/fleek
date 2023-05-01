@@ -41,16 +41,17 @@ type Config struct {
 	// bash or zsh
 	Shell string `yaml:"shell"`
 	// low, default, high
-	Bling    string            `yaml:"bling"`
-	Name     string            `yaml:"name"`
-	Packages []string          `yaml:",flow"`
-	Programs []string          `yaml:",flow"`
-	Aliases  map[string]string `yaml:",flow"`
-	Paths    []string          `yaml:"paths"`
-	Ejected  bool              `yaml:"ejected"`
-	Systems  []*System         `yaml:",flow"`
-	Git      Git               `yaml:"git"`
-	Users    []*User           `yaml:",flow"`
+	Bling    string              `yaml:"bling"`
+	Name     string              `yaml:"name"`
+	Overlays map[string]*Overlay `yaml:",flow"`
+	Packages []string            `yaml:",flow"`
+	Programs []string            `yaml:",flow"`
+	Aliases  map[string]string   `yaml:",flow"`
+	Paths    []string            `yaml:"paths"`
+	Ejected  bool                `yaml:"ejected"`
+	Systems  []*System           `yaml:",flow"`
+	Git      Git                 `yaml:"git"`
+	Users    []*User             `yaml:",flow"`
 }
 
 func Levels() []string {
@@ -77,6 +78,11 @@ type User struct {
 	Email             string `yaml:"email"`
 	SSHPublicKeyFile  string `yaml:"ssh_public_key_file"`
 	SSHPrivateKeyFile string `yaml:"ssh_private_key_file"`
+}
+
+type Overlay struct {
+	Url    string `yaml:"url"`
+	Follow bool   `yaml:"follow"`
 }
 
 func (s System) HomeDir() string {
