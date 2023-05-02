@@ -40,7 +40,7 @@ Fleek is a user-friendly wrapper around Nix and Nix Home Manager, but the friend
 
 ## Getting Started
 
-You need `nix`. We love the [Determinate Systems Installer](https://zero-to-nix.com/), but any `nix` is good. If you're on Fedora Silverblue [this script](https://github.com/dnkmmr69420/nix-installer-scripts/blob/main/installer-scripts/silverblue-nix-installer.sh) is the good stuff.
+You need `nix`. We love the [Determinate Systems Installer](https://zero-to-nix.com/), but any `nix` installer is good. If you're on Fedora Silverblue, [this script](https://github.com/dnkmmr69420/nix-installer-scripts/blob/main/installer-scripts/silverblue-nix-installer.sh) is the good stuff.
 
 After Nix is installed you need to enable [flakes and the nix command](https://nixos.wiki/wiki/Flakes). It can be as simple as this:
 
