@@ -1,4 +1,5 @@
 {
+  # DO NOT EDIT: This file is managed by fleek. Manual changes will be overwritten.
   description = "Fleek Configuration";
 
   inputs = {
@@ -12,18 +13,21 @@
     # Fleek
     fleek.url = "github:ublue-os/fleek";
 
+    # Overlays
+    
+
   };
 
-  outputs = { nixpkgs, home-manager, fleek, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, fleek, ... }@inputs: {
 
     # Available through 'home-manager --flake .#your-username@your-hostname'
+    
     homeConfigurations = {
     
-      "bjk@beast" = home-manager.lib.homeManagerConfiguration {
+      "ubuntu@fleekdev" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
         extraSpecialArgs = { inherit inputs; }; # Pass flake inputs to our config
-
-        modules = [ 
+        modules = [
           ./home.nix 
           ./path.nix
           ./shell.nix
@@ -31,14 +35,15 @@
           ./aliases.nix
           ./programs.nix
           # Host Specific configs
-          ./beast/beast.nix
-          ./beast/user.nix
+          ./fleekdev/ubuntu.nix
+          ./fleekdev/host.nix
           # self-manage fleek
-          {
+          ({
+           nixpkgs.overlays = [];
            home.packages = [
             fleek.packages.x86_64-linux.default
           ];
-          }
+          })
 
         ];
       };
