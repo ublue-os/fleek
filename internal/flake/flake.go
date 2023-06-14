@@ -3,6 +3,7 @@ package flake
 import (
 	"embed"
 	"errors"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -577,8 +578,8 @@ func (f *Flake) runNix(cmd string, cmdLine []string) error {
 func ForceProfile() error {
 	command := exec.Command("nix", "profile", "list")
 	command.Stdin = os.Stdin
-	command.Stderr = os.Stderr
-	command.Stdout = os.Stdout
+	command.Stderr = io.Discard
+	command.Stdout = io.Discard
 	command.Env = os.Environ()
 	return command.Run()
 

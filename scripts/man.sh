@@ -1,4 +1,5 @@
 #!/bin/sh
+export WARN_FLEEK=no
 
 rm -rf man/
 for i in `find ./locales -type f`
