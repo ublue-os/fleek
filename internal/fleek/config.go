@@ -87,7 +87,7 @@ type User struct {
 }
 
 type Overlay struct {
-	Url    string `yaml:"url"`
+	URL    string `yaml:"url"`
 	Follow bool   `yaml:"follow"`
 }
 

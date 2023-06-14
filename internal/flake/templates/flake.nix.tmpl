@@ -15,7 +15,7 @@
 
     # Overlays
     {{ range $index, $element := .Config.Overlays }}
-    {{$index}}.url = "{{$element.Url}}";
+    {{$index}}.url = "{{$element.URL}}";
     {{ if $element.Follow }}{{$index}}.inputs.nixpkgs.follows = "nixpkgs";{{end}}
     {{ end }}
 

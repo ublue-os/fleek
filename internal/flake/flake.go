@@ -391,7 +391,7 @@ func (f *Flake) Write(message string, writeHost, writeUser bool) error {
 			return err
 		}
 	}
-	if writeHost {
+	if writeUser {
 
 		user := f.Config.UserForSystem(sys.Hostname)
 		err = f.writeUser(*sys, *user, "templates/user.nix.tmpl", true)

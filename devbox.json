@@ -2,7 +2,8 @@
   "packages": [
     "go@latest",
     "just@latest",
-    "gopls@latest"
+    "gopls@latest",
+    "golangci-lint@latest"
   ],
   "shell": {
     "init_hook": [
