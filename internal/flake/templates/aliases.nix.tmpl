@@ -2,7 +2,7 @@
   # DO NOT EDIT: This file is managed by fleek. Manual changes will be overwritten.
    home.shellAliases = {
     {{- range $index, $element := .Config.Aliases }}
-    {{$index}} = "{{$element}}";
+    "{{$index}}" = "{{$element}}";
     {{ end -}}
     {{- $programs := .Bling.FinalPrograms .Config -}}
     {{- $programmap := .Bling.ProgramMap -}}

@@ -493,7 +493,7 @@ func (f *Flake) writeSystem(sys fleek.System, template string, force bool) error
 	if err != nil {
 		return err
 	}
-	fpath := filepath.Join(hostPath, sys.Hostname+".nix")
+	fpath := filepath.Join(hostPath, user.Username+".nix")
 	_, err = os.Stat(fpath)
 	if force || os.IsNotExist(err) {
 
@@ -520,7 +520,7 @@ func (f *Flake) writeUser(sys fleek.System, user fleek.User, template string, fo
 	if err != nil {
 		return err
 	}
-	fpath := filepath.Join(hostPath, "user.nix")
+	fpath := filepath.Join(hostPath, "custom.nix")
 	_, err = os.Stat(fpath)
 	if force || os.IsNotExist(err) {
 

@@ -38,8 +38,8 @@
           ./aliases.nix
           ./programs.nix
           # Host Specific configs
-          ./{{.Hostname}}/{{.Hostname}}.nix
-          ./{{.Hostname}}/user.nix
+          ./{{.Hostname}}/{{.Username}}.nix
+          ./{{.Hostname}}/host.nix
           # self-manage fleek
           ({
            nixpkgs.overlays = [{{ range $index, $element := $overlays }}inputs.{{$index}}.overlay {{ end }}];

@@ -91,12 +91,12 @@ type Overlay struct {
 	Follow bool   `yaml:"follow"`
 }
 
-func (s System) HomeDir() string {
+func (u User) HomeDir(s System) string {
 	base := "/home"
 	if s.OS == "darwin" {
 		base = "/Users"
 	}
-	return base + "/" + s.Username
+	return base + "/" + u.Username
 }
 
 func NewSystem() (*System, error) {
@@ -552,4 +552,58 @@ func (c *Config) Eject() error {
 
 func (c *Config) AsVersion() (*version.Version, error) {
 	return version.NewVersion(c.MinVersion)
+}
+
+// Needs migration checks to see if the host directory
+// has a file with the same name as the host.
+// e.g. ./beast/beast.nix
+func (c *Config) NeedsMigration() bool {
+	for _, s := range c.Systems {
+		systemDir := filepath.Join(c.UserFlakeDir(), s.Hostname)
+		systemFile := filepath.Join(systemDir, s.Hostname+".nix")
+		// beast/beast.nix
+		if Exists(systemFile) {
+			fin.Info.Println("Found unmigrated system file:", systemFile)
+
+			return true
+		}
+		hostFile := filepath.Join(systemDir, "user.nix")
+		// beast/user.nix
+		if Exists(hostFile) {
+
+			fin.Info.Println("Found unmigrated system file:", hostFile)
+
+			return true
+		}
+	}
+	return false
+}
+
+func (c *Config) Migrate() error {
+	for _, s := range c.Systems {
+		systemDir := filepath.Join(c.UserFlakeDir(), s.Hostname)
+		systemFile := filepath.Join(systemDir, s.Hostname+".nix")
+		// beast/beast.nix
+		if Exists(systemFile) {
+			fin.Info.Println("Found unmigrated system file:", systemFile)
+			userFile := filepath.Join(systemDir, s.Username+".nix")
+
+			err := Move(systemFile, userFile)
+			if err != nil {
+				return err
+			}
+		}
+		hostFile := filepath.Join(systemDir, "user.nix")
+		// beast/user.nix -> beast/host.nix
+		if Exists(hostFile) {
+			fin.Info.Println("Found unmigrated system file:", hostFile)
+			newHostFile := filepath.Join(systemDir, "host.nix")
+
+			err := Move(hostFile, newHostFile)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

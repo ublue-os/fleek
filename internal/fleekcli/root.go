@@ -84,6 +84,26 @@ func RootCmd() *cobra.Command {
 					}
 				}
 
+				migrate := cfg.NeedsMigration()
+				if migrate {
+					fin.Info.Println("Migration required")
+					err := cfg.Migrate()
+					if err != nil {
+						fin.Error.Println("error migrating host files:", err)
+						os.Exit(1)
+					}
+					fl, err := flake.Load(cfg, app)
+					if err != nil {
+						fin.Error.Println("error loading flake:", err)
+						os.Exit(1)
+					}
+					err = fl.Write("update host and user files", true, false)
+					if err != nil {
+						fin.Error.Println("error writing flake:", err)
+						os.Exit(1)
+					}
+				}
+
 			}
 
 		},
