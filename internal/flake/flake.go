@@ -33,6 +33,7 @@ type Data struct {
 type SystemData struct {
 	System fleek.System
 	User   fleek.User
+	BYOGit bool
 }
 
 func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
@@ -309,7 +310,7 @@ func (f *Flake) Check() error {
 }
 
 // Write writes the applied flake configuration
-func (f *Flake) Write(message string, writeCustoms bool) error {
+func (f *Flake) Write(message string, writeHost, writeUser bool) error {
 	force := true
 	spinner, err := fin.Spinner().Start(f.app.Trans("flake.writing"))
 	if err != nil {
@@ -379,17 +380,20 @@ func (f *Flake) Write(message string, writeCustoms bool) error {
 	if err != nil {
 		return err
 	}
-	if writeCustoms {
-		sys, err := f.Config.CurrentSystem()
-		if err != nil {
-			return err
-		}
-		user := f.Config.UserForSystem(sys.Hostname)
+	sys, err := f.Config.CurrentSystem()
+	if err != nil {
+		return err
+	}
+	if writeHost {
+
 		err = f.writeSystem(*sys, "templates/host.nix.tmpl", force)
 		if err != nil {
 			return err
 		}
+	}
+	if writeHost {
 
+		user := f.Config.UserForSystem(sys.Hostname)
 		err = f.writeUser(*sys, *user, "templates/user.nix.tmpl", true)
 		if err != nil {
 			return err
@@ -479,6 +483,9 @@ func (f *Flake) writeSystem(sys fleek.System, template string, force bool) error
 	sysData := SystemData{
 		System: sys,
 		User:   *user,
+	}
+	if f.Config.BYOGit {
+		sysData.BYOGit = true
 	}
 
 	hostPath := filepath.Join(f.Config.UserFlakeDir(), sys.Hostname)

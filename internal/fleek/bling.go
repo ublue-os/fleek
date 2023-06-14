@@ -3,6 +3,7 @@ package fleek
 import (
 	_ "embed"
 
+	"github.com/samber/lo"
 	"gopkg.in/yaml.v3"
 )
 
@@ -13,6 +14,19 @@ type Bling struct {
 	Programs    []string `yaml:"programs"`
 	PackageMap  map[string]*Package
 	ProgramMap  map[string]*Program
+}
+
+func (b *Bling) FinalPrograms(c *Config) []string {
+	if c.BYOGit {
+		c.Blocklist = append(c.Blocklist, "git")
+	}
+	return lo.Without(b.Programs, c.Blocklist...)
+}
+func (b *Bling) FinalPackages(c *Config) []string {
+	if c.BYOGit {
+		c.Blocklist = append(c.Blocklist, "git")
+	}
+	return lo.Without(b.Packages, c.Blocklist...)
 }
 
 var (

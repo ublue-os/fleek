@@ -1,6 +1,6 @@
 { pkgs, misc, ... }: {
   # DO NOT EDIT: This file is managed by fleek. Manual changes will be overwritten.
-    {{- $programs := .Bling.Programs -}}
+    {{- $programs := .Bling.FinalPrograms .Config -}}
     {{- $programmap := .Bling.ProgramMap -}}
     {{- range $index, $element := $programs -}}
     {{ $prog := index $programmap $element -}}

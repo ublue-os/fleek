@@ -4,7 +4,7 @@
     {{- range $index, $element := .Config.Aliases }}
     {{$index}} = "{{$element}}";
     {{ end -}}
-    {{- $programs := .Bling.Programs -}}
+    {{- $programs := .Bling.FinalPrograms .Config -}}
     {{- $programmap := .Bling.ProgramMap -}}
     {{- range $index, $element := $programs -}}
     {{- $prog := index $programmap $element -}}

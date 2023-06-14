@@ -46,12 +46,16 @@ type Config struct {
 	Overlays map[string]*Overlay `yaml:",flow"`
 	Packages []string            `yaml:",flow"`
 	Programs []string            `yaml:",flow"`
-	Aliases  map[string]string   `yaml:",flow"`
-	Paths    []string            `yaml:"paths"`
-	Ejected  bool                `yaml:"ejected"`
-	Systems  []*System           `yaml:",flow"`
-	Git      Git                 `yaml:"git"`
-	Users    []*User             `yaml:",flow"`
+	// issue 211, remove or block bling packages
+	Blocklist []string          `yaml:"blocklist,flow"`
+	Aliases   map[string]string `yaml:",flow"`
+	Paths     []string          `yaml:"paths"`
+	Ejected   bool              `yaml:"ejected"`
+	BYOGit    bool              `yaml:"byo_git"`
+	Systems   []*System         `yaml:",flow"`
+	Git       Git               `yaml:"git"`
+	Users     []*User           `yaml:",flow"`
+	Track     string            `yaml:"track"`
 }
 
 func Levels() []string {
@@ -229,6 +233,12 @@ var (
 	ErrProgramNotFound        = errors.New("program not found in configuration file")
 )
 
+func (c *Config) Tracks() string {
+	if c.Track != "" {
+		return c.Track
+	}
+	return "nixos-unstable"
+}
 func (c *Config) Validate() error {
 	if c.FlakeDir == "" {
 		return ErrMissingFlakeDir
@@ -430,6 +440,8 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 	}
 	c.Systems = []*System{sys}
 	c.MinVersion = "0.8.4"
+	c.Track = "nixos-unstable"
+	c.BYOGit = false
 	c.Git.Enabled = true
 	c.Git.AutoCommit = true
 	c.Git.AutoPull = true
