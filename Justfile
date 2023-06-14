@@ -14,7 +14,7 @@ example NAME:
   [ -e "./fleek" ] || just build
   @rm -rf examples/{{NAME}}
   @mkdir -p examples/{{NAME}}
-  @./fleek generate --level {{NAME}} -l projects/ublue/fleek/examples/{{NAME}}
+  @./fleek generate --level {{NAME}} -l fleek/examples/{{NAME}}
 
 [private]
 unmove +FILES:

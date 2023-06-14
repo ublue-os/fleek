@@ -55,7 +55,7 @@ func eject(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-	err = fl.Write("fleek: eject", false)
+	err = fl.Write("fleek: eject", true, false)
 	if err != nil {
 		return err
 	}

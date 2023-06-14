@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/ux"
+	"github.com/ublue-os/fleek/internal/xdg"
 	"gopkg.in/yaml.v3"
 )
 
@@ -46,12 +47,17 @@ type Config struct {
 	Overlays map[string]*Overlay `yaml:",flow"`
 	Packages []string            `yaml:",flow"`
 	Programs []string            `yaml:",flow"`
-	Aliases  map[string]string   `yaml:",flow"`
-	Paths    []string            `yaml:"paths"`
-	Ejected  bool                `yaml:"ejected"`
-	Systems  []*System           `yaml:",flow"`
-	Git      Git                 `yaml:"git"`
-	Users    []*User             `yaml:",flow"`
+	// issue 211, remove or block bling packages
+	Blocklist []string          `yaml:"blocklist,flow"`
+	Aliases   map[string]string `yaml:",flow"`
+	Paths     []string          `yaml:"paths"`
+	Ejected   bool              `yaml:"ejected"`
+	// issue 200 - disable any git integration
+	BYOGit  bool      `yaml:"byo_git"`
+	Systems []*System `yaml:",flow"`
+	Git     Git       `yaml:"git"`
+	Users   []*User   `yaml:",flow"`
+	Track   string    `yaml:"track"`
 }
 
 func Levels() []string {
@@ -81,16 +87,16 @@ type User struct {
 }
 
 type Overlay struct {
-	Url    string `yaml:"url"`
+	URL    string `yaml:"url"`
 	Follow bool   `yaml:"follow"`
 }
 
-func (s System) HomeDir() string {
+func (u User) HomeDir(s System) string {
 	base := "/home"
 	if s.OS == "darwin" {
 		base = "/Users"
 	}
-	return base + "/" + s.Username
+	return base + "/" + u.Username
 }
 
 func NewSystem() (*System, error) {
@@ -229,6 +235,12 @@ var (
 	ErrProgramNotFound        = errors.New("program not found in configuration file")
 )
 
+func (c *Config) Tracks() string {
+	if c.Track != "" {
+		return c.Track
+	}
+	return "nixos-unstable"
+}
 func (c *Config) Validate() error {
 	if c.FlakeDir == "" {
 		return ErrMissingFlakeDir
@@ -262,6 +274,11 @@ func isValueInList(value string, list []string) bool {
 
 func (c *Config) UserFlakeDir() string {
 	home, _ := os.UserHomeDir()
+	// if for some reason the flakedir key is
+	// missing, try loading the default location
+	if c.FlakeDir == "" {
+		return filepath.Join(home, xdg.DataSubpathRel("fleek"))
+	}
 	return filepath.Join(home, c.FlakeDir)
 }
 
@@ -430,6 +447,8 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 	}
 	c.Systems = []*System{sys}
 	c.MinVersion = "0.8.4"
+	c.Track = "nixos-unstable"
+	c.BYOGit = false
 	c.Git.Enabled = true
 	c.Git.AutoCommit = true
 	c.Git.AutoPull = true
@@ -533,4 +552,58 @@ func (c *Config) Eject() error {
 
 func (c *Config) AsVersion() (*version.Version, error) {
 	return version.NewVersion(c.MinVersion)
+}
+
+// Needs migration checks to see if the host directory
+// has a file with the same name as the host.
+// e.g. ./beast/beast.nix
+func (c *Config) NeedsMigration() bool {
+	for _, s := range c.Systems {
+		systemDir := filepath.Join(c.UserFlakeDir(), s.Hostname)
+		systemFile := filepath.Join(systemDir, s.Hostname+".nix")
+		// beast/beast.nix
+		if Exists(systemFile) {
+			fin.Info.Println("Found unmigrated system file:", systemFile)
+
+			return true
+		}
+		hostFile := filepath.Join(systemDir, "user.nix")
+		// beast/user.nix
+		if Exists(hostFile) {
+
+			fin.Info.Println("Found unmigrated system file:", hostFile)
+
+			return true
+		}
+	}
+	return false
+}
+
+func (c *Config) Migrate() error {
+	for _, s := range c.Systems {
+		systemDir := filepath.Join(c.UserFlakeDir(), s.Hostname)
+		systemFile := filepath.Join(systemDir, s.Hostname+".nix")
+		// beast/beast.nix
+		if Exists(systemFile) {
+			fin.Info.Println("Found unmigrated system file:", systemFile)
+			userFile := filepath.Join(systemDir, s.Username+".nix")
+
+			err := Move(systemFile, userFile)
+			if err != nil {
+				return err
+			}
+		}
+		hostFile := filepath.Join(systemDir, "user.nix")
+		// beast/user.nix -> beast/host.nix
+		if Exists(hostFile) {
+			fin.Info.Println("Found unmigrated system file:", hostFile)
+			newHostFile := filepath.Join(systemDir, "host.nix")
+
+			err := Move(hostFile, newHostFile)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

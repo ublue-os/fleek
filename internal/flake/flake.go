@@ -33,6 +33,7 @@ type Data struct {
 type SystemData struct {
 	System fleek.System
 	User   fleek.User
+	BYOGit bool
 }
 
 func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
@@ -309,7 +310,7 @@ func (f *Flake) Check() error {
 }
 
 // Write writes the applied flake configuration
-func (f *Flake) Write(message string, writeCustoms bool) error {
+func (f *Flake) Write(message string, writeHost, writeUser bool) error {
 	force := true
 	spinner, err := fin.Spinner().Start(f.app.Trans("flake.writing"))
 	if err != nil {
@@ -379,17 +380,20 @@ func (f *Flake) Write(message string, writeCustoms bool) error {
 	if err != nil {
 		return err
 	}
-	if writeCustoms {
-		sys, err := f.Config.CurrentSystem()
-		if err != nil {
-			return err
-		}
-		user := f.Config.UserForSystem(sys.Hostname)
+	sys, err := f.Config.CurrentSystem()
+	if err != nil {
+		return err
+	}
+	if writeHost {
+
 		err = f.writeSystem(*sys, "templates/host.nix.tmpl", force)
 		if err != nil {
 			return err
 		}
+	}
+	if writeUser {
 
+		user := f.Config.UserForSystem(sys.Hostname)
 		err = f.writeUser(*sys, *user, "templates/user.nix.tmpl", true)
 		if err != nil {
 			return err
@@ -480,13 +484,16 @@ func (f *Flake) writeSystem(sys fleek.System, template string, force bool) error
 		System: sys,
 		User:   *user,
 	}
+	if f.Config.BYOGit {
+		sysData.BYOGit = true
+	}
 
 	hostPath := filepath.Join(f.Config.UserFlakeDir(), sys.Hostname)
 	err = os.MkdirAll(hostPath, 0755)
 	if err != nil {
 		return err
 	}
-	fpath := filepath.Join(hostPath, sys.Hostname+".nix")
+	fpath := filepath.Join(hostPath, user.Username+".nix")
 	_, err = os.Stat(fpath)
 	if force || os.IsNotExist(err) {
 
@@ -513,7 +520,7 @@ func (f *Flake) writeUser(sys fleek.System, user fleek.User, template string, fo
 	if err != nil {
 		return err
 	}
-	fpath := filepath.Join(hostPath, "user.nix")
+	fpath := filepath.Join(hostPath, "custom.nix")
 	_, err = os.Stat(fpath)
 	if force || os.IsNotExist(err) {
 
@@ -558,11 +565,21 @@ func (f *Flake) runNix(cmd string, cmdLine []string) error {
 	command.Stderr = os.Stderr
 	command.Stdout = os.Stdout
 	command.Dir = f.Config.UserFlakeDir()
+	fin.Debug.Println("running nix command in ", command.Dir)
 	command.Env = os.Environ()
 	if f.Config.Unfree {
 		command.Env = append(command.Env, "NIXPKGS_ALLOW_UNFREE=1")
 	}
 
+	return command.Run()
+
+}
+func ForceProfile() error {
+	command := exec.Command("nix", "profile", "list")
+	command.Stdin = os.Stdin
+	command.Stderr = os.Stderr
+	command.Stdout = os.Stdout
+	command.Env = os.Environ()
 	return command.Run()
 
 }

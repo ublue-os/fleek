@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
+	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
 )
@@ -54,7 +55,10 @@ func RootCmd() *cobra.Command {
 					fin.Warning.Println(app.Trans("fleek.unsupported"))
 				}
 			}
-
+			err := flake.ForceProfile()
+			if err != nil {
+				os.Exit(1)
+			}
 			// try to get the config, which may not exist yet
 			c, err := fleek.ReadConfig("")
 			if err == nil {
@@ -76,6 +80,26 @@ func RootCmd() *cobra.Command {
 				if cfg.Ejected {
 					if cmd.Name() != app.Trans("apply.use") {
 						fin.Error.Println(app.Trans("eject.ejected"))
+						os.Exit(1)
+					}
+				}
+
+				migrate := cfg.NeedsMigration()
+				if migrate {
+					fin.Info.Println("Migration required")
+					err := cfg.Migrate()
+					if err != nil {
+						fin.Error.Println("error migrating host files:", err)
+						os.Exit(1)
+					}
+					fl, err := flake.Load(cfg, app)
+					if err != nil {
+						fin.Error.Println("error loading flake:", err)
+						os.Exit(1)
+					}
+					err = fl.Write("update host and user files", true, false)
+					if err != nil {
+						fin.Error.Println("error writing flake:", err)
 						os.Exit(1)
 					}
 				}

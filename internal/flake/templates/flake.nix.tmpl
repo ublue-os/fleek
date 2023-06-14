@@ -4,7 +4,7 @@
 
   inputs = {
     # Nixpkgs
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/{{ .Config.Tracks }}";
 
     # Home manager
     home-manager.url = "github:nix-community/home-manager";
@@ -15,7 +15,7 @@
 
     # Overlays
     {{ range $index, $element := .Config.Overlays }}
-    {{$index}}.url = "{{$element.Url}}";
+    {{$index}}.url = "{{$element.URL}}";
     {{ if $element.Follow }}{{$index}}.inputs.nixpkgs.follows = "nixpkgs";{{end}}
     {{ end }}
 
@@ -38,8 +38,8 @@
           ./aliases.nix
           ./programs.nix
           # Host Specific configs
-          ./{{.Hostname}}/{{.Hostname}}.nix
-          ./{{.Hostname}}/user.nix
+          ./{{.Hostname}}/{{.Username}}.nix
+          ./{{.Hostname}}/host.nix
           # self-manage fleek
           ({
            nixpkgs.overlays = [{{ range $index, $element := $overlays }}inputs.{{$index}}.overlay {{ end }}];

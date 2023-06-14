@@ -1,7 +1,7 @@
 dist/
 .env
 .envrc
-fleek
+/fleek
 
 # Nix artifacts
 result

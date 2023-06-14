@@ -22,7 +22,7 @@
     {{- range .Config.Packages }}
     pkgs.{{ . }}{{ end }}
     # Fleek Bling
-  {{- range $p, $pkg := .Bling.Packages }}
+  {{- range $p, $pkg := .Bling.FinalPackages .Config }}
     pkgs.{{ $pkg }}{{ end }}
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
   ];

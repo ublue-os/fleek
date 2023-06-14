@@ -5,7 +5,7 @@
   # add your personalized program configuration in ./user.nix   
 
   # Bling supplied programs
-  {{- range $index, $element := .Bling.Programs}} 
+  {{- range $index, $element := .Bling.FinalPrograms .Config}} 
     programs.{{ $element }}.enable = true;{{ end }}
 
   # User specified programs

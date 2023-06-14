@@ -1,7 +1,8 @@
 { pkgs, misc, ... }: {
   # DO NOT EDIT: This file is managed by fleek. Manual changes will be overwritten.
     home.username = "{{.User.Username}}";
-    home.homeDirectory = "{{.System.HomeDir}}";
+    home.homeDirectory = "{{.User.HomeDir .System}}";
+    {{- if not .BYOGit  }}
     programs.git = {
         enable = true;
         aliases = {
@@ -25,4 +26,5 @@
         lfs.enable = true;
         ignores = [ ".direnv" "result" ];
   };
+  {{ end }}
 }

@@ -1,6 +1,7 @@
 { pkgs, misc, ... }: {
-    home.username = "bjk";
-    home.homeDirectory = "/home/bjk";
+  # DO NOT EDIT: This file is managed by fleek. Manual changes will be overwritten.
+    home.username = "ubuntu";
+    home.homeDirectory = "/home/ubuntu";
     programs.git = {
         enable = true;
         aliases = {
@@ -24,4 +25,5 @@
         lfs.enable = true;
         ignores = [ ".direnv" "result" ];
   };
+  
 }

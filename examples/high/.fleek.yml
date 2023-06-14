@@ -1,9 +1,12 @@
 aliases:
-    apply-beast: nix run --impure home-manager/master -- -b bak switch --flake .#bjk@beast
-    fleeks: cd ~/projects/ublue/fleek/examples/high
+    apply-fleekdev: nix run --impure home-manager/master -- -b bak switch --flake .#ubuntu@fleekdev
+    fleeks: cd ~/fleek/examples/high
 bling: high
+blocklist:
+    - vscode
+byo_git: false
 ejected: true
-flakedir: projects/ublue/fleek/examples/high
+flakedir: fleek/examples/high
 git:
     autocommit: false
     autopull: false
@@ -11,6 +14,7 @@ git:
     enabled: false
 min_version: 0.8.4
 name: Fleek Configuration
+overlays: {}
 packages:
     - helix
 paths:
@@ -21,13 +25,14 @@ programs:
 shell: zsh
 systems:
     - arch: x86_64
-      hostname: beast
+      hostname: fleekdev
       os: linux
-      username: bjk
+      username: ubuntu
+track: nixos-unstable
 unfree: true
 users:
     - email: bketelsen@gmail.com
       name: Brian Ketelsen
       ssh_private_key_file: ~/.ssh/id_rsa
       ssh_public_key_file: ~/.ssh/id_rsa.pub
-      username: bjk
+      username: ubuntu

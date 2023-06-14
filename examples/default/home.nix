@@ -1,4 +1,5 @@
 { config, pkgs, misc, ... }: {
+  # DO NOT EDIT: This file is managed by fleek. Manual changes will be overwritten.
   nixpkgs = {
     # Configure your nixpkgs instance
     config = {
@@ -24,7 +25,6 @@
     pkgs.glab
     pkgs.fzf
     pkgs.ripgrep
-    pkgs.vscode
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
   ];
   fonts.fontconfig.enable = true; 
