@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/ux"
+	"github.com/ublue-os/fleek/internal/xdg"
 	"gopkg.in/yaml.v3"
 )
 
@@ -51,11 +52,12 @@ type Config struct {
 	Aliases   map[string]string `yaml:",flow"`
 	Paths     []string          `yaml:"paths"`
 	Ejected   bool              `yaml:"ejected"`
-	BYOGit    bool              `yaml:"byo_git"`
-	Systems   []*System         `yaml:",flow"`
-	Git       Git               `yaml:"git"`
-	Users     []*User           `yaml:",flow"`
-	Track     string            `yaml:"track"`
+	// issue 200 - disable any git integration
+	BYOGit  bool      `yaml:"byo_git"`
+	Systems []*System `yaml:",flow"`
+	Git     Git       `yaml:"git"`
+	Users   []*User   `yaml:",flow"`
+	Track   string    `yaml:"track"`
 }
 
 func Levels() []string {
@@ -272,6 +274,11 @@ func isValueInList(value string, list []string) bool {
 
 func (c *Config) UserFlakeDir() string {
 	home, _ := os.UserHomeDir()
+	// if for some reason the flakedir key is
+	// missing, try loading the default location
+	if c.FlakeDir == "" {
+		return filepath.Join(home, xdg.DataSubpathRel("fleek"))
+	}
 	return filepath.Join(home, c.FlakeDir)
 }
 

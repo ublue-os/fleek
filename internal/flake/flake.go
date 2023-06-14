@@ -565,6 +565,7 @@ func (f *Flake) runNix(cmd string, cmdLine []string) error {
 	command.Stderr = os.Stderr
 	command.Stdout = os.Stdout
 	command.Dir = f.Config.UserFlakeDir()
+	fin.Debug.Println("running nix command in ", command.Dir)
 	command.Env = os.Environ()
 	if f.Config.Unfree {
 		command.Env = append(command.Env, "NIXPKGS_ALLOW_UNFREE=1")
