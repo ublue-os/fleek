@@ -574,6 +574,15 @@ func (f *Flake) runNix(cmd string, cmdLine []string) error {
 	return command.Run()
 
 }
+func ForceProfile() error {
+	command := exec.Command("nix", "profile", "list")
+	command.Stdin = os.Stdin
+	command.Stderr = os.Stderr
+	command.Stdout = os.Stdout
+	command.Env = os.Environ()
+	return command.Run()
+
+}
 
 //go:embed all:templates
 var templates embed.FS

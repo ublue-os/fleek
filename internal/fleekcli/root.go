@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
+	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
 )
@@ -54,7 +55,10 @@ func RootCmd() *cobra.Command {
 					fin.Warning.Println(app.Trans("fleek.unsupported"))
 				}
 			}
-
+			err := flake.ForceProfile()
+			if err != nil {
+				os.Exit(1)
+			}
 			// try to get the config, which may not exist yet
 			c, err := fleek.ReadConfig("")
 			if err == nil {
