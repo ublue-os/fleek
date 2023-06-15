@@ -13,6 +13,7 @@ require (
 	github.com/muesli/roff v0.1.0
 	github.com/otiai10/copy v1.11.0
 	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab
+	github.com/samber/lo v1.38.1
 	github.com/spf13/cobra v1.7.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -41,7 +42,6 @@ require (
 	github.com/muesli/mango v0.1.0 // indirect
 	github.com/muesli/mango-pflag v0.1.0 // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
-	github.com/samber/lo v1.38.1 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/skeema/knownhosts v1.1.1 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
