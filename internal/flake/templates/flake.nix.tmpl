@@ -43,9 +43,6 @@
           # self-manage fleek
           ({
            nixpkgs.overlays = [{{ range $index, $element := $overlays }}inputs.{{$index}}.overlay {{ end }}];
-           home.packages = [
-            fleek.packages.{{ .Arch }}-{{ .OS }}.default
-          ];
           })
 
         ];
