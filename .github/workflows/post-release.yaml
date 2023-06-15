@@ -24,4 +24,4 @@ jobs:
         run: |
           tmp_file=$(mktemp)
           echo "${{ github.ref_name }}" > $tmp_file
-          aws s3 cp $tmp_file s3://fleek-releases.s3.us-east-1.amazonaws.com/fleek/stable/version
+          aws s3 cp $tmp_file s3://fleek-releases/fleek/stable/version
