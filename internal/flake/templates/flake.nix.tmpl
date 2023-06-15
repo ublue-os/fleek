@@ -39,7 +39,7 @@
           ./programs.nix
           # Host Specific configs
           ./{{.Hostname}}/{{.Username}}.nix
-          ./{{.Hostname}}/host.nix
+          ./{{.Hostname}}/custom.nix
           # self-manage fleek
           ({
            nixpkgs.overlays = [{{ range $index, $element := $overlays }}inputs.{{$index}}.overlay {{ end }}];
