@@ -46,7 +46,6 @@ snapshot:
   goreleaser release --clean --snapshot
 
 build:
-  @source ./.env
   @go build -a -tags netgo -ldflags '-w -extldflags "-static"' github.com/ublue-os/fleek/cmd/fleek
 
 apply:

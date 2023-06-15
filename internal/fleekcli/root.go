@@ -3,9 +3,7 @@ package fleekcli
 import (
 	"io"
 	"os"
-	"path/filepath"
 	"runtime/debug"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
@@ -40,7 +38,7 @@ func RootCmd() *cobra.Command {
 				fin.Debug.Println(info.String())
 
 			}
-			warn := os.Getenv("WARN_FLEEK")
+/*			warn := os.Getenv("WARN_FLEEK")
 			if warn == "" {
 				ex, err := os.Executable()
 				if err != nil {
@@ -55,6 +53,7 @@ func RootCmd() *cobra.Command {
 					fin.Warning.Println(app.Trans("fleek.unsupported"))
 				}
 			}
+			*/
 			err := flake.ForceProfile()
 			if err != nil {
 				os.Exit(1)

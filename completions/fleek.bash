@@ -1,5 +1,3 @@
-[33m[33m [!] [0m[0m [93m[93mFleek is installed in an deprecated location. [0m[0m
-[33m[33m     [0m[0m [93m[93mSee upgrade instructions at https://getfleek.dev/docs/upgrade [0m[0m
 # bash completion V2 for fleek                                -*- shell-script -*-
 
 __fleek_debug()

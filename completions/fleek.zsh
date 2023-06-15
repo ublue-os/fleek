@@ -1,5 +1,3 @@
-[33m[33m [!] [0m[0m [93m[93mFleek is installed in an deprecated location. [0m[0m
-[33m[33m     [0m[0m [93m[93mSee upgrade instructions at https://getfleek.dev/docs/upgrade [0m[0m
 #compdef fleek
 compdef _fleek fleek
 
