@@ -21,4 +21,4 @@ $ apply-$(hostname)
 Your actual aliases are listed below:
     apply-fleekdev = "nix run --impure home-manager/master -- -b bak switch --flake .#ubuntu@fleekdev";
 
-    fleeks = "cd ~/fleek/examples/none";
+    fleeks = "cd ~/projects/ublue/fleek/examples/none";

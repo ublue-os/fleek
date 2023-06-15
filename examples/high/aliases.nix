@@ -3,7 +3,7 @@
    home.shellAliases = {
     "apply-fleekdev" = "nix run --impure home-manager/master -- -b bak switch --flake .#ubuntu@fleekdev";
     
-    "fleeks" = "cd ~/fleek/examples/high";
+    "fleeks" = "cd ~/projects/ublue/fleek/examples/high";
     
     # bat --plain for unformatted cat
     catp = "bat -P";

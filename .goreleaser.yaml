@@ -4,8 +4,6 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod tidy
-    - ./scripts/man.sh
-    - ./scripts/completions.sh
 
 changelog:
   groups:
@@ -71,8 +69,6 @@ archives:
     files:
       - LICENSE
       - README.md
-      - man/**/*
-      - completions/*
     # this name template makes the OS and Arch compatible with the results of uname.
     name_template: >-
       {{ .ProjectName }}_
@@ -104,10 +100,6 @@ brews:
 
     install: |-
       bin.install "fleek"
-      bash_completion.install "completions/fleek.bash" => "fleek"
-      zsh_completion.install "completions/fleek.zsh" => "_fleek"
-      fish_completion.install "completions/fleek.fish"
-      man1.install "man/en/man1/fleek.1.gz"
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.
 # yaml-language-server: $schema=https://goreleaser.com/static/schema-pro.json

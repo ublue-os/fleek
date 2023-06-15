@@ -38,22 +38,7 @@ func RootCmd() *cobra.Command {
 				fin.Debug.Println(info.String())
 
 			}
-/*			warn := os.Getenv("WARN_FLEEK")
-			if warn == "" {
-				ex, err := os.Executable()
-				if err != nil {
-					panic(err)
-				}
-				exePath := filepath.Dir(ex)
-				fin.Debug.Println("installed at: " + exePath)
-				// this is pretty hokey, but it's the best we can do for now
-				// /nix/var/nix is the actual store, but macos reports the binary
-				// location as the symlinked path instead of actual store path
-				if !strings.Contains(exePath, "nix") {
-					fin.Warning.Println(app.Trans("fleek.unsupported"))
-				}
-			}
-			*/
+
 			err := flake.ForceProfile()
 			if err != nil {
 				os.Exit(1)
