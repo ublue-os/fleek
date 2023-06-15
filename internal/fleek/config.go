@@ -597,7 +597,7 @@ func (c *Config) Migrate() error {
 		// beast/user.nix -> beast/host.nix
 		if Exists(hostFile) {
 			fin.Info.Println("Found unmigrated system file:", hostFile)
-			newHostFile := filepath.Join(systemDir, "host.nix")
+			newHostFile := filepath.Join(systemDir, "custom.nix")
 
 			err := Move(hostFile, newHostFile)
 			if err != nil {
