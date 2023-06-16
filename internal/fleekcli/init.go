@@ -8,7 +8,6 @@ import (
 	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
-	"github.com/ublue-os/fleek/internal/xdg"
 )
 
 type initCmdFlags struct {
@@ -34,8 +33,6 @@ func InitCommand() *cobra.Command {
 		&flags.apply, app.Trans("init.applyFlag"), "a", false, app.Trans("init.applyFlagDescription"))
 	command.Flags().BoolVarP(
 		&flags.force, app.Trans("init.forceFlag"), "f", false, app.Trans("init.forceFlagDescription"))
-	command.Flags().StringVarP(
-		&flags.location, app.Trans("init.locationFlag"), "l", xdg.DataSubpathRel("fleek"), app.Trans("init.locationFlagDescription"))
 	command.Flags().StringVar(
 		&flags.level, app.Trans("init.levelFlag"), "default", app.Trans("init.levelFlagDescription"))
 	return command

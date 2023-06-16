@@ -10,14 +10,16 @@ import (
 	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
+	"github.com/ublue-os/fleek/internal/xdg"
 )
 
 var cfg *fleek.Config
 var cfgFound bool
 
 type rootCmdFlags struct {
-	quiet   bool
-	verbose bool
+	quiet    bool
+	verbose  bool
+	location string
 }
 
 func RootCmd() *cobra.Command {
@@ -44,7 +46,7 @@ func RootCmd() *cobra.Command {
 				os.Exit(1)
 			}
 			// try to get the config, which may not exist yet
-			c, err := fleek.ReadConfig("")
+			c, err := fleek.ReadConfig(flags.location)
 			if err == nil {
 				if flags.verbose {
 					fin.Info.Println(app.Trans("fleek.configLoaded"))
@@ -175,6 +177,8 @@ func RootCmd() *cobra.Command {
 		&flags.quiet, app.Trans("fleek.quietFlag"), "q", false, app.Trans("fleek.quietFlagDescription"))
 	command.PersistentFlags().BoolVarP(
 		&flags.verbose, app.Trans("fleek.verboseFlag"), "v", false, app.Trans("fleek.verboseFlagDescription"))
+	command.PersistentFlags().StringVarP(
+		&flags.location, app.Trans("init.locationFlag"), "l", xdg.DataSubpathRel("fleek"), app.Trans("init.locationFlagDescription"))
 
 	debugMiddleware.AttachToFlag(command.PersistentFlags(), app.Trans("fleek.debugFlag"))
 	traceMiddleware.AttachToFlag(command.PersistentFlags(), app.Trans("fleek.traceFlag"))
