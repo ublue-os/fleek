@@ -11,10 +11,9 @@ import (
 )
 
 type initCmdFlags struct {
-	apply    bool
-	force    bool
-	location string
-	level    string
+	apply bool
+	force bool
+	level string
 }
 
 func InitCommand() *cobra.Command {
