@@ -401,17 +401,16 @@ func (c *Config) Save() error {
 // pointed to in the $HOME/.fleek.yml symlink
 func ReadConfig(loc string) (*Config, error) {
 	c := &Config{}
-
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return c, err
+	}
 	if loc == "" {
 
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return c, err
-		}
 		csym := filepath.Join(home, ".fleek.yml")
 		loc = csym
 	} else {
-		loc = filepath.Join(loc, ".fleek.yml")
+		loc = filepath.Join(home, loc, ".fleek.yml")
 	}
 	bb, err := os.ReadFile(loc)
 	if err != nil {
