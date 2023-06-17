@@ -410,7 +410,11 @@ func ReadConfig(loc string) (*Config, error) {
 		csym := filepath.Join(home, ".fleek.yml")
 		loc = csym
 	} else {
-		loc = filepath.Join(home, loc, ".fleek.yml")
+		if strings.HasPrefix(loc, home) {
+			loc = filepath.Join(loc, ".fleek.yml")
+		} else {
+			loc = filepath.Join(home, loc, ".fleek.yml")
+		}
 	}
 	bb, err := os.ReadFile(loc)
 	if err != nil {
