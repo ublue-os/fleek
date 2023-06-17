@@ -566,7 +566,16 @@ func (c *Config) NeedsMigration() bool {
 
 			return true
 		}
-		hostFile := filepath.Join(systemDir, "user.nix")
+
+		hostFile := filepath.Join(systemDir, "host.nix")
+		// beast/host.nix
+		if Exists(hostFile) {
+
+			fin.Info.Println("Found unmigrated system file:", hostFile)
+
+			return true
+		}
+		hostFile = filepath.Join(systemDir, "user.nix")
 		// beast/user.nix
 		if Exists(hostFile) {
 
@@ -593,7 +602,19 @@ func (c *Config) Migrate() error {
 			}
 		}
 		hostFile := filepath.Join(systemDir, "user.nix")
-		// beast/user.nix -> beast/host.nix
+		// beast/user.nix -> beast/custom.nix
+		if Exists(hostFile) {
+			fin.Info.Println("Found unmigrated system file:", hostFile)
+			newHostFile := filepath.Join(systemDir, "custom.nix")
+
+			err := Move(hostFile, newHostFile)
+			if err != nil {
+				return err
+			}
+		}
+
+		hostFile = filepath.Join(systemDir, "host.nix")
+		// beast/host.nix -> beast/custom.nix
 		if Exists(hostFile) {
 			fin.Info.Println("Found unmigrated system file:", hostFile)
 			newHostFile := filepath.Join(systemDir, "custom.nix")
