@@ -340,11 +340,7 @@ func (f *Flake) Write(message string, writeHost, writeUser bool) error {
 		Bling:  bling,
 	}
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	err = f.ReadConfig(filepath.Join(home, f.Config.FlakeDir))
+	err = f.ReadConfig("")
 	if err != nil {
 		return err
 	}
