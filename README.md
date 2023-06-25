@@ -50,11 +50,18 @@ echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 ```
 Rather than downloading and installing Fleek, we're going to use the power of `nix` to run it directly from GitHub. This will let Fleek manage itself, and you'll always have the latest version.
 
-First let's bootstrap `fleek`:
+Install `fleek`:
 
 ```shell
-nix run github:ublue-os/fleek -- init
+curl -fsSL https://getfleek.dev/installer | bash
 ```
+
+Run `fleek init`:
+
+```shell
+fleek init
+```
+
 
 This will create your configuration file and symlink it to `$HOME/.fleek.yml`. Open it with your favorite editor and take a look.
 
@@ -74,7 +81,7 @@ Activating reloadSystemd
  [✓]  Operation completed successfully
 ```
 
-*What happened here?* We just installed Nix Home Manager, configured it with your preferences, and applied it to your system. Note that up until this point you haven't even installed Fleek. The power of `nix` did it for you. 
+*What happened here?* We just installed Nix Home Manager, configured it with your preferences, and applied it to your system.
 
 You may need to close and re-open your terminal or even log out to see the changes.
 
