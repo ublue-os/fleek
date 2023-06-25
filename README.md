@@ -48,7 +48,6 @@ After Nix is installed you need to enable [flakes and the nix command](https://n
 mkdir -p ~/.config/nix
 echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 ```
-Rather than downloading and installing Fleek, we're going to use the power of `nix` to run it directly from GitHub. This will let Fleek manage itself, and you'll always have the latest version.
 
 Install `fleek`:
 
@@ -70,7 +69,7 @@ Make any changes to the `~/.fleek.yml` file you want... we recommend Bling Level
 Now let's apply your configuration:
 
 ```shell
-nix run github:ublue-os/fleek -- apply
+fleek apply
 ```
 It will take a bit to download and install everything, but when it's done you should see something like this:
        
