@@ -224,7 +224,7 @@ github.com/muesli/roff
 # github.com/muesli/termenv v0.15.1
 ## explicit; go 1.17
 github.com/muesli/termenv
-# github.com/otiai10/copy v1.11.0
+# github.com/otiai10/copy v1.12.0
 ## explicit; go 1.18
 github.com/otiai10/copy
 # github.com/pjbgf/sha1cd v0.3.0
