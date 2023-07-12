@@ -53,11 +53,12 @@ type Config struct {
 	Paths     []string          `yaml:"paths"`
 	Ejected   bool              `yaml:"ejected"`
 	// issue 200 - disable any git integration
-	BYOGit  bool      `yaml:"byo_git"`
-	Systems []*System `yaml:",flow"`
-	Git     Git       `yaml:"git"`
-	Users   []*User   `yaml:",flow"`
-	Track   string    `yaml:"track"`
+	BYOGit      bool      `yaml:"byo_git"`
+	Systems     []*System `yaml:",flow"`
+	Git         Git       `yaml:"git"`
+	Users       []*User   `yaml:",flow"`
+	Track       string    `yaml:"track"`
+	AllowBroken bool      `yaml:"allow_broken"`
 }
 
 func Levels() []string {
