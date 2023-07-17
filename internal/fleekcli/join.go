@@ -6,12 +6,14 @@ package fleekcli
 import (
 	"errors"
 	"os"
+	"path/filepath"
 
 	cp "github.com/otiai10/copy"
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleek"
+	"gopkg.in/yaml.v3"
 )
 
 type joinCmdFlags struct {
@@ -53,7 +55,7 @@ func join(cmd *cobra.Command, args []string) error {
 	}
 
 	// read config
-	config, err := fleek.ReadConfig(dirName)
+	config, err := readConfigFromGitClone(dirName)
 	if err != nil {
 		return err
 	}
@@ -102,4 +104,18 @@ func join(cmd *cobra.Command, args []string) error {
 	fin.Info.Println(app.Trans("join.complete"))
 
 	return nil
+}
+
+func readConfigFromGitClone(loc string) (*fleek.Config, error) {
+	c := &fleek.Config{}
+	loc = filepath.Join(loc, ".fleek.yml")
+	bb, err := os.ReadFile(loc)
+	if err != nil {
+		return c, err
+	}
+	err = yaml.Unmarshal(bb, c)
+	if err != nil {
+		return c, err
+	}
+	return c, nil
 }
