@@ -10,6 +10,7 @@ func Bottom() {
 	if height > 0 {
 		Down(height)
 		StartOfLine()
+
 		height = 0
 	}
 }

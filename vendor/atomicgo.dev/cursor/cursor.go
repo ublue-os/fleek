@@ -25,6 +25,7 @@ func Up(n int) {
 // Down moves the cursor n lines down relative to the current position.
 func Down(n int) {
 	fmt.Fprintf(target, "\x1b[%dB", n)
+
 	if height-n <= 0 {
 		height = 0
 	} else {
@@ -45,7 +46,7 @@ func Left(n int) {
 // HorizontalAbsolute moves the cursor to n horizontally.
 // The position n is absolute to the start of the line.
 func HorizontalAbsolute(n int) {
-	n += 1 // Moves the line to the character after n
+	n++ // Moves the line to the character after n
 	fmt.Fprintf(target, "\x1b[%dG", n)
 }
 
