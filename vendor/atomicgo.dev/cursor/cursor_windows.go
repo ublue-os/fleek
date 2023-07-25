@@ -97,7 +97,7 @@ func Hide() {
 	_, _, _ = procSetConsoleCursorInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&cci)))
 }
 
-// ClearLine clears the current line and moves the cursor to it's start position.
+// ClearLine clears the current line and moves the cursor to its start position.
 func ClearLine() {
 	handle := syscall.Handle(target.Fd())
 
