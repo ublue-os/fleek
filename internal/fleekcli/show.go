@@ -35,7 +35,7 @@ func ShowCmd() *cobra.Command {
 	command.Flags().BoolVarP(
 		&flags.json, app.Trans("show.jsonFlag"), "j", false, app.Trans("show.jsonFlagDescription"))
 	command.Flags().StringVarP(
-		&flags.level, app.Trans("show.levelFlag"), "l", "", app.Trans("show.levelFlagDescription"))
+		&flags.level, app.Trans("show.levelFlag"), "s", "", app.Trans("show.levelFlagDescription"))
 	return command
 }
 
