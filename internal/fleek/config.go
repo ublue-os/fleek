@@ -77,6 +77,7 @@ type System struct {
 	Username string `yaml:"username"`
 	Arch     string `yaml:"arch"`
 	OS       string `yaml:"os"`
+	Home     string `yaml:"home"`
 }
 
 type User struct {
@@ -93,6 +94,9 @@ type Overlay struct {
 }
 
 func (u User) HomeDir(s System) string {
+	if s.Home != "" {
+		return s.Home
+	}
 	base := "/home"
 	if s.OS == "darwin" {
 		base = "/Users"
