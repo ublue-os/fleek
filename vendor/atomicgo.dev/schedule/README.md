@@ -1,13 +1,14 @@
 <h1 align="center">AtomicGo | schedule</h1>
 
 <p align="center">
+<img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fatomicgo.dev%2Fapi%2Fshields%2Fschedule&style=flat-square" alt="Downloads">
 
 <a href="https://github.com/atomicgo/schedule/releases">
 <img src="https://img.shields.io/github/v/release/atomicgo/schedule?style=flat-square" alt="Latest Release">
 </a>
 
 <a href="https://codecov.io/gh/atomicgo/schedule" target="_blank">
-<img src="https://img.shields.io/github/workflow/status/atomicgo/schedule/Go?label=tests&style=flat-square" alt="Tests">
+<img src="https://img.shields.io/github/actions/workflow/status/atomicgo/schedule/go.yml?style=flat-square" alt="Tests">
 </a>
 
 <a href="https://codecov.io/gh/atomicgo/schedule" target="_blank">
@@ -18,21 +19,19 @@
 <!-- unittestcount:start --><img src="https://img.shields.io/badge/Unit_Tests-0-magenta?style=flat-square" alt="Unit test count"><!-- unittestcount:end -->
 </a>
 
-<a href="https://github.com/atomicgo/schedule/issues">
-<img src="https://img.shields.io/github/issues/atomicgo/schedule.svg?style=flat-square" alt="Issues">
-</a>
-
 <a href="https://opensource.org/licenses/MIT" target="_blank">
 <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License: MIT">
 </a>
+  
+<a href="https://goreportcard.com/report/github.com/atomicgo/schedule" target="_blank">
+<img src="https://goreportcard.com/badge/github.com/atomicgo/schedule?style=flat-square" alt="Go report">
+</a>   
 
 </p>
 
 ---
 
 <p align="center">
-<strong><a href="#install">Get The Module</a></strong>
-|
 <strong><a href="https://pkg.go.dev/atomicgo.dev/schedule#section-documentation" target="_blank">Documentation</a></strong>
 |
 <strong><a href="https://github.com/atomicgo/atomicgo/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a></strong>
@@ -49,11 +48,6 @@
 <p align="center">
 <table>
 <tbody>
-<td align="center">
-<img width="2000" height="0"><br>
-  -----------------------------------------------------------------------------------------------------
-<img width="2000" height="0">
-</td>
 </tbody>
 </table>
 </p>
@@ -61,11 +55,6 @@
 <p align="center">
 <table>
 <tbody>
-<td align="center">
-<img width="2000" height="0"><br>
-   -----------------------------------------------------------------------------------------------------
-<img width="2000" height="0">
-</td>
 </tbody>
 </table>
 </p>
@@ -86,19 +75,20 @@ It can run a function at a given time, in a given duration, or repeatedly at a g
 
 ## Index
 
-- [type Task](<#type-task>)
-  - [func After(d time.Duration, task func()) *Task](<#func-after>)
-  - [func At(t time.Time, task func()) *Task](<#func-at>)
-  - [func Every(interval time.Duration, task func()) *Task](<#func-every>)
-  - [func (s *Task) ExecutesIn() time.Duration](<#func-task-executesin>)
-  - [func (s *Task) IsActive() bool](<#func-task-isactive>)
-  - [func (s *Task) NextExecutionTime() time.Time](<#func-task-nextexecutiontime>)
-  - [func (s *Task) StartedAt() time.Time](<#func-task-startedat>)
-  - [func (s *Task) Stop()](<#func-task-stop>)
-  - [func (s *Task) Wait()](<#func-task-wait>)
+- [type Task](<#Task>)
+  - [func After\(d time.Duration, task func\(\)\) \*Task](<#After>)
+  - [func At\(t time.Time, task func\(\)\) \*Task](<#At>)
+  - [func Every\(interval time.Duration, task func\(\) bool\) \*Task](<#Every>)
+  - [func \(s \*Task\) ExecutesIn\(\) time.Duration](<#Task.ExecutesIn>)
+  - [func \(s \*Task\) IsActive\(\) bool](<#Task.IsActive>)
+  - [func \(s \*Task\) NextExecutionTime\(\) time.Time](<#Task.NextExecutionTime>)
+  - [func \(s \*Task\) StartedAt\(\) time.Time](<#Task.StartedAt>)
+  - [func \(s \*Task\) Stop\(\)](<#Task.Stop>)
+  - [func \(s \*Task\) Wait\(\)](<#Task.Wait>)
 
 
-## type Task
+<a name="Task"></a>
+## type [Task](<https://github.com/atomicgo/schedule/blob/main/schedule.go#L6-L10>)
 
 Task holds information about the running task and can be used to stop running tasks.
 
@@ -108,7 +98,8 @@ type Task struct {
 }
 ```
 
-### func After
+<a name="After"></a>
+### func [After](<https://github.com/atomicgo/schedule/blob/main/schedule.go#L58>)
 
 ```go
 func After(d time.Duration, task func()) *Task
@@ -118,6 +109,8 @@ After executes the task after the given duration. The function is non\-blocking.
 
 <details><summary>Example</summary>
 <p>
+
+
 
 ```go
 package main
@@ -143,7 +136,8 @@ func main() {
 </p>
 </details>
 
-### func At
+<a name="At"></a>
+### func [At](<https://github.com/atomicgo/schedule/blob/main/schedule.go#L77>)
 
 ```go
 func At(t time.Time, task func()) *Task
@@ -153,6 +147,8 @@ At executes the task at the given time. The function is non\-blocking. If you wa
 
 <details><summary>Example</summary>
 <p>
+
+
 
 ```go
 package main
@@ -178,16 +174,19 @@ func main() {
 </p>
 </details>
 
-### func Every
+<a name="Every"></a>
+### func [Every](<https://github.com/atomicgo/schedule/blob/main/schedule.go#L96>)
 
 ```go
-func Every(interval time.Duration, task func()) *Task
+func Every(interval time.Duration, task func() bool) *Task
 ```
 
-Every executes the task in the given interval. The function is non\-blocking. If you want to wait for the task to be executed, use the Task.Wait method.
+Every executes the task in the given interval, as long as the task function returns true. The function is non\-blocking. If you want to wait for the task to be executed, use the Task.Wait method.
 
 <details><summary>Example</summary>
 <p>
+
+
 
 ```go
 package main
@@ -200,8 +199,9 @@ import (
 )
 
 func main() {
-	task := schedule.Every(5*time.Second, func() {
-		fmt.Println("5 seconds are over!")
+	task := schedule.Every(time.Second, func() bool {
+		fmt.Println("1 second is over!")
+		return true // return false to stop the task
 	})
 
 	fmt.Println("Some stuff happening...")
@@ -215,7 +215,8 @@ func main() {
 </p>
 </details>
 
-### func \(\*Task\) ExecutesIn
+<a name="Task.ExecutesIn"></a>
+### func \(\*Task\) [ExecutesIn](<https://github.com/atomicgo/schedule/blob/main/schedule.go#L31>)
 
 ```go
 func (s *Task) ExecutesIn() time.Duration
@@ -223,7 +224,8 @@ func (s *Task) ExecutesIn() time.Duration
 
 ExecutesIn returns the duration until the next execution.
 
-### func \(\*Task\) IsActive
+<a name="Task.IsActive"></a>
+### func \(\*Task\) [IsActive](<https://github.com/atomicgo/schedule/blob/main/schedule.go#L36>)
 
 ```go
 func (s *Task) IsActive() bool
@@ -231,7 +233,8 @@ func (s *Task) IsActive() bool
 
 IsActive returns true if the scheduler is active.
 
-### func \(\*Task\) NextExecutionTime
+<a name="Task.NextExecutionTime"></a>
+### func \(\*Task\) [NextExecutionTime](<https://github.com/atomicgo/schedule/blob/main/schedule.go#L26>)
 
 ```go
 func (s *Task) NextExecutionTime() time.Time
@@ -239,7 +242,8 @@ func (s *Task) NextExecutionTime() time.Time
 
 NextExecutionTime returns the time when the next execution will happen.
 
-### func \(\*Task\) StartedAt
+<a name="Task.StartedAt"></a>
+### func \(\*Task\) [StartedAt](<https://github.com/atomicgo/schedule/blob/main/schedule.go#L21>)
 
 ```go
 func (s *Task) StartedAt() time.Time
@@ -247,7 +251,8 @@ func (s *Task) StartedAt() time.Time
 
 StartedAt returns the time when the scheduler was started.
 
-### func \(\*Task\) Stop
+<a name="Task.Stop"></a>
+### func \(\*Task\) [Stop](<https://github.com/atomicgo/schedule/blob/main/schedule.go#L52>)
 
 ```go
 func (s *Task) Stop()
@@ -255,15 +260,14 @@ func (s *Task) Stop()
 
 Stop stops the scheduler.
 
-### func \(\*Task\) Wait
+<a name="Task.Wait"></a>
+### func \(\*Task\) [Wait](<https://github.com/atomicgo/schedule/blob/main/schedule.go#L47>)
 
 ```go
 func (s *Task) Wait()
 ```
 
 Wait blocks until the scheduler is stopped. After and At will stop automatically after the task is executed.
-
-
 
 Generated by [gomarkdoc](<https://github.com/princjef/gomarkdoc>)
 
