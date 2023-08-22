@@ -43,6 +43,7 @@ func RootCmd() *cobra.Command {
 
 			err := flake.ForceProfile()
 			if err != nil {
+				fin.Error.Println("Nix can't list profiles.")
 				os.Exit(1)
 			}
 			// try to get the config, which may not exist yet
