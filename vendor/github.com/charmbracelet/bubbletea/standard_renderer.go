@@ -58,6 +58,7 @@ func newRenderer(out *termenv.Output, useANSICompressor bool) renderer {
 	r := &standardRenderer{
 		out:                out,
 		mtx:                &sync.Mutex{},
+		done:               make(chan struct{}),
 		framerate:          defaultFramerate,
 		useANSICompressor:  useANSICompressor,
 		queuedMessageLines: []string{},
@@ -72,13 +73,26 @@ func newRenderer(out *termenv.Output, useANSICompressor bool) renderer {
 func (r *standardRenderer) start() {
 	if r.ticker == nil {
 		r.ticker = time.NewTicker(r.framerate)
+	} else {
+		// If the ticker already exists, it has been stopped and we need to
+		// reset it.
+		r.ticker.Reset(r.framerate)
 	}
-	r.done = make(chan struct{})
+
+	// Since the renderer can be restarted after a stop, we need to reset
+	// the done channel and its corresponding sync.Once.
+	r.once = sync.Once{}
+
 	go r.listen()
 }
 
 // stop permanently halts the renderer, rendering the final frame.
 func (r *standardRenderer) stop() {
+	// Stop the renderer before acquiring the mutex to avoid a deadlock.
+	r.once.Do(func() {
+		r.done <- struct{}{}
+	})
+
 	// flush locks the mutex
 	r.flush()
 
@@ -86,9 +100,6 @@ func (r *standardRenderer) stop() {
 	defer r.mtx.Unlock()
 
 	r.out.ClearLine()
-	r.once.Do(func() {
-		close(r.done)
-	})
 
 	if r.useANSICompressor {
 		if w, ok := r.out.TTY().(io.WriteCloser); ok {
@@ -99,27 +110,27 @@ func (r *standardRenderer) stop() {
 
 // kill halts the renderer. The final frame will not be rendered.
 func (r *standardRenderer) kill() {
+	// Stop the renderer before acquiring the mutex to avoid a deadlock.
+	r.once.Do(func() {
+		r.done <- struct{}{}
+	})
+
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 
 	r.out.ClearLine()
-	r.once.Do(func() {
-		close(r.done)
-	})
 }
 
 // listen waits for ticks on the ticker, or a signal to stop the renderer.
 func (r *standardRenderer) listen() {
 	for {
 		select {
-		case <-r.ticker.C:
-			if r.ticker != nil {
-				r.flush()
-			}
 		case <-r.done:
 			r.ticker.Stop()
-			r.ticker = nil
 			return
+
+		case <-r.ticker.C:
+			r.flush()
 		}
 	}
 }

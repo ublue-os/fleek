@@ -141,7 +141,7 @@ type TextInput struct {
 	// For an introduction to styling with Lip Gloss see:
 	// https://github.com/charmbracelet/lipgloss
 	InputTextStyle        lipgloss.Style
-	InputBackgroundStyle  lipgloss.Style
+	InputBackgroundStyle  lipgloss.Style // Deprecated: This property is not used anymore.
 	InputPlaceholderStyle lipgloss.Style
 	InputCursorStyle      lipgloss.Style
 

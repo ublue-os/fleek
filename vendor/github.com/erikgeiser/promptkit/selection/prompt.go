@@ -128,9 +128,9 @@ type Selection[T any] struct {
 	//  * Selected(*Choice) string: The configured SelectedChoiceStyle.
 	//  * Unselected(*Choice) string: The configured UnselectedChoiceStyle.
 	//  * IsScrollDownHintPosition(idx int) bool: Returns whether
-	//    the scroll down hint shoud be displayed at the given index.
+	//    the scroll down hint should be displayed at the given index.
 	//  * IsScrollUpHintPosition(idx int) bool: Returns whether the
-	//    scroll up hint shoud be displayed at the given index).
+	//    scroll up hint should be displayed at the given index).
 	//  * promptkit.UtilFuncMap: Handy helper functions.
 	//  * termenv TemplateFuncs (see https://github.com/muesli/termenv).
 	//  * The functions specified in ExtendedTemplateFuncs.
@@ -162,7 +162,7 @@ type Selection[T any] struct {
 	// For an introduction to styling with Lip Gloss see:
 	// https://github.com/charmbracelet/lipgloss
 	FilterInputTextStyle        lipgloss.Style
-	FilterInputBackgroundStyle  lipgloss.Style
+	FilterInputBackgroundStyle  lipgloss.Style // Deprecated: This property is not used anymore.
 	FilterInputPlaceholderStyle lipgloss.Style
 	FilterInputCursorStyle      lipgloss.Style
 

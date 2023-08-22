@@ -93,15 +93,14 @@ func (m *Model) initResultTemplate() (*template.Template, error) {
 }
 
 func (m *Model) initInput() textinput.Model {
-	input := textinput.NewModel()
+	input := textinput.New()
 	input.Prompt = ""
 	input.Placeholder = m.Placeholder
 	input.CharLimit = m.CharLimit
 	input.Width = m.InputWidth
 	input.TextStyle = m.InputTextStyle
-	input.BackgroundStyle = m.InputBackgroundStyle
 	input.PlaceholderStyle = m.InputPlaceholderStyle
-	input.CursorStyle = m.InputCursorStyle
+	input.Cursor.Style = m.InputCursorStyle
 
 	if m.Hidden {
 		input.EchoMode = textinput.EchoPassword

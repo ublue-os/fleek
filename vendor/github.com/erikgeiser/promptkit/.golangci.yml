@@ -22,6 +22,11 @@ linters:
     - gosec
     - exhaustruct
     - nonamedreturns
+    - varcheck
+    - nosnakecase
+    - structcheck
+    - deadcode
+    - sqlclosecheck
 linters-settings:
   exhaustive:
     default-signifies-exhaustive: true
