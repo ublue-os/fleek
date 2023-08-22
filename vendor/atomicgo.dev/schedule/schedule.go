@@ -91,9 +91,9 @@ func At(t time.Time, task func()) *Task {
 	return scheduler
 }
 
-// Every executes the task in the given interval.
+// Every executes the task in the given interval, as long as the task function returns true.
 // The function is non-blocking. If you want to wait for the task to be executed, use the Task.Wait method.
-func Every(interval time.Duration, task func()) *Task {
+func Every(interval time.Duration, task func() bool) *Task {
 	scheduler := newTask()
 	scheduler.nextExecution = time.Now().Add(interval)
 
