@@ -16,7 +16,7 @@ packages:
   - btop
   - cheat
 programs:
-  - exa
+  - eza
   - bat
   - atuin
   - zoxide
