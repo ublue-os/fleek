@@ -26,7 +26,7 @@ var (
 	HighPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
 	LowPrograms      = []string{"starship"}
 	DefaultPrograms  = []string{"direnv"}
-	HighPrograms     = []string{"exa", "bat", "atuin", "zoxide"}
+	HighPrograms     = []string{"eza", "bat", "atuin", "zoxide"}
 )
 
 // Config holds the options that will be

@@ -33,14 +33,14 @@
       Atuin replaces your existing shell history with a SQLite database, and records additional context for your commands. Additionally, it provides optional and fully encrypted synchronisation of your history between machines, via an Atuin server.
       Tip: toggle between directory, global and host history with CTRL-R
       https://atuin.sh
-  - name: exa
+  - name: eza
     description: | 
       A modern replacement for ‘ls’.
       https://the.exa.website/
     config_lines:
-      - key: programs.exa.enableAliases
+      - key: programs.eza.enableAliases
         value:  true
-      - key: programs.exa.extraOptions
+      - key: programs.eza.extraOptions
         value:  |-
          [
             "--group-directories-first"
