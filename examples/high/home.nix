@@ -9,9 +9,12 @@
       # Workaround for https://github.com/nix-community/home-manager/issues/2942
       allowUnfreePredicate = (_: true);
       
+      
     };
   };
 
+  
+  # managed by fleek, modify ~/.fleek.yml to change installed packages
   
   # packages are just installed (no configuration applied)
   # programs are installed and configuration applied to dotfiles
@@ -25,6 +28,7 @@
     pkgs.glab
     pkgs.fzf
     pkgs.ripgrep
+    pkgs.vscode
     pkgs.lazygit
     pkgs.jq
     pkgs.yq

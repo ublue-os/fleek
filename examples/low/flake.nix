@@ -24,7 +24,7 @@
     
     homeConfigurations = {
     
-      "ubuntu@fleekdev" = home-manager.lib.homeManagerConfiguration {
+      "ubuntu@coder-bjk-fleek" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
         extraSpecialArgs = { inherit inputs; }; # Pass flake inputs to our config
         modules = [
@@ -35,14 +35,11 @@
           ./aliases.nix
           ./programs.nix
           # Host Specific configs
-          ./fleekdev/ubuntu.nix
-          ./fleekdev/host.nix
+          ./coder-bjk-fleek/ubuntu.nix
+          ./coder-bjk-fleek/custom.nix
           # self-manage fleek
           ({
            nixpkgs.overlays = [];
-           home.packages = [
-            fleek.packages.x86_64-linux.default
-          ];
           })
 
         ];

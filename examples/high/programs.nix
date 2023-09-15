@@ -5,7 +5,7 @@
   # add your personalized program configuration in ./user.nix   
 
   # Bling supplied programs 
-    programs.exa.enable = true; 
+    programs.eza.enable = true; 
     programs.bat.enable = true; 
     programs.atuin.enable = true; 
     programs.zoxide.enable = true; 

@@ -1,12 +1,12 @@
 aliases:
-    apply-fleekdev: nix run --impure home-manager/master -- -b bak switch --flake .#ubuntu@fleekdev
-    fleeks: cd ~/projects/ublue/fleek/examples/low
+    apply-coder-bjk-fleek: nix run --impure home-manager/master -- -b bak switch --flake .#ubuntu@coder-bjk-fleek
+    fleeks: cd ~/workspace/fleek/examples/low
+allow_broken: false
 bling: low
-blocklist:
-    - vscode
+blocklist: []
 byo_git: false
 ejected: true
-flakedir: projects/ublue/fleek/examples/low
+flakedir: workspace/fleek/examples/low
 git:
     autocommit: false
     autopull: false
@@ -25,14 +25,15 @@ programs:
 shell: zsh
 systems:
     - arch: x86_64
-      hostname: fleekdev
+      home: ""
+      hostname: coder-bjk-fleek
       os: linux
       username: ubuntu
 track: nixos-unstable
 unfree: true
 users:
-    - email: bketelsen@gmail.com
-      name: Brian Ketelsen
-      ssh_private_key_file: ~/.ssh/id_rsa
-      ssh_public_key_file: ~/.ssh/id_rsa.pub
+    - email: fleek@fleek.dev
+      name: Ubuntu
+      ssh_private_key_file: ""
+      ssh_public_key_file: ""
       username: ubuntu
