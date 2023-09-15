@@ -9,8 +9,8 @@
             graph = "log --decorate --oneline --graph";
             add-nowhitespace = "!git diff -U0 -w --no-color | git apply --cached --ignore-whitespace --unidiff-zero -";
         };
-        userName = "Brian Ketelsen";
-        userEmail = "bketelsen@gmail.com";
+        userName = "Ubuntu";
+        userEmail = "fleek@fleek.dev";
         extraConfig = {
             feature.manyFiles = true;
             init.defaultBranch = "main";
@@ -18,8 +18,8 @@
         };
 
         signing = {
-            key = "~/.ssh/id_rsa";
-            signByDefault = builtins.stringLength "~/.ssh/id_rsa" > 0;
+            key = "";
+            signByDefault = builtins.stringLength "" > 0;
         };
 
         lfs.enable = true;
