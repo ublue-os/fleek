@@ -123,31 +123,38 @@ func NewSystem() (*System, error) {
 func NewUser() (*User, error) {
 	fin.Info.Println("Enter User Details for Git Configuration:")
 	user := &User{}
-	name, err := Name()
-	if err != nil {
-		return user, err
-	}
-	// Prompt for name
 	var use bool
-	name = strings.TrimSpace(name)
-	if name != "" {
 
-		fin.Info.Println("Detected your name: " + name)
-		use, err = ux.Confirm("Use detected name: " + name)
+	envname := os.Getenv("FLEEK_USER_NAME")
+	if envname == "" {
+		name, err := Name()
 		if err != nil {
 			return user, err
 		}
-	}
-	if use {
-		user.Name = name
+		// Prompt for name
+		name = strings.TrimSpace(name)
+		if name != "" {
+
+			fin.Info.Println("Detected your name: " + name)
+			use, err = ux.Confirm("Use detected name: " + name)
+			if err != nil {
+				return user, err
+			}
+		}
+		if use {
+			user.Name = name
+		} else {
+			prompt := "Name"
+			iname, err := ux.Input(prompt, name, "Your Name")
+			if err != nil {
+				return user, err
+			}
+			user.Name = iname
+		}
 	} else {
-		prompt := "Name"
-		iname, err := ux.Input(prompt, name, "Your Name")
-		if err != nil {
-			return user, err
-		}
-		user.Name = iname
+		user.Name = envname
 	}
+
 	// It doesn't make sense to change the username,
 	// so just use the detected one
 	uname, err := Username()
@@ -156,75 +163,87 @@ func NewUser() (*User, error) {
 	}
 	user.Username = uname
 
-	// email
+	envmail := os.Getenv("FLEEK_USER_EMAIL")
+	if envmail == "" {
+		// email
 
-	cmd := "git"
-	cmdLine := []string{"config", "--global", "user.email"}
-	command := exec.Command(cmd, cmdLine...)
-	command.Stdin = os.Stdin
+		cmd := "git"
+		cmdLine := []string{"config", "--global", "user.email"}
+		command := exec.Command(cmd, cmdLine...)
+		command.Stdin = os.Stdin
 
-	command.Env = os.Environ()
-	var email string
-	bb, err := command.Output()
-	if err != nil {
-		// get the email manually
-		prompt := "Email"
-		email, err = ux.Input(prompt, "", "Your Email Address")
+		command.Env = os.Environ()
+		var email string
+		bb, err := command.Output()
 		if err != nil {
-			return user, err
-		}
-		user.Email = email
-	} else {
-		email = strings.TrimSpace(string(bb))
-		use, err = ux.Confirm("Use detected email: " + email)
-		if err != nil {
-			return user, err
-		}
-		if use {
+			// get the email manually
+			prompt := "Email"
+			email, err = ux.Input(prompt, "", "Your Email Address")
+			if err != nil {
+				return user, err
+			}
 			user.Email = email
 		} else {
-			prompt := "Email"
-			uemail, err := ux.Input(prompt, "", "Your Email Address")
+			email = strings.TrimSpace(string(bb))
+			use, err = ux.Confirm("Use detected email: " + email)
 			if err != nil {
 				return user, err
 			}
-			user.Email = uemail
-		}
-	}
-
-	// ssh keys
-	privateKey := ""
-	publicKey := ""
-
-	// find and add ssh keys
-	sshDir := filepath.Join(os.Getenv("HOME"), ".ssh")
-	sshFiles, err := os.ReadDir(sshDir)
-	hasSSH := true
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			hasSSH = false
-		} else {
-			return user, err
-		}
-	}
-	if hasSSH {
-		candidates := []string{}
-		for _, f := range sshFiles {
-			if strings.HasSuffix(f.Name(), ".pub") {
-				candidates = append(candidates, f.Name())
+			if use {
+				user.Email = email
+			} else {
+				prompt := "Email"
+				uemail, err := ux.Input(prompt, "", "Your Email Address")
+				if err != nil {
+					return user, err
+				}
+				user.Email = uemail
 			}
 		}
-		if len(candidates) > 0 {
-			key, err := ux.PromptSingle("Choose Git SSH Key", candidates)
-			if err != nil {
+	} else {
+		user.Email = envmail
+	}
+	envpubkey := os.Getenv("FLEEK_USER_PUBKEY")
+	envprivkey := os.Getenv("FLEEK_USER_PRIVKEY")
+	if envpubkey == "" && envpubkey == "" {
+
+		// ssh keys
+		privateKey := ""
+		publicKey := ""
+
+		// find and add ssh keys
+		sshDir := filepath.Join(os.Getenv("HOME"), ".ssh")
+		sshFiles, err := os.ReadDir(sshDir)
+		hasSSH := true
+		if err != nil {
+			if errors.Is(err, fs.ErrNotExist) {
+				hasSSH = false
+			} else {
 				return user, err
 			}
-			privateKey = strings.Replace(key, ".pub", "", 1)
-			privateKey = filepath.Join("~", ".ssh", privateKey)
-			publicKey = filepath.Join("~", ".ssh", key)
-			user.SSHPrivateKeyFile = privateKey
-			user.SSHPublicKeyFile = publicKey
 		}
+		if hasSSH {
+			candidates := []string{}
+			for _, f := range sshFiles {
+				if strings.HasSuffix(f.Name(), ".pub") {
+					candidates = append(candidates, f.Name())
+				}
+			}
+			if len(candidates) > 0 {
+				key, err := ux.PromptSingle("Choose Git SSH Key", candidates)
+				if err != nil {
+					return user, err
+				}
+				privateKey = strings.Replace(key, ".pub", "", 1)
+				privateKey = filepath.Join("~", ".ssh", privateKey)
+				publicKey = filepath.Join("~", ".ssh", key)
+				user.SSHPrivateKeyFile = privateKey
+				user.SSHPublicKeyFile = publicKey
+			}
+		}
+	} else {
+		user.SSHPrivateKeyFile = envprivkey
+		user.SSHPublicKeyFile = envpubkey
 	}
 
 	return user, nil
