@@ -30,7 +30,7 @@ jobs:
           password: ${{ secrets.DOCKER_PAT }}
       # More assembly might be required: Docker logins, GPG, etc. It all depends
       # on your needs.
-      - uses: goreleaser/goreleaser-action@v4
+      - uses: goreleaser/goreleaser-action@v5
         with:
           # either 'goreleaser' (default) or 'goreleaser-pro':
           distribution: goreleaser-pro
