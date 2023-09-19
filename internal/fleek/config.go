@@ -205,7 +205,7 @@ func NewUser() (*User, error) {
 	}
 	envpubkey := os.Getenv("FLEEK_USER_PUBKEY")
 	envprivkey := os.Getenv("FLEEK_USER_PRIVKEY")
-	if (envpubkey == "") && (envpubkey == "") {
+	if (envpubkey == "") && (envprivkey == "") {
 
 		// ssh keys
 		privateKey := ""
