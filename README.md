@@ -1,6 +1,7 @@
 # Fleek - "Home as Code" for Humans
 
-![](https://img.shields.io/endpoint?url=https://flakehub.com/f/ublue-os/fleek/badge)
+[![FlakeHub(https://img.shields.io/endpoint?url=https://flakehub.com/f/ublue-os/fleek/badge)](https://flakehub.com/flake/ublue-os/fleek)
+
 
 
 Fleek is an all-in-one management system for everything you need to be productive on your computer.
