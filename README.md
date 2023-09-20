@@ -1,6 +1,6 @@
 # Fleek - "Home as Code" for Humans
 
-[![FlakeHub(https://img.shields.io/endpoint?url=https://flakehub.com/f/ublue-os/fleek/badge)](https://flakehub.com/flake/ublue-os/fleek)
+![FlakeHub(https://img.shields.io/endpoint?url=https://flakehub.com/f/ublue-os/fleek/badge)](https://flakehub.com/flake/ublue-os/fleek)
 
 
 
