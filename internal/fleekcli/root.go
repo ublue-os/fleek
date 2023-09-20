@@ -106,7 +106,7 @@ func RootCmd() *cobra.Command {
 			if cfg.AutoGC {
 				fin.Info.Println("Running nix-collect-garbage")
 				// we don't care too much if there's an error here
-				fleek.CollectGarbage()
+				_ = fleek.CollectGarbage()
 			}
 
 		},
