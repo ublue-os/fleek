@@ -540,7 +540,7 @@ func (f *Flake) writeUser(sys fleek.System, user fleek.User, template string, fo
 
 func (f *Flake) WriteTemplates() error {
 
-	writeCmdLine := []string{"run", ".#fleek" , "--", "write"}
+	writeCmdLine := []string{"run", ".#fleek", "--", "write"}
 	err := f.runNix(nixbin, writeCmdLine)
 	if err != nil {
 		return err

@@ -59,7 +59,7 @@ type Config struct {
 	Users       []*User   `yaml:",flow"`
 	Track       string    `yaml:"track"`
 	AllowBroken bool      `yaml:"allow_broken"`
-	AutoGC bool      `yaml:"auto_gc"`
+	AutoGC      bool      `yaml:"auto_gc"`
 }
 
 func Levels() []string {

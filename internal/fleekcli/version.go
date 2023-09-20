@@ -47,7 +47,6 @@ func versionCmdFunc(cmd *cobra.Command, _ []string, flags versionFlags) error {
 	return nil
 }
 
-
 type versionInfo struct {
 	Version      string
 	IsPrerelease bool
