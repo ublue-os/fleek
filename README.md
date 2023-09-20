@@ -1,6 +1,7 @@
 # Fleek - "Home as Code" for Humans
 
-![FlakeHub](https://img.shields.io/endpoint?url=https://flakehub.com/f/ublue-os/fleek/badge)
+
+[![FlakeHub](https://img.shields.io/endpoint?url=https://flakehub.com/f/ublue-os/fleek/badge)](https://flakehub.com/flake/ublue-os/fleek)
 
 
 
@@ -44,49 +45,7 @@ Fleek is a user-friendly wrapper around Nix and Nix Home Manager, but the friend
 
 ## Getting Started
 
-You need `nix`. We love the [Determinate Systems Installer](https://zero-to-nix.com/), but any `nix` installer is good. If you're on Fedora Silverblue, [this script](https://github.com/dnkmmr69420/nix-installer-scripts/blob/main/installer-scripts/silverblue-nix-installer.sh) is the good stuff.
-
-After Nix is installed you need to enable [flakes and the nix command](https://nixos.wiki/wiki/Flakes). It can be as simple as this:
-
-```shell
-mkdir -p ~/.config/nix
-echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-```
-
-Install `fleek`:
-
-```shell
-curl -fsSL https://getfleek.dev/installer | bash
-```
-
-Run `fleek init`:
-
-```shell
-fleek init
-```
-
-
-This will create your configuration file and symlink it to `$HOME/.fleek.yml`. Open it with your favorite editor and take a look.
-
-Make any changes to the `~/.fleek.yml` file you want... we recommend Bling Level `high` for the best experience.  
-
-Now let's apply your configuration:
-
-```shell
-fleek apply
-```
-It will take a bit to download and install everything, but when it's done you should see something like this:
-       
-```shell
-... more text above this ...
-Activating onFilesChange
-Activating reloadSystemd
- [✓]  Operation completed successfully
-```
-
-*What happened here?* We just installed Nix Home Manager, configured it with your preferences, and applied it to your system.
-
-You may need to close and re-open your terminal or even log out to see the changes.
+See [the installation instructions](https://getfleek.dev/docs/installation).
 
 ## ~/.fleek.yml
 

@@ -537,6 +537,21 @@ func (f *Flake) writeUser(sys fleek.System, user fleek.User, template string, fo
 
 	return nil
 }
+
+func (f *Flake) WriteTemplates() error {
+
+	writeCmdLine := []string{"run", ".#fleek", "--", "write"}
+	err := f.runNix(nixbin, writeCmdLine)
+	if err != nil {
+		return err
+	}
+	err = f.mayCommit("fleek: update templates")
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (f *Flake) Apply() error {
 	fin.Info.Println(f.app.Trans("flake.apply"))
 

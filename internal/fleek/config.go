@@ -59,6 +59,7 @@ type Config struct {
 	Users       []*User   `yaml:",flow"`
 	Track       string    `yaml:"track"`
 	AllowBroken bool      `yaml:"allow_broken"`
+	AutoGC      bool      `yaml:"auto_gc"`
 }
 
 func Levels() []string {
@@ -119,6 +120,19 @@ func NewSystem() (*System, error) {
 		OS:       runtime.GOOS,
 		Username: user,
 	}, nil
+}
+
+// CollectGarbage runs nix-collect-garbage
+func CollectGarbage() error {
+
+	command := exec.Command("nix-collect-garbage", "-d")
+	command.Stdin = os.Stdin
+	command.Stderr = os.Stderr
+	command.Stdout = os.Stdout
+	command.Env = os.Environ()
+
+	return command.Run()
+
 }
 func NewUser() (*User, error) {
 	fin.Info.Println("Enter User Details for Git Configuration:")
@@ -460,6 +474,7 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 		return err
 	}
 	c.Unfree = true
+	c.AutoGC = true
 	c.Name = "Fleek Configuration"
 	c.Packages = []string{
 		"helix",
