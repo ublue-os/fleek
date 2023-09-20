@@ -27,7 +27,6 @@ func VersionCmd() *cobra.Command {
 	command.Flags().BoolVarP(&flags.verbose, app.Trans("version.flagVerbose"), "v", false, // value
 		app.Trans("version.flagVerboseDescription"),
 	)
-	command.AddCommand(selfUpdateCmd())
 
 	return command
 }
@@ -47,18 +46,7 @@ func versionCmdFunc(cmd *cobra.Command, _ []string, flags versionFlags) error {
 	}
 	return nil
 }
-func selfUpdateCmd() *cobra.Command {
-	command := &cobra.Command{
-		Use:   "update",
-		Short: "Update fleek launcher and binary",
-		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return vercheck.SelfUpdate(cmd.OutOrStdout(), cmd.OutOrStderr())
-		},
-	}
 
-	return command
-}
 
 type versionInfo struct {
 	Version      string

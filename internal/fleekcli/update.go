@@ -48,6 +48,9 @@ func update(cmd *cobra.Command) error {
 	if err := fl.Update(); err != nil {
 		return err
 	}
+	if err := fl.WriteTemplates(); err != nil {
+		return err
+	}
 	if cmd.Flag(app.Trans("update.applyFlag")).Changed {
 		if err := fl.Apply(); err != nil {
 			return err

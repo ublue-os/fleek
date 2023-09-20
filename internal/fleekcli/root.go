@@ -101,6 +101,13 @@ func RootCmd() *cobra.Command {
 			fin.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
 			fin.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
 			fin.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
+			fin.Debug.Printfln("auto gc: %v", cfg.AutoGC)
+
+			if cfg.AutoGC {
+				fin.Info.Println("Running nix-collect-garbage")
+				// we don't care too much if there's an error here
+				fleek.CollectGarbage()
+			}
 
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -152,6 +159,8 @@ func RootCmd() *cobra.Command {
 
 	infoCmd := InfoCommand()
 	infoCmd.GroupID = packageGroup.ID
+	writeCmd := WriteCommand()
+	writeCmd.GroupID = fleekGroup.ID
 	manCmd := ManCommand()
 
 	docsCmd := genDocsCmd()
@@ -171,7 +180,7 @@ func RootCmd() *cobra.Command {
 	command.AddCommand(searchCmd)
 	command.AddCommand(infoCmd)
 	command.AddCommand(generateCmd)
-
+	command.AddCommand(writeCmd)
 	command.AddCommand(VersionCmd())
 
 	command.PersistentFlags().BoolVarP(

@@ -238,6 +238,13 @@ info:
   notFound: "That program or package is not part of fleek's bling set."
   aliases: "Shell Aliases"
   description: "Description"
+write:
+  use: "write"
+  long: "Apply system templates to existing flake"
+  example: |
+    fleek write
+  short: "Apply system templates to existing flake"
+  done: "Flake templates written."
 flake:
   noConfig: "No configuration files found. Try `fleek init`."
   configLoaded: "Configuration loaded"
