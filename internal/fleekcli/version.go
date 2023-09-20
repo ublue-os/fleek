@@ -6,7 +6,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ublue-os/fleek/internal/build"
-	"github.com/ublue-os/fleek/internal/vercheck"
 )
 
 type versionFlags struct {
