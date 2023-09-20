@@ -1,5 +1,8 @@
 # Fleek - "Home as Code" for Humans
 
+![](https://img.shields.io/endpoint?url=https://flakehub.com/f/ublue-os/fleek/badge)
+
+
 Fleek is an all-in-one management system for everything you need to be productive on your computer.
 
 Status: BETA.  Probably won't eat your computer. Probably won't break your system, at least beyond simple recoverability.
