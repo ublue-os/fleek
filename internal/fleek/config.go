@@ -122,6 +122,7 @@ func NewSystem() (*System, error) {
 	}, nil
 }
 
+// CollectGarbage runs nix-collect-garbage
 func CollectGarbage() error {
 
 	command := exec.Command("nix-collect-garbage", "-d")

@@ -48,6 +48,9 @@ func update(cmd *cobra.Command) error {
 	if err := fl.Update(); err != nil {
 		return err
 	}
+	// We just updated the flake lock, which might pull a new
+	// version of fleek in. Update the system templates to 
+	// get new fixes without having to update/apply twice
 	if err := fl.WriteTemplates(); err != nil {
 		return err
 	}

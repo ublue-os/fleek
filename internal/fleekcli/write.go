@@ -10,7 +10,8 @@ import (
 )
 
 
-
+// WriteCommand is an internal hidden command that
+// gets run after an update.
 func WriteCommand() *cobra.Command {
 	command := &cobra.Command{
 		Hidden: true,
