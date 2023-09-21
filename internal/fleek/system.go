@@ -57,6 +57,10 @@ func Name() (string, error) {
 }
 
 func Hostname() (string, error) {
+	override := os.Getenv("FLEEK_HOST_OVERRIDE")
+	if override != "" {
+		return override, nil
+	}
 	h, e := os.Hostname()
 	if e != nil {
 		return "", e
