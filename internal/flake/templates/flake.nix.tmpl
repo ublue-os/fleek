@@ -22,8 +22,8 @@
   };
 
   outputs = { self, nixpkgs, home-manager, fleek, ... }@inputs: {
-    {{ range .Config.Systems }}
-     packages.{{ .Arch }}-{{ .OS }}.fleek = fleek.packages.{{ .Arch }}-{{ .OS }}.default;
+    {{ range .Config.UniqueSystems }}
+     packages.{{ . }}.fleek = fleek.packages.{{ . }}.default;
     {{ end }}
     # Available through 'home-manager --flake .#your-username@your-hostname'
     {{ $overlays := .Config.Overlays  }}

@@ -310,6 +310,22 @@ func isValueInList(value string, list []string) bool {
 	return false
 }
 
+func (c *Config) UniqueSystems() []string {
+	var m = make(map[string]bool)
+	var systems = []string{}
+
+	for _, sys := range c.Systems {
+		syskey := sys.Arch + "-" + sys.OS
+		if m[syskey] {
+			continue
+		}
+		systems = append(systems, syskey)
+		m[syskey] = true
+	}
+	return systems
+
+}
+
 func (c *Config) UserFlakeDir() string {
 	home, _ := os.UserHomeDir()
 	// if for some reason the flakedir key is
