@@ -15,6 +15,7 @@ packages:
   - neofetch
   - btop
   - cheat
+  - just
 programs:
   - eza
   - bat
