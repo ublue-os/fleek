@@ -131,7 +131,8 @@ func (f *Flake) Create(force bool, symlink bool) error {
 	if err != nil {
 		return err
 	}
-	user := f.Config.UserForSystem(sys.Hostname)
+	//user := f.Config.UserForSystem(sys.Hostname)
+	user := sys.User
 	data := Data{
 		Config: f.Config,
 		Bling:  bling,
@@ -167,7 +168,7 @@ func (f *Flake) Create(force bool, symlink bool) error {
 		return err
 	}
 
-	err = f.writeSystem(*sys, "templates/host.nix.tmpl", force)
+	err = f.writeSystem(sys, "templates/host.nix.tmpl", force)
 	if err != nil {
 		return err
 	}
@@ -218,11 +219,8 @@ func (f *Flake) Join() error {
 		return err
 	}
 	csym := filepath.Join(home, ".fleek.yml")
-	err = os.Symlink(cfile, csym)
-	if err != nil {
-		fin.Debug.Println("first symlink attempt failed")
-		return err
-	}
+	// ignore if it exists, could have been created by caller
+	_ = os.Symlink(cfile, csym)
 
 	err = f.Config.Validate()
 	if err != nil {
@@ -246,7 +244,7 @@ func (f *Flake) Join() error {
 	}
 	if !found {
 		f.Config.Systems = append(f.Config.Systems, sys)
-		err = f.writeSystem(*sys, "templates/host.nix.tmpl", true)
+		err = f.writeSystem(sys, "templates/host.nix.tmpl", true)
 		if err != nil {
 			return err
 		}
@@ -257,8 +255,8 @@ func (f *Flake) Join() error {
 		return err
 	}
 	userFound := false
-	for _, u := range f.Config.Users {
-		if u.Username == username {
+	if sys.User != nil {
+		if sys.User.Username == username {
 			userFound = true
 		}
 	}
@@ -267,7 +265,8 @@ func (f *Flake) Join() error {
 		if err != nil {
 			return err
 		}
-		f.Config.Users = append(f.Config.Users, user)
+
+		sys.User = user
 		err = f.writeUser(*sys, *user, "templates/user.nix.tmpl", true)
 		if err != nil {
 			return err
@@ -383,14 +382,15 @@ func (f *Flake) Write(message string, writeHost, writeUser bool) error {
 	}
 	if writeHost {
 
-		err = f.writeSystem(*sys, "templates/host.nix.tmpl", force)
+		err = f.writeSystem(sys, "templates/host.nix.tmpl", force)
 		if err != nil {
 			return err
 		}
 	}
 	if writeUser {
 
-		user := f.Config.UserForSystem(sys.Hostname)
+		//user := f.Config.UserForSystem(sys.Hostname)
+		user := sys.User
 		err = f.writeUser(*sys, *user, "templates/user.nix.tmpl", true)
 		if err != nil {
 			return err
@@ -462,7 +462,7 @@ func (f *Flake) writeFile(template string, path string, d Data, force bool) erro
 	return nil
 }
 
-func (f *Flake) writeSystem(sys fleek.System, template string, force bool) error {
+func (f *Flake) writeSystem(sys *fleek.System, template string, force bool) error {
 	var user *fleek.User
 	var err error
 	user = f.Config.UserForSystem(sys.Hostname)
@@ -471,14 +471,15 @@ func (f *Flake) writeSystem(sys fleek.System, template string, force bool) error
 		if err != nil {
 			return err
 		}
-		f.Config.Users = append(f.Config.Users, user)
+
+		sys.User = user
 		err = f.Config.Save()
 		if err != nil {
 			return err
 		}
 	}
 	sysData := SystemData{
-		System: sys,
+		System: *sys,
 		User:   *user,
 	}
 	if f.Config.BYOGit {

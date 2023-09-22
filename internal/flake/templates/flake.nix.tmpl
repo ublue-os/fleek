@@ -29,7 +29,7 @@
     {{ $overlays := .Config.Overlays  }}
     homeConfigurations = {
     {{ range .Config.Systems }}
-      "{{ .Username }}@{{ .Hostname }}" = home-manager.lib.homeManagerConfiguration {
+      "{{ .User.Username }}@{{ .Hostname }}" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.{{ .Arch }}-{{ .OS }}; # Home-manager requires 'pkgs' instance
         extraSpecialArgs = { inherit inputs; }; # Pass flake inputs to our config
         modules = [
@@ -40,7 +40,7 @@
           ./aliases.nix
           ./programs.nix
           # Host Specific configs
-          ./{{.Hostname}}/{{.Username}}.nix
+          ./{{.Hostname}}/{{.User.Username}}.nix
           ./{{.Hostname}}/custom.nix
           # self-manage fleek
           {

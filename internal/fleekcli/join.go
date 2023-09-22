@@ -63,6 +63,50 @@ func join(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	// reload config and flake
+	config, err = fleek.ReadConfig(config.UserFlakeDir())
+	if err != nil {
+		return err
+	}
+	migrate := config.NeedsMigration()
+	if migrate {
+		fin.Info.Println("Migration required")
+		err := config.Migrate()
+		if err != nil {
+			fin.Error.Println("error migrating host files:", err)
+			os.Exit(1)
+		}
+		fl, err := flake.Load(config, app)
+		if err != nil {
+			fin.Error.Println("error loading flake:", err)
+			os.Exit(1)
+		}
+
+		// Symlink the yaml file to home
+		cfile, err := fl.Config.Location()
+		if err != nil {
+			fin.Debug.Printfln("location err: %s ", err)
+			return err
+		}
+		fin.Debug.Printfln("init cfile: %s ", cfile)
+
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+		csym := filepath.Join(home, ".fleek.yml")
+		err = os.Symlink(cfile, csym)
+		if err != nil {
+			fin.Debug.Println("symlink  failed")
+			return err
+		}
+		err = fl.Write("update host and user files", true, false)
+		if err != nil {
+			fin.Error.Println("error writing flake:", err)
+			os.Exit(1)
+		}
+	}
+
 	fin.Info.Println(app.Trans("init.joining"))
 	fl, err := flake.Load(config, app)
 	if err != nil {
