@@ -23,7 +23,7 @@ var (
 	shells           = []string{"bash", "zsh"}
 	blingLevels      = []string{"none", "low", "default", "high"}
 	LowPackages      = []string{"htop", "git", "github-cli", "glab"}
-	DefaultPackages  = []string{"fzf", "ripgrep", "vscode"}
+	DefaultPackages  = []string{"fzf", "ripgrep", "vscode", "just"}
 	HighPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
 	LowPrograms      = []string{"starship"}
 	DefaultPrograms  = []string{"direnv"}
@@ -80,6 +80,7 @@ type System struct {
 	Arch     string `yaml:"arch"`
 	OS       string `yaml:"os"`
 	Home     string `yaml:"home"`
+	User     *User  `yaml:"user"`
 }
 
 type User struct {
@@ -344,6 +345,10 @@ func (c *Config) UserForSystem(system string) *User {
 			userSystem = sys
 		}
 	}
+	if userSystem.User != nil {
+		return userSystem.User
+	}
+	// legacy unmigrated users
 	for _, u := range c.Users {
 		if u.Username == userSystem.Username {
 			return u
@@ -490,6 +495,12 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 		fin.Debug.Printfln("new system err: %s ", err)
 		return err
 	}
+	user, err := NewUser()
+	if err != nil {
+		fin.Debug.Printfln("new user err: %s ", err)
+		return err
+	}
+	sys.User = user
 	c.Unfree = true
 	c.AutoGC = true
 	c.Name = "Fleek Configuration"
@@ -512,12 +523,6 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 	c.Git.AutoCommit = true
 	c.Git.AutoPull = true
 	c.Git.AutoPush = true
-	user, err := NewUser()
-	if err != nil {
-		fin.Debug.Printfln("new user err: %s ", err)
-		return err
-	}
-	c.Users = []*User{user}
 
 	cfile, err := c.Location()
 	if err != nil {
@@ -643,6 +648,11 @@ func (c *Config) NeedsMigration() bool {
 
 			return true
 		}
+		if s.User == nil {
+			fin.Info.Println("Found unmigrated system users")
+			return true
+		}
+
 	}
 	return false
 }
@@ -680,6 +690,16 @@ func (c *Config) Migrate() error {
 			newHostFile := filepath.Join(systemDir, "custom.nix")
 
 			err := Move(hostFile, newHostFile)
+			if err != nil {
+				return err
+			}
+		}
+		if s.User == nil {
+			fin.Info.Println("Migrating Users to System:", s.Hostname)
+			sysuser := c.UserForSystem(s.Hostname)
+
+			s.User = sysuser
+			err := c.Save()
 			if err != nil {
 				return err
 			}
