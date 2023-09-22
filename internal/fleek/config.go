@@ -2,6 +2,7 @@ package fleek
 
 import (
 	"errors"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -127,8 +128,8 @@ func CollectGarbage() error {
 
 	command := exec.Command("nix-collect-garbage", "-d")
 	command.Stdin = os.Stdin
-	command.Stderr = os.Stderr
-	command.Stdout = os.Stdout
+	command.Stderr = io.Discard
+	command.Stdout = io.Discard
 	command.Env = os.Environ()
 
 	return command.Run()
