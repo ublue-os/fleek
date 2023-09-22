@@ -12,12 +12,7 @@ import (
 	"github.com/ublue-os/fleek/internal/flake"
 )
 
-type removeCmdFlags struct {
-	apply bool
-}
-
 func RemoveCommand() *cobra.Command {
-	flags := removeCmdFlags{}
 	command := &cobra.Command{
 		Use:     app.Trans("remove.use"),
 		Short:   app.Trans("remove.short"),
@@ -29,26 +24,17 @@ func RemoveCommand() *cobra.Command {
 			return remove(cmd, args)
 		},
 	}
-	command.Flags().BoolVarP(
-		&flags.apply, app.Trans("remove.applyFlag"), "a", false, app.Trans("remove.applyFlagDescription"))
-
 	return command
 }
 
 // initCmd represents the init command
 func remove(cmd *cobra.Command, args []string) error {
 	var verbose bool
-	if cmd.Flag(app.Trans("fleek.verboseFlag")).Changed {
-		verbose = true
-	}
+
 	fin.Description.Println(cmd.Short)
 	err := mustConfig()
 	if err != nil {
 		return err
-	}
-	var apply bool
-	if cmd.Flag(app.Trans("remove.applyFlag")).Changed {
-		apply = true
 	}
 
 	fl, err := flake.Load(cfg, app)
@@ -83,19 +69,15 @@ func remove(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if apply {
-		if verbose {
-			fin.Info.Println(app.Trans("remove.applying"))
+	if verbose {
+		fin.Info.Println(app.Trans("remove.applying"))
+	}
+	err = fl.Apply()
+	if err != nil {
+		if errors.Is(err, flake.ErrPackageConflict) {
+			fin.Fatal.Println(app.Trans("global.errConflict"))
 		}
-		err = fl.Apply()
-		if err != nil {
-			if errors.Is(err, flake.ErrPackageConflict) {
-				fin.Fatal.Println(app.Trans("global.errConflict"))
-			}
-			return err
-		}
-	} else {
-		fin.Warning.Println(app.Trans("remove.needApply"))
+		return err
 	}
 
 	fin.Success.Println(app.Trans("remove.done"))

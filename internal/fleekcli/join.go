@@ -16,12 +16,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type joinCmdFlags struct {
-	apply bool
-}
-
 func JoinCommand() *cobra.Command {
-	flags := joinCmdFlags{}
 	command := &cobra.Command{
 		Use:     app.Trans("join.use"),
 		Short:   app.Trans("join.short"),
@@ -32,8 +27,6 @@ func JoinCommand() *cobra.Command {
 			return join(cmd, args)
 		},
 	}
-	command.Flags().BoolVarP(
-		&flags.apply, app.Trans("join.applyFlag"), "a", false, app.Trans("join.applyFlagDescription"))
 	return command
 }
 
@@ -94,12 +87,9 @@ func join(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if cmd.Flag(app.Trans("join.applyFlag")).Changed {
-		err = fl.Apply()
-		if err != nil {
-			return err
-		}
-		return nil
+	err = fl.Apply()
+	if err != nil {
+		return err
 	}
 	fin.Info.Println(app.Trans("join.complete"))
 
