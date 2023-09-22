@@ -9,12 +9,7 @@ import (
 	"github.com/ublue-os/fleek/internal/flake"
 )
 
-type updateCmdFlags struct {
-	apply bool
-}
-
 func UpdateCommand() *cobra.Command {
-	flags := updateCmdFlags{}
 	command := &cobra.Command{
 		Use:   app.Trans("update.use"),
 		Short: app.Trans("update.short"),
@@ -23,8 +18,6 @@ func UpdateCommand() *cobra.Command {
 			return update(cmd)
 		},
 	}
-	command.Flags().BoolVarP(
-		&flags.apply, app.Trans("update.applyFlag"), "a", false, app.Trans("update.applyFlagDescription"))
 
 	return command
 }
@@ -44,22 +37,24 @@ func update(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
+	// Write the templates from the latest version of fleek
+	// to get any possible changes to the templates
+	if err := fl.WriteTemplates(); err != nil {
+		return err
+	}
 
+	// update the nix flake lock
 	if err := fl.Update(); err != nil {
 		return err
 	}
 	// We just updated the flake lock, which might pull a new
-	// version of fleek in. Update the system templates to
+	// version of fleek or other deps in. Update the system templates to
 	// get new fixes without having to update/apply twice
 	if err := fl.WriteTemplates(); err != nil {
 		return err
 	}
-	if cmd.Flag(app.Trans("update.applyFlag")).Changed {
-		if err := fl.Apply(); err != nil {
-			return err
-		}
-	} else {
-		fin.Warning.Println(app.Trans("update.needApply"))
+	if err := fl.Apply(); err != nil {
+		return err
 	}
 
 	fin.Success.Println(app.Trans("update.done"))

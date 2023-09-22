@@ -11,12 +11,7 @@ import (
 	"github.com/ublue-os/fleek/internal/flake"
 )
 
-type addCmdFlags struct {
-	apply bool
-}
-
 func AddCommand() *cobra.Command {
-	flags := addCmdFlags{}
 	command := &cobra.Command{
 		Use:     app.Trans("add.use"),
 		Short:   app.Trans("add.short"),
@@ -27,9 +22,6 @@ func AddCommand() *cobra.Command {
 			return add(cmd, args)
 		},
 	}
-	command.Flags().BoolVarP(
-		&flags.apply, app.Trans("add.applyFlag"), "a", false, app.Trans("add.applyFlagDescription"))
-
 	return command
 }
 
@@ -40,10 +32,6 @@ func add(cmd *cobra.Command, args []string) error {
 	err := mustConfig()
 	if err != nil {
 		return err
-	}
-	var apply bool
-	if cmd.Flag(app.Trans("add.applyFlag")).Changed {
-		apply = true
 	}
 
 	fl, err := flake.Load(cfg, app)
@@ -124,19 +112,16 @@ func add(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if apply {
-		fin.Info.Println(app.Trans("add.applying"))
+	fin.Info.Println(app.Trans("add.applying"))
 
-		err = fl.Apply()
-		if err != nil {
-			if errors.Is(err, flake.ErrPackageConflict) {
-				fin.Fatal.Println(app.Trans("global.errConflict"))
-			}
-			return err
+	err = fl.Apply()
+	if err != nil {
+		if errors.Is(err, flake.ErrPackageConflict) {
+			fin.Fatal.Println(app.Trans("global.errConflict"))
 		}
-	} else {
-		fin.Warning.Println(app.Trans("add.unapplied"))
+		return err
 	}
+
 	fin.Success.Println(app.Trans("global.completed"))
 	return nil
 }
