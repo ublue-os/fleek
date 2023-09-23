@@ -77,25 +77,7 @@ checksum:
   algorithm: sha256
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
-brews:
-  - tap:
-      owner: ublue-os
-      name: homebrew-tap
-      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
-    folder: Formula
-    goarm: "7"
-    homepage:  https://getfleek.dev
-    description: Own your $HOME
-    license: Apache-2.0
-    test: |
-      system "#{bin}/fleek -v"
-    dependencies:
-    - name: go
-      type: optional
-    - name: git
 
-    install: |-
-      bin.install "fleek"
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.
 # yaml-language-server: $schema=https://goreleaser.com/static/schema-pro.json
