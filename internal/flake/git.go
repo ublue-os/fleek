@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"os/exec"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/ublue-os/fleek/fin"
+	"github.com/ublue-os/fleek/internal/cmdutil"
 	"github.com/ublue-os/fleek/internal/debug"
 	fgit "github.com/ublue-os/fleek/internal/git"
 )
@@ -31,14 +31,10 @@ func (f *Flake) Clone(repo string) error {
 	if err != nil {
 		return err
 	}
-	command := exec.Command(gitbin, cloneCmdline...)
-	command.Stdin = os.Stdin
-	command.Dir = home
-	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-	command.Env = os.Environ()
-	err = command.Run()
+	cmd := cmdutil.CommandTTY(gitbin, cloneCmdline...)
+	cmd.Dir = home
+	cmd.Env = os.Environ()
+	err = cmd.Run()
 	if err != nil {
 		return fmt.Errorf("git clone: %w", err)
 	}
@@ -46,12 +42,8 @@ func (f *Flake) Clone(repo string) error {
 }
 
 func (f *Flake) runGit(cmd string, cmdLine []string) error {
-	command := exec.Command(cmd, cmdLine...)
-	command.Stdin = os.Stdin
+	command := cmdutil.CommandTTY(cmd, cmdLine...)
 	command.Dir = f.Config.UserFlakeDir()
-	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
 	command.Env = os.Environ()
 	return command.Run()
 }
@@ -229,7 +221,7 @@ func (f *Flake) push() error {
 
 func (f *Flake) gitStatus() (*fgit.Status, error) {
 	// git status --ignored --porcelain=v2
-	cmd := exec.Command(gitbin, "status", "--ignored", "--porcelain=v2")
+	cmd := cmdutil.CommandTTY(gitbin, "status", "--ignored", "--porcelain=v2")
 	cmd.Dir = f.Config.UserFlakeDir()
 	cmd.Env = os.Environ()
 	out, err := cmd.Output()
@@ -270,11 +262,8 @@ func CloneRepository(repo string) (string, error) {
 		return "", err
 	}
 	cloneCmdline := []string{"clone", repo, dirname}
+	command := cmdutil.CommandTTY(gitbin, cloneCmdline...)
 
-	command := exec.Command(gitbin, cloneCmdline...)
-	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
 	command.Env = os.Environ()
 	err = command.Run()
 	if err != nil {

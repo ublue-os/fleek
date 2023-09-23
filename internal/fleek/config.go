@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/ublue-os/fleek/fin"
+	"github.com/ublue-os/fleek/internal/cmdutil"
 	"github.com/ublue-os/fleek/internal/ux"
 	"github.com/ublue-os/fleek/internal/xdg"
 	"gopkg.in/yaml.v3"
@@ -126,9 +127,7 @@ func NewSystem() (*System, error) {
 
 // CollectGarbage runs nix-collect-garbage
 func CollectGarbage() error {
-
-	command := exec.Command("nix-collect-garbage", "-d")
-	command.Stdin = os.Stdin
+	command := cmdutil.CommandTTY("nix-collect-garbage", "-d")
 	command.Stderr = io.Discard
 	command.Stdout = io.Discard
 	command.Env = os.Environ()

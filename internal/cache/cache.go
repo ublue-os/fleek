@@ -6,15 +6,13 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"github.com/ublue-os/fleek/fin"
+	"github.com/ublue-os/fleek/internal/cmdutil"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/xdg"
 )
-
-const nixbin = "nix"
 
 type PackageCache struct {
 	location string
@@ -102,22 +100,16 @@ func (pc *PackageCache) Update() error {
 	pc.Packages = plist
 	return nil
 }
-func (pc *PackageCache) runNix(cmd string, cmdLine []string) ([]byte, error) {
-	command := exec.Command(cmd, cmdLine...)
-	command.Stdin = os.Stdin
-	command.Env = os.Environ()
-
-	return command.Output()
-
-}
 
 func (pc *PackageCache) packageIndex() ([]byte, error) {
+	args := []string{"search", "nixpkgs", "--json"}
+	cmd, buf := cmdutil.CommandTTYWithBuffer("nix", args...)
+	cmd.Env = os.Environ()
 	// nix search nixpkgs --json
-	indexCmdLine := []string{"search", "nixpkgs", "--json"}
-	out, err := pc.runNix(nixbin, indexCmdLine)
+	err := cmd.Run()
 	if err != nil {
-		return out, fmt.Errorf("nix search: %w", err)
+		return buf.Bytes(), fmt.Errorf("nix search: %w", err)
 	}
 
-	return out, nil
+	return buf.Bytes(), nil
 }
