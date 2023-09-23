@@ -6,13 +6,13 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"text/template"
 
 	"github.com/riywo/loginshell"
 	app "github.com/ublue-os/fleek"
 	"github.com/ublue-os/fleek/fin"
+	"github.com/ublue-os/fleek/internal/cmdutil"
 	"github.com/ublue-os/fleek/internal/fleek"
 )
 
@@ -573,10 +573,9 @@ func (f *Flake) Apply() error {
 	return nil
 }
 func (f *Flake) runNix(cmd string, cmdLine []string) error {
-	command := exec.Command(cmd, cmdLine...)
-	command.Stdin = os.Stdin
-	command.Stderr = os.Stderr
-	command.Stdout = os.Stdout
+
+	command := cmdutil.CommandTTY(cmd, cmdLine...)
+
 	command.Dir = f.Config.UserFlakeDir()
 	fin.Debug.Println("running nix command in ", command.Dir)
 	command.Env = os.Environ()
@@ -588,12 +587,12 @@ func (f *Flake) runNix(cmd string, cmdLine []string) error {
 
 }
 func ForceProfile() error {
-	command := exec.Command("nix", "profile", "list")
-	command.Stdin = os.Stdin
-	command.Stderr = io.Discard
-	command.Stdout = io.Discard
-	command.Env = os.Environ()
-	return command.Run()
+	cmd := cmdutil.CommandTTY("nix", "profile", "list")
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = io.Discard
+	cmd.Stdout = io.Discard
+	cmd.Env = os.Environ()
+	return cmd.Run()
 
 }
 
