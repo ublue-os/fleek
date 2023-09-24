@@ -32,8 +32,8 @@ var (
 )
 
 var systemAliases = map[string]string{
-	"update-fleek":         "nix run \"https://getfleek.dev/latest.tar.gz\" -- update",
-	"latest-fleek-version": "nix run \"https://getfleek.dev/latest.tar.gz\" -- version",
+	"update-fleek":         "nix run https://getfleek.dev/latest.tar.gz -- update",
+	"latest-fleek-version": "nix run https://getfleek.dev/latest.tar.gz -- version",
 }
 
 // Config holds the options that will be

@@ -1,7 +1,7 @@
 { pkgs, misc, ... }: {
   # DO NOT EDIT: This file is managed by fleek. Manual changes will be overwritten.
    home.shellAliases = {
-    {{- range $index, $element := .Config.Aliases }}
+    {{- range $index, $element := .Config.AllAliases }}
     "{{$index}}" = "{{$element}}";
     {{ end -}}
     {{- $programs := .Bling.FinalPrograms .Config -}}
