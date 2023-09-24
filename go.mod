@@ -3,7 +3,6 @@ module github.com/ublue-os/fleek
 go 1.20
 
 require (
-	github.com/briandowns/spinner v1.23.0
 	github.com/charmbracelet/lipgloss v0.8.0
 	github.com/erikgeiser/promptkit v0.9.0
 	github.com/fatih/color v1.15.0
@@ -73,7 +72,7 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/pflag v1.0.5
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	golang.org/x/mod v0.12.0
+	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/term v0.12.0
 	golang.org/x/text v0.13.0 // indirect
