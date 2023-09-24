@@ -31,6 +31,11 @@ var (
 	HighPrograms     = []string{"eza", "bat", "atuin", "zoxide"}
 )
 
+var systemAliases = map[string]string{
+	"update-fleek":         "nix run \"https://getfleek.dev/latest.tar.gz\" -- update",
+	"latest-fleek-version": "nix run \"https://getfleek.dev/latest.tar.gz\" -- version",
+}
+
 // Config holds the options that will be
 // merged into the home-manager flake.
 type Config struct {
@@ -356,6 +361,13 @@ func (c *Config) UserForSystem(system string) *User {
 	return nil
 }
 
+func (c *Config) AllAliases() map[string]string {
+	for k, v := range systemAliases {
+		c.Aliases[k] = v
+	}
+	return c.Aliases
+}
+
 func (c *Config) AddPackage(pack string) error {
 	var found bool
 	for _, p := range c.Packages {
@@ -487,8 +499,7 @@ func ReadConfig(loc string) (*Config, error) {
 }
 
 func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
-	aliases := make(map[string]string)
-	aliases["fleeks"] = "cd ~/" + c.FlakeDir
+	systemAliases["fleeks"] = "cd ~/" + c.FlakeDir
 	sys, err := NewSystem()
 	if err != nil {
 		fin.Debug.Printfln("new system err: %s ", err)
@@ -509,7 +520,7 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 	c.Programs = []string{
 		"dircolors",
 	}
-	c.Aliases = aliases
+	c.Aliases = systemAliases
 	c.Paths = []string{
 		"$HOME/bin",
 		"$HOME/.local/bin",

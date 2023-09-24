@@ -156,7 +156,7 @@ func (f *Flake) add() error {
 func (f *Flake) commit(message string) error {
 	status, err := f.gitStatus()
 	if err != nil {
-		return err
+		return errors.New("error parsing git status")
 	}
 	if status.Empty() {
 		fin.Debug.Println("git status is empty, skipping commit")
@@ -221,14 +221,14 @@ func (f *Flake) push() error {
 
 func (f *Flake) gitStatus() (*fgit.Status, error) {
 	// git status --ignored --porcelain=v2
-	cmd := cmdutil.CommandTTY(gitbin, "status", "--ignored", "--porcelain=v2")
+	cmd, buff := cmdutil.CommandTTYWithBuffer(gitbin, "status", "--ignored", "--porcelain=v2")
 	cmd.Dir = f.Config.UserFlakeDir()
 	cmd.Env = os.Environ()
-	out, err := cmd.Output()
+	err := cmd.Run()
 	if err != nil {
 		return nil, err
 	}
-	return fgit.ParseStatusPorcelainV2(out)
+	return fgit.ParseStatusPorcelainV2(buff.Bytes())
 
 }
 
