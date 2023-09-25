@@ -2,7 +2,7 @@
   description = "Fleek - 'Home as Code' for Humans";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
   };
 
   outputs = { self, nixpkgs }: let
