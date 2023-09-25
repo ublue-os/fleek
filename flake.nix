@@ -18,6 +18,8 @@
     overlays = [
         (self: super: rec {
           go = super.go_1_21;
+          buildGoModule = pkgs.buildGo121Module;
+
         })
       ];
     # Helper for providing per-supported-system outputs
