@@ -18,7 +18,7 @@
     overlays = [
         (self: super: rec {
           go = super.go_1_21;
-          buildGoModule = pkgs.buildGo121Module;
+          buildGoModule = super.buildGo121Module;
 
         })
       ];
