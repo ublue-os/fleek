@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 
 	"github.com/hashicorp/go-version"
@@ -328,6 +329,7 @@ func (c *Config) UniqueSystems() []string {
 		systems = append(systems, syskey)
 		m[syskey] = true
 	}
+	sort.Strings(systems)
 	return systems
 
 }
