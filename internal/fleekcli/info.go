@@ -30,6 +30,7 @@ func InfoCommand() *cobra.Command {
 func infoFleek(cmd *cobra.Command, args []string) error {
 
 	fin.Description.Println(cmd.Short)
+	fin.Logger.Debug("args", fin.Logger.Args("args", args))
 	err := mustConfig()
 	if err != nil {
 		return err
@@ -54,7 +55,7 @@ func infoFleek(cmd *cobra.Command, args []string) error {
 		b, err = fleek.NoBling()
 		cobra.CheckErr(err)
 	}
-	fin.Info.Println("["+b.Name+" Bling]", b.Description)
+	fin.Logger.Info("Bling", fin.Logger.Args("Level", b.Name, "Description", b.Description))
 
 	needle := args[0]
 	var found bool

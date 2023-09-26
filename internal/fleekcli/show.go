@@ -77,12 +77,13 @@ func showFleek(cmd *cobra.Command) error {
 		b, err = fleek.NoBling()
 		cobra.CheckErr(err)
 	default:
-		fin.Error.Println(app.Trans("show.invalidLevel", level))
+		fin.Logger.Error(app.Trans("show.invalidLevel", fin.Logger.Args("given", level)))
 		return nil
 	}
 
 	if !showJSON {
-		fin.Info.Println("["+b.Name+" Bling]", b.Description)
+		fin.Description.Println("["+b.Name+" Bling]", b.Description)
+
 	}
 
 	if showJSON {

@@ -70,25 +70,25 @@ func join(cmd *cobra.Command, args []string) error {
 	}
 	migrate := config.NeedsMigration()
 	if migrate {
-		fin.Info.Println("Migration required")
+		fin.Logger.Info("Migration required")
 		err := config.Migrate()
 		if err != nil {
-			fin.Error.Println("error migrating host files:", err)
+			fin.Logger.Error("migrating host files", fin.Logger.Args("error", err))
 			os.Exit(1)
 		}
 		fl, err := flake.Load(config, app)
 		if err != nil {
-			fin.Error.Println("error loading flake:", err)
+			fin.Logger.Error("loading flake", fin.Logger.Args("error", err))
 			os.Exit(1)
 		}
 
 		// Symlink the yaml file to home
 		cfile, err := fl.Config.Location()
 		if err != nil {
-			fin.Debug.Printfln("location err: %s ", err)
+			fin.Logger.Error("config location", fin.Logger.Args("error", err))
 			return err
 		}
-		fin.Debug.Printfln("init cfile: %s ", cfile)
+		fin.Logger.Debug("config", fin.Logger.Args("file", cfile))
 
 		home, err := os.UserHomeDir()
 		if err != nil {
@@ -97,17 +97,17 @@ func join(cmd *cobra.Command, args []string) error {
 		csym := filepath.Join(home, ".fleek.yml")
 		err = os.Symlink(cfile, csym)
 		if err != nil {
-			fin.Debug.Println("symlink  failed")
+			fin.Logger.Debug("symlink  failed")
 			return err
 		}
 		err = fl.Write("update host and user files", true, false)
 		if err != nil {
-			fin.Error.Println("error writing flake:", err)
+			fin.Logger.Error("writing flake", fin.Logger.Args("error", err))
 			os.Exit(1)
 		}
 	}
 
-	fin.Info.Println(app.Trans("init.joining"))
+	fin.Logger.Info(app.Trans("init.joining"))
 	fl, err := flake.Load(config, app)
 	if err != nil {
 		return err
@@ -127,7 +127,7 @@ func join(cmd *cobra.Command, args []string) error {
 	}
 	err = fl.Write("join new system", true, true)
 	if err != nil {
-		fin.Debug.Printfln("flake write error: %s", err)
+		fin.Logger.Error("flake write", fin.Logger.Args("error", err))
 		return err
 	}
 
@@ -135,7 +135,7 @@ func join(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fin.Info.Println(app.Trans("join.complete"))
+	fin.Logger.Info(app.Trans("join.complete"))
 
 	return nil
 }

@@ -34,3 +34,20 @@ func CommandTTYWithBuffer(
 	outBuf.Write(errBuf.Bytes())
 	return cmd, outBuf
 }
+
+// CommandTTYWithBufferNoOut returns a command
+// and a buffer that contains stdout and stderr combined.
+func CommandTTYWithBufferNoOut(
+	name string,
+	arg ...string,
+) (*exec.Cmd, *bytes.Buffer) {
+	cmd := exec.Command(name, arg...)
+	//cmd.Stdin = os.Stdin
+
+	errBuf := bytes.NewBuffer(nil)
+	outBuf := bytes.NewBuffer(nil)
+	cmd.Stderr = errBuf
+	cmd.Stdout = outBuf
+	outBuf.Write(errBuf.Bytes())
+	return cmd, outBuf
+}

@@ -8,8 +8,27 @@ var HelpSectionPrinter = pterm.DefaultSection.WithLevel(2).Sprint
 var TitleSectionPrinter = pterm.DefaultSection.WithLevel(1).Sprint
 var DescriptionSectionPrinter = pterm.DefaultSection.WithLevel(2).Sprint
 var DetailSectionPrinter = pterm.DefaultSection.WithLevel(3).Sprint
+var Logger = pterm.DefaultLogger.WithTime(false).WithLevel(pterm.LogLevelWarn)
 
 var ParagraphPrinter = pterm.DefaultParagraph.Sprint
+
+// SetTrace sets the log level to Trace
+// for trace/debugging level output
+func SetTrace() {
+	Logger = pterm.DefaultLogger.WithTime(false).WithLevel(pterm.LogLevelTrace)
+}
+
+// SetDebug sets the log level to Debug
+// for trace/debugging level output
+func SetDebug() {
+	Logger = pterm.DefaultLogger.WithTime(false).WithLevel(pterm.LogLevelDebug)
+}
+
+// SetDebug sets the log level to Debug (unfortunately)
+// for verbose level output
+func SetVerbose() {
+	Logger = pterm.DefaultLogger.WithTime(false).WithLevel(pterm.LogLevelInfo)
+}
 
 var (
 	// info
