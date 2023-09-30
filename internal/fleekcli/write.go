@@ -39,7 +39,8 @@ func write(cmd *cobra.Command) error {
 
 	err = fl.Write("flake update", true, false)
 	if err != nil {
-		fin.Debug.Printfln("flake write error: %s", err)
+		fin.Logger.Error("flake write", fin.Logger.Args("error", err))
+
 		return err
 	}
 

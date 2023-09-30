@@ -2,7 +2,7 @@
   description = "Fleek - 'Home as Code' for Humans";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-22.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
   };
 
   outputs = { self, nixpkgs }: let
@@ -15,9 +15,16 @@
       "aarch64-darwin" # 64-bit ARM macOS
       "x86_64-darwin" # 64-bit Intel macOS
     ];
+    overlays = [
+        (self: super: rec {
+          go = super.go_1_21;
+          buildGoModule = super.buildGo121Module;
+
+        })
+      ];
     # Helper for providing per-supported-system outputs
     forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f {
-      pkgs = import nixpkgs { inherit system; };
+      pkgs = import nixpkgs { inherit overlays system; };
     });
   in {
 

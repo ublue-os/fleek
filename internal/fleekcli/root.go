@@ -10,6 +10,7 @@ import (
 	"github.com/ublue-os/fleek/internal/flake"
 	"github.com/ublue-os/fleek/internal/fleek"
 	"github.com/ublue-os/fleek/internal/fleekcli/usererr"
+	"github.com/ublue-os/fleek/internal/vercheck"
 	"github.com/ublue-os/fleek/internal/xdg"
 )
 
@@ -33,25 +34,26 @@ func RootCmd() *cobra.Command {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
 			}
-			fin.Debug.Println("debug enabled")
+			vercheck.CheckVersion(cmd.ErrOrStderr(), cmd.CommandPath())
+			fin.Logger.Debug("debug enabled")
 			info, ok := debug.ReadBuildInfo()
 			if ok {
 
-				fin.Debug.Println(info.String())
+				fin.Logger.Trace(info.String())
 
 			}
 
 			err := flake.ForceProfile()
 			if err != nil {
-				fin.Error.Println("Nix can't list profiles.")
+				fin.Logger.Error("Nix can't list profiles.")
 				os.Exit(1)
 			}
 			// try to get the config, which may not exist yet
 			c, err := fleek.ReadConfig(flags.location)
 			if err == nil {
-				if flags.verbose {
-					fin.Info.Println(app.Trans("fleek.configLoaded"))
-				}
+
+				fin.Logger.Debug(app.Trans("fleek.configLoaded"), fin.Logger.Args("location", flags.location))
+
 				cfg = c
 				cfgFound = true
 			} else {
@@ -61,32 +63,35 @@ func RootCmd() *cobra.Command {
 			if cfg != nil {
 				cfg.Quiet = flags.quiet
 				cfg.Verbose = flags.verbose
-				fin.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
-				fin.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
-				fin.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
+				fin.Logger.Debug("git",
+					fin.Logger.Args(
+						"autopush", cfg.Git.AutoPush,
+						"autocommit", cfg.Git.AutoCommit,
+						"autopull", cfg.Git.AutoPull,
+					))
 				if cfg.Ejected {
 					if cmd.Name() != app.Trans("apply.use") {
-						fin.Error.Println(app.Trans("eject.ejected"))
+						fin.Logger.Error(app.Trans("eject.ejected"))
 						os.Exit(1)
 					}
 				}
 
 				migrate := cfg.NeedsMigration()
 				if migrate {
-					fin.Info.Println("Migration required")
+					fin.Logger.Warn("Migration required")
 					err := cfg.Migrate()
 					if err != nil {
-						fin.Error.Println("error migrating host files:", err)
+						fin.Logger.Error("migrating host files", fin.Logger.Args("error", err))
 						os.Exit(1)
 					}
 					fl, err := flake.Load(cfg, app)
 					if err != nil {
-						fin.Error.Println("error loading flake:", err)
+						fin.Logger.Error("loading flake", fin.Logger.Args("error", err))
 						os.Exit(1)
 					}
 					err = fl.Write("update host and user files", true, false)
 					if err != nil {
-						fin.Error.Println("error writing flake:", err)
+						fin.Logger.Error(" writing flake:", fin.Logger.Args("error", err))
 						os.Exit(1)
 					}
 				}
@@ -98,13 +103,9 @@ func RootCmd() *cobra.Command {
 			if flags.quiet {
 				cmd.SetErr(io.Discard)
 			}
-			fin.Debug.Printfln("git autopush: %v", cfg.Git.AutoPush)
-			fin.Debug.Printfln("git autocommit: %v", cfg.Git.AutoCommit)
-			fin.Debug.Printfln("git autopull: %v", cfg.Git.AutoPull)
-			fin.Debug.Printfln("auto gc: %v", cfg.AutoGC)
 
 			if cfg.AutoGC {
-				fin.Info.Println("Running nix-collect-garbage")
+				fin.Logger.Info("Running nix-collect-garbage")
 				// we don't care too much if there's an error here
 				_ = fleek.CollectGarbage()
 			}
@@ -185,10 +186,10 @@ func RootCmd() *cobra.Command {
 
 	command.PersistentFlags().BoolVarP(
 		&flags.quiet, app.Trans("fleek.quietFlag"), "q", false, app.Trans("fleek.quietFlagDescription"))
-	command.PersistentFlags().BoolVarP(
-		&flags.verbose, app.Trans("fleek.verboseFlag"), "v", false, app.Trans("fleek.verboseFlagDescription"))
 	command.PersistentFlags().StringVarP(
 		&flags.location, app.Trans("init.locationFlag"), "l", xdg.DataSubpathRel("fleek"), app.Trans("init.locationFlagDescription"))
+
+	verboseMiddleware.AttachToFlag(command.PersistentFlags(), app.Trans("fleek.verboseFlag"))
 
 	debugMiddleware.AttachToFlag(command.PersistentFlags(), app.Trans("fleek.debugFlag"))
 	traceMiddleware.AttachToFlag(command.PersistentFlags(), app.Trans("fleek.traceFlag"))

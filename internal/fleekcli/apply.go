@@ -64,7 +64,7 @@ func apply(cmd *cobra.Command) error {
 			return err
 		}
 	} else {
-		fin.Info.Println(app.Trans("apply.dryApplyingConfig"))
+		fin.Logger.Info(app.Trans("apply.dryApplyingConfig"))
 		if err := fl.Check(); err != nil {
 			if err != nil {
 				return err

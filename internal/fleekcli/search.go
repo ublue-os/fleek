@@ -50,7 +50,7 @@ func search(cmd *cobra.Command, args []string) error {
 		fuzzy = true
 	}
 	if fuzzy {
-		fin.Info.Println(app.Trans("search.fuzzyEnabled"))
+		fin.Logger.Info(app.Trans("search.fuzzyEnabled"))
 	}
 
 	needle := args[0]
@@ -61,7 +61,7 @@ func search(cmd *cobra.Command, args []string) error {
 	pc, err := cache.New()
 	if err != nil {
 		_ = spinner.Stop()
-		fin.Error.Println(app.Trans("search.cacheError"))
+		fin.Logger.Error(app.Trans("search.cacheError"))
 		return err
 	}
 	spinner.Success()
@@ -73,7 +73,7 @@ func search(cmd *cobra.Command, args []string) error {
 		err = pc.Update()
 		if err != nil {
 			_ = spinner.Stop()
-			fin.Error.Println(app.Trans("search.cacheError"))
+			fin.Logger.Error(app.Trans("search.cacheError"))
 			return err
 		}
 		spinner.Success()
@@ -111,7 +111,7 @@ func search(cmd *cobra.Command, args []string) error {
 		if len(hits) == 0 {
 			fin.Warning.Println(app.Trans("search.noResults"))
 		} else {
-			fin.Info.Println(app.Trans("search.fuzzyMatches"))
+			fin.Logger.Info(app.Trans("search.fuzzyMatches"))
 			_ = fin.Table().WithHasHeader(true).WithData(toTableDataWithHeader(hits)).Render()
 		}
 	}
@@ -121,7 +121,7 @@ func search(cmd *cobra.Command, args []string) error {
 			fin.Warning.Println(app.Trans("search.noResultsExact"))
 		}
 	} else {
-		fin.Info.Println(app.Trans("search.exactMatches"))
+		fin.Logger.Info(app.Trans("search.exactMatches"))
 		_ = fin.Table().WithHasHeader(true).WithData(toTableDataWithHeader(exactHits)).Render()
 
 	}

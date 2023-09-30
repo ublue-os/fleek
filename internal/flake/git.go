@@ -9,7 +9,6 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/cmdutil"
-	"github.com/ublue-os/fleek/internal/debug"
 	fgit "github.com/ublue-os/fleek/internal/git"
 )
 
@@ -66,47 +65,43 @@ func (f *Flake) IsGitRepo() (bool, error) {
 func (f *Flake) mayCommit(message string) error {
 	git, err := f.IsGitRepo()
 	if err != nil {
-		fin.Debug.Printfln("git repo error: %s", err)
+		fin.Logger.Error("git repo", fin.Logger.Args("error", err))
 		return err
 	}
 	if git {
-		fin.Debug.Println("is git repo")
+		fin.Logger.Debug("is git repo")
 		// add
-		fin.Debug.Println("git will add")
-		if f.Config.Verbose {
-			fin.Verbose.Println(f.app.Trans("git.add"))
-		}
+		fin.Logger.Debug("git will add")
+		fin.Logger.Info(f.app.Trans("git.add"))
+
 		err = f.add()
 		if err != nil {
-			fin.Debug.Printfln("git add error: %s", err)
+			fin.Logger.Error("git add", fin.Logger.Args("error", err))
 			return err
 		}
 		if f.Config.Git.AutoCommit {
-			fin.Debug.Println("git will commit")
-			if f.Config.Verbose {
-				fin.Verbose.Println(f.app.Trans("git.commit"))
-			}
+			fin.Logger.Debug("git will commit")
+			fin.Logger.Info(f.app.Trans("git.commit"))
+
 			err = f.commit(message)
 			if err != nil {
-				fin.Debug.Printfln("git commit error: %s", err)
+				fin.Logger.Error("git commit", fin.Logger.Args("error", err))
 				return err
 			}
 
 		}
 
 		if f.Config.Git.AutoPush {
-			fin.Debug.Println("git will push")
-			if f.Config.Verbose {
-				fin.Verbose.Println(f.app.Trans("git.push"))
-			}
+			fin.Logger.Debug("git will push")
+			fin.Logger.Info(f.app.Trans("git.push"))
 			err = f.push()
 			if err != nil {
-				fin.Debug.Printfln("git push error: %s", err)
+				fin.Logger.Error("git push", fin.Logger.Args("error", err))
 				return err
 			}
 		}
 	} else {
-		fin.Debug.Println("skipping git")
+		fin.Logger.Info("skipping git")
 		return nil
 	}
 
@@ -115,29 +110,26 @@ func (f *Flake) mayCommit(message string) error {
 func (f *Flake) MayPull() error {
 	git, err := f.IsGitRepo()
 	if err != nil {
-		fin.Debug.Printfln("git repo error: %s", err)
+		fin.Logger.Error("check repo", fin.Logger.Args("error", err))
 		return err
 	}
 	if git {
-		if f.Config.Verbose {
-			fin.Verbose.Println(f.app.Trans("git.commit"))
-		}
-		fin.Debug.Println("is git repo")
+		fin.Logger.Info(f.app.Trans("git.commit"))
+		fin.Logger.Debug("is git repo")
 
 		if f.Config.Git.AutoPull {
-			fin.Debug.Println("git will pull")
-			if f.Config.Verbose {
-				fin.Verbose.Println(f.app.Trans("git.pull"))
-			}
+			fin.Logger.Debug("git will pull")
+			fin.Logger.Info(f.app.Trans("git.pull"))
+
 			err = f.pull()
 			if err != nil {
-				fin.Debug.Printfln("git pull error: %s", err)
+				fin.Logger.Error("git pull", fin.Logger.Args("error", err))
 				return err
 			}
 		}
 
 	} else {
-		fin.Debug.Println("skipping git")
+		fin.Logger.Info("skipping git")
 		return nil
 	}
 
@@ -159,7 +151,7 @@ func (f *Flake) commit(message string) error {
 		return errors.New("error parsing git status")
 	}
 	if status.Empty() {
-		fin.Debug.Println("git status is empty, skipping commit")
+		fin.Logger.Debug("git status is empty, skipping commit")
 		return nil
 	}
 	if message == "" {
@@ -236,13 +228,13 @@ func (f *Flake) remote() (string, error) {
 	var err error
 	repo, err := f.gitOpen()
 	if err != nil {
-		debug.Log("fr open: %s", err)
-
+		fin.Logger.Error("flake git repo open", fin.Logger.Args("error", err))
 		return "", fmt.Errorf("opening repository: %w", err)
 	}
 
 	list, err := repo.Remotes()
 	if err != nil {
+		fin.Logger.Error("flake git repo remotes", fin.Logger.Args("error", err))
 		return "", fmt.Errorf("getting remotes	: %w", err)
 	}
 	var urls string

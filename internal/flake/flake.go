@@ -38,9 +38,8 @@ type SystemData struct {
 }
 
 func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
-	if cfg.Verbose {
-		fin.Verbose.Println(app.Trans("flake.initializingTemplates"))
-	}
+	fin.Logger.Info(app.Trans("flake.initializingTemplates"))
+
 	tt := make(map[string]*template.Template)
 	err := fs.WalkDir(templates, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -66,7 +65,7 @@ func Load(cfg *fleek.Config, app *app.App) (*Flake, error) {
 }
 
 func (f *Flake) Update() error {
-	fin.Info.Println(f.app.Trans("flake.update"))
+	fin.Logger.Info(f.app.Trans("flake.update"))
 
 	updateCmdLine := []string{"flake", "update"}
 	err := f.runNix(nixbin, updateCmdLine)
@@ -82,7 +81,7 @@ func (f *Flake) Update() error {
 	return nil
 }
 func (f *Flake) Create(force bool, symlink bool) error {
-	fin.Info.Println(f.app.Trans("init.writingConfigs"))
+	fin.Logger.Info(f.app.Trans("init.writingConfigs"))
 	err := f.ensureFlakeDir()
 	if err != nil {
 		return err
@@ -115,7 +114,7 @@ func (f *Flake) Create(force bool, symlink bool) error {
 		return err
 	}
 
-	fin.Info.Println(f.app.Trans("init.blingLevel", f.Config.Bling))
+	fin.Logger.Info("", fin.Logger.Args(f.app.Trans("init.blingLevel", f.Config.Bling)))
 	err = f.Config.WriteInitialConfig(force, symlink)
 	if err != nil {
 		return err
@@ -204,15 +203,15 @@ func (f *Flake) IsJoin() (bool, error) {
 	return false, nil
 }
 func (f *Flake) Join() error {
-	fin.Info.Println(f.app.Trans("init.writingConfigs"))
+	fin.Logger.Info(f.app.Trans("init.writingConfigs"))
 
 	// Symlink the yaml file to home
 	cfile, err := f.Config.Location()
 	if err != nil {
-		fin.Debug.Printfln("location err: %s ", err)
+		fin.Logger.Debug("config location location", fin.Logger.Args("error", err))
 		return err
 	}
-	fin.Debug.Printfln("init cfile: %s ", cfile)
+	fin.Logger.Debug("init config", fin.Logger.Args("file", cfile))
 
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -226,19 +225,19 @@ func (f *Flake) Join() error {
 	if err != nil {
 		return err
 	}
-	fin.Debug.Println("new system")
+	fin.Logger.Debug("new system")
 
 	sys, err := fleek.NewSystem()
 	if err != nil {
 		return err
 	}
-	fin.Debug.Println("write system")
+	fin.Logger.Debug("write system")
 
 	//
 	var found bool
 	for _, s := range f.Config.Systems {
 		if s.Hostname == sys.Hostname && s.Username == sys.Username && s.Arch == sys.Arch {
-			fin.Debug.Println("system already exists")
+			fin.Logger.Debug("system already exists")
 			found = true
 		}
 	}
@@ -273,11 +272,11 @@ func (f *Flake) Join() error {
 		}
 	}
 
-	fin.Debug.Println("write config")
+	fin.Logger.Debug("write config")
 
 	err = f.Config.Save()
 	if err != nil {
-		fin.Debug.Println("config save failed")
+		fin.Logger.Debug("config save failed", fin.Logger.Args("error", err))
 		return err
 	}
 	git, err := f.IsGitRepo()
@@ -409,7 +408,7 @@ func (f *Flake) Write(message string, writeHost, writeUser bool) error {
 
 func (f *Flake) ensureFlakeDir() error {
 	if f.Config.Verbose {
-		fin.Verbose.Println(f.app.Trans("flake.ensureDir"))
+		fin.Logger.Info(f.app.Trans("flake.ensureDir"))
 	}
 	err := f.Config.MakeFlakeDir()
 	if err != nil {
@@ -433,7 +432,7 @@ func (f *Flake) writeFile(template string, path string, d Data, force bool) erro
 	fpath := filepath.Join(f.Config.UserFlakeDir(), path)
 	err := os.MkdirAll(filepath.Dir(fpath), 0755)
 	if err != nil {
-		fin.Debug.Println("mkdir error", err)
+		fin.Logger.Debug("mkdir", fin.Logger.Args("error", err))
 	}
 	_, err = os.Stat(fpath)
 
@@ -443,17 +442,17 @@ func (f *Flake) writeFile(template string, path string, d Data, force bool) erro
 		if ok {
 			file, err := os.Create(fpath)
 			if err != nil {
-				fin.Debug.Println("create error", err)
+				fin.Logger.Debug("create file", fin.Logger.Args("error", err))
 				return err
 			}
 			defer file.Close()
 
 			if err = f.Templates[template].Execute(file, d); err != nil {
-				fin.Debug.Println("template error", err)
+				fin.Logger.Debug("template", fin.Logger.Args("error", err))
 				return err
 			}
 		} else {
-			fin.Debug.Println("template not found", template)
+			fin.Logger.Info("template not found", fin.Logger.Args("name", template))
 			return errors.New("template not found")
 		}
 	} else {
@@ -554,7 +553,7 @@ func (f *Flake) WriteTemplates() error {
 	return nil
 }
 func (f *Flake) Apply() error {
-	fin.Info.Println(f.app.Trans("flake.apply"))
+	fin.Logger.Info(f.app.Trans("flake.apply"))
 
 	user, err := fleek.Username()
 
@@ -577,7 +576,7 @@ func (f *Flake) runNix(cmd string, cmdLine []string) error {
 	command := cmdutil.CommandTTY(cmd, cmdLine...)
 
 	command.Dir = f.Config.UserFlakeDir()
-	fin.Debug.Println("running nix command in ", command.Dir)
+	fin.Logger.Debug("running nix command", fin.Logger.Args("directory", command.Dir))
 	command.Env = os.Environ()
 	if f.Config.Unfree {
 		command.Env = append(command.Env, "NIXPKGS_ALLOW_UNFREE=1")

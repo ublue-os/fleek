@@ -64,7 +64,7 @@ func generate(cmd *cobra.Command) error {
 	}
 
 	fl.Config.Bling = cmd.Flag(app.Trans("generate.levelFlag")).Value.String()
-	fin.Info.Println("Bling level:", fl.Config.Bling)
+	fin.Logger.Info("Bling", fin.Logger.Args("level", fl.Config.Bling))
 	err = fl.Create(force, false)
 	if err != nil {
 		return usererr.WithUserMessage(err, app.Trans("flake.creating"))
@@ -85,7 +85,7 @@ func generate(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-	fin.Info.Println("writing,", fl.Config.Bling)
+	fin.Logger.Info("writing config")
 	err = fl.Write("fleek: generate", true, true)
 	if err != nil {
 		return err
@@ -96,12 +96,12 @@ func generate(cmd *cobra.Command) error {
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("generate.applyFlag"))
 		}
-		fin.Info.Println(app.Trans("global.completed"))
+		fin.Logger.Info(app.Trans("global.completed"))
 
 		return nil
 	}
 	// TODO app trans
-	fin.Info.Println(app.Trans("generate.runFlake"))
+	fin.Logger.Info(app.Trans("generate.runFlake"))
 
 	for _, system := range fl.Config.Systems {
 		// nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima
