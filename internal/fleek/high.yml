@@ -10,7 +10,7 @@ packages:
   - vscode
   - lazygit
   - jq
-  - yq
+  - yq-go
   - neovim
   - neofetch
   - btop

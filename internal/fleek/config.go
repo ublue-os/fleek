@@ -26,7 +26,7 @@ var (
 	blingLevels      = []string{"none", "low", "default", "high"}
 	LowPackages      = []string{"htop", "git", "github-cli", "glab"}
 	DefaultPackages  = []string{"fzf", "ripgrep", "vscode", "just"}
-	HighPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
+	HighPackages     = []string{"lazygit", "jq", "yq-go", "neovim", "neofetch", "btop", "cheat"}
 	LowPrograms      = []string{"starship"}
 	DefaultPrograms  = []string{"direnv"}
 	HighPrograms     = []string{"eza", "bat", "atuin", "zoxide"}
