@@ -30,7 +30,7 @@
     description: | 
       simple terminal UI for git commands
       https://github.com/jesseduffield/lazygit
-  - name: yq
+  - name: yq-go
     description: | 
       a lightweight and portable command-line YAML processor. 
       https://mikefarah.gitbook.io/yq/

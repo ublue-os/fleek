@@ -119,7 +119,7 @@ func UserShell() (string, error) {
 	if strings.Contains(shell, "bash") {
 		shell = "bash"
 	}
-	fin.Debug.Printfln("detected shell: %s", shell)
+	fin.Logger.Debug("shell", fin.Logger.Args("detected", shell))
 	return shell, nil
 
 }

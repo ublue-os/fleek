@@ -26,7 +26,7 @@ var (
 	blingLevels      = []string{"none", "low", "default", "high"}
 	LowPackages      = []string{"htop", "git", "github-cli", "glab"}
 	DefaultPackages  = []string{"fzf", "ripgrep", "vscode", "just"}
-	HighPackages     = []string{"lazygit", "jq", "yq", "neovim", "neofetch", "btop", "cheat"}
+	HighPackages     = []string{"lazygit", "jq", "yq-go", "neovim", "neofetch", "btop", "cheat"}
 	LowPrograms      = []string{"starship"}
 	DefaultPrograms  = []string{"direnv"}
 	HighPrograms     = []string{"eza", "bat", "atuin", "zoxide"}
@@ -142,7 +142,7 @@ func CollectGarbage() error {
 
 }
 func NewUser() (*User, error) {
-	fin.Info.Println("Enter User Details for Git Configuration:")
+	fin.Logger.Info("Enter User Details for Git Configuration:")
 	user := &User{}
 	var use bool
 
@@ -156,7 +156,7 @@ func NewUser() (*User, error) {
 		name = strings.TrimSpace(name)
 		if name != "" {
 
-			fin.Info.Println("Detected your name: " + name)
+			fin.Logger.Info("Detected your name: " + name)
 			use, err = ux.Confirm("Use detected name: " + name)
 			if err != nil {
 				return user, err
@@ -504,12 +504,13 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 	systemAliases["fleeks"] = "cd ~/" + c.FlakeDir
 	sys, err := NewSystem()
 	if err != nil {
-		fin.Debug.Printfln("new system err: %s ", err)
+		fin.Logger.Debug("new system", fin.Logger.Args("error", err))
 		return err
 	}
 	user, err := NewUser()
 	if err != nil {
-		fin.Debug.Printfln("new user err: %s ", err)
+		fin.Logger.Debug("new user", fin.Logger.Args("error", err))
+
 		return err
 	}
 	sys.User = user
@@ -538,15 +539,15 @@ func (c *Config) WriteInitialConfig(force bool, symlink bool) error {
 
 	cfile, err := c.Location()
 	if err != nil {
-		fin.Debug.Printfln("location err: %s ", err)
+		fin.Logger.Debug("location err", fin.Logger.Args("error", err))
+
 		return err
 	}
-	fin.Debug.Printfln("cfile: %s", cfile)
+	fin.Logger.Debug("config", fin.Logger.Args("file", cfile))
 
 	_, err = os.Stat(cfile)
-
-	fin.Debug.Printfln("stat err: %v ", err)
-	fin.Debug.Printfln("force: %v ", force)
+	fin.Logger.Debug("stat", fin.Logger.Args("error", err))
+	fin.Logger.Debug("force", fin.Logger.Args("value", force))
 
 	if force || errors.Is(err, fs.ErrNotExist) {
 
@@ -639,7 +640,7 @@ func (c *Config) NeedsMigration() bool {
 		systemFile := filepath.Join(systemDir, s.Hostname+".nix")
 		// beast/beast.nix
 		if Exists(systemFile) {
-			fin.Info.Println("Found unmigrated system file:", systemFile)
+			fin.Logger.Warn("Found unmigrated system file:", fin.Logger.Args("file", systemFile))
 
 			return true
 		}
@@ -647,21 +648,17 @@ func (c *Config) NeedsMigration() bool {
 		hostFile := filepath.Join(systemDir, "host.nix")
 		// beast/host.nix
 		if Exists(hostFile) {
-
-			fin.Info.Println("Found unmigrated system file:", hostFile)
-
+			fin.Logger.Warn("Found unmigrated system file:", fin.Logger.Args("file", hostFile))
 			return true
 		}
 		hostFile = filepath.Join(systemDir, "user.nix")
 		// beast/user.nix
 		if Exists(hostFile) {
-
-			fin.Info.Println("Found unmigrated system file:", hostFile)
-
+			fin.Logger.Warn("Found unmigrated system file:", fin.Logger.Args("file", hostFile))
 			return true
 		}
 		if s.User == nil {
-			fin.Info.Println("Found unmigrated system users")
+			fin.Logger.Warn("Found unmigrated system users")
 			return true
 		}
 
@@ -675,9 +672,8 @@ func (c *Config) Migrate() error {
 		systemFile := filepath.Join(systemDir, s.Hostname+".nix")
 		// beast/beast.nix
 		if Exists(systemFile) {
-			fin.Info.Println("Found unmigrated system file:", systemFile)
+			fin.Logger.Warn("Migrating system file", fin.Logger.Args("file", systemFile))
 			userFile := filepath.Join(systemDir, s.Username+".nix")
-
 			err := Move(systemFile, userFile)
 			if err != nil {
 				return err
@@ -686,7 +682,7 @@ func (c *Config) Migrate() error {
 		hostFile := filepath.Join(systemDir, "user.nix")
 		// beast/user.nix -> beast/custom.nix
 		if Exists(hostFile) {
-			fin.Info.Println("Found unmigrated system file:", hostFile)
+			fin.Logger.Warn("Migrating system file", fin.Logger.Args("file", hostFile))
 			newHostFile := filepath.Join(systemDir, "custom.nix")
 
 			err := Move(hostFile, newHostFile)
@@ -698,7 +694,7 @@ func (c *Config) Migrate() error {
 		hostFile = filepath.Join(systemDir, "host.nix")
 		// beast/host.nix -> beast/custom.nix
 		if Exists(hostFile) {
-			fin.Info.Println("Found unmigrated system file:", hostFile)
+			fin.Logger.Warn("Migrating system file", fin.Logger.Args("file", hostFile))
 			newHostFile := filepath.Join(systemDir, "custom.nix")
 
 			err := Move(hostFile, newHostFile)
@@ -707,7 +703,7 @@ func (c *Config) Migrate() error {
 			}
 		}
 		if s.User == nil {
-			fin.Info.Println("Migrating Users to System:", s.Hostname)
+			fin.Logger.Warn("Migrating users", fin.Logger.Args("hostname", s.Hostname))
 			sysuser := c.UserForSystem(s.Hostname)
 
 			s.User = sysuser

@@ -13,10 +13,11 @@ import (
 )
 
 var (
-	debugMiddleware *midcobra.DebugMiddleware = &midcobra.DebugMiddleware{}
-	traceMiddleware *midcobra.TraceMiddleware = &midcobra.TraceMiddleware{}
-	app             *fleek.App
-	root            *cobra.Command
+	debugMiddleware   *midcobra.DebugMiddleware   = &midcobra.DebugMiddleware{}
+	traceMiddleware   *midcobra.TraceMiddleware   = &midcobra.TraceMiddleware{}
+	verboseMiddleware *midcobra.VerboseMiddleware = &midcobra.VerboseMiddleware{}
+	app               *fleek.App
+	root              *cobra.Command
 )
 
 func Main() {
@@ -30,6 +31,8 @@ func Execute(ctx context.Context, args []string) int {
 	exe := midcobra.New(root)
 	exe.AddMiddleware(traceMiddleware)
 	exe.AddMiddleware(debugMiddleware)
+	exe.AddMiddleware(verboseMiddleware)
+
 	return exe.Execute(ctx, args)
 }
 func init() {

@@ -44,8 +44,8 @@
 
 <a href="https://github.com/pterm/pterm/tree/master/_examples/demo/demo" style="text-decoration: none">
 <img src="https://raw.githubusercontent.com/pterm/pterm/master/_examples/demo/demo/animation.svg" alt="PTerm">
-<p align="center">Show Demo Code</p>
 </a>
+<p align="center"><a href="https://github.com/pterm/pterm/tree/master/_examples/demo/demo" >Show Demo Code</p></p>
 
 </p>
 
@@ -92,6 +92,8 @@ go get github.com/pterm/pterm
 
 ### Printers (Components)
 
+<div align="center">
+
 <!-- printers:start -->
 | Feature | Feature | Feature | Feature | Feature |
 | :-------: | :-------: | :-------: | :-------: | :-------: |
@@ -99,18 +101,21 @@ go get github.com/pterm/pterm
 | Bulletlist <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/bulletlist) |Center <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/center) |Coloring <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/coloring) |Demo <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/demo) |Header <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/header) |
 | Interactive confirm <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/interactive_confirm) |Interactive continue <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/interactive_continue) |Interactive multiselect <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/interactive_multiselect) |Interactive select <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/interactive_select) |Interactive textinput <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/interactive_textinput) |
 | Logger <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/logger) |Multiple-live-printers <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/multiple-live-printers) |Panel <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/panel) |Paragraph <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/paragraph) |Prefix <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/prefix) |
-| Progressbar <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/progressbar) |Section <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/section) |Spinner <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/spinner) |Style <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/style) |Table <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/table) |
-| Theme <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/theme) |Tree <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/tree) | |  |  | 
+| Progressbar <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/progressbar) |Section <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/section) |Slog <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/slog) |Spinner <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/spinner) |Style <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/style) |
+| Table <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/table) |Theme <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/theme) |Tree <br/> [(Examples)](https://github.com/pterm/pterm/tree/master/_examples/tree) | |  | 
 <!-- printers:end -->
 
+</div>
+
+---
 
 <div align="center">
 
-### 🦸‍♂️ Supporters
+### 🦸‍♂️ Sponsors
 
-|-|User|💸|
-|---|---|---|
-|![Jens Lauterbach](https://avatars.githubusercontent.com/u/1292368?s=25)|[@jenslauterbach](https://github.com/jenslauterbach)|25$|
+<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" />
+
+---
 
 </div>
 
@@ -2436,6 +2441,38 @@ func main() {
 	pterm.DefaultSection.WithLevel(2).Println("This is another section!")
 	// Print placeholder.
 	pterm.Info.Println("And this is\nmore placeholder text")
+}
+
+```
+
+</details>
+
+### slog/demo
+
+![Animation](https://raw.githubusercontent.com/pterm/pterm/master/_examples/slog/demo/animation.svg)
+
+<details>
+
+<summary>SHOW SOURCE</summary>
+
+```go
+package main
+
+import (
+	"github.com/pterm/pterm"
+	"log/slog"
+)
+
+func main() {
+	handler := pterm.NewSlogHandler(&pterm.DefaultLogger)
+	logger := slog.New(handler)
+
+	logger.Debug("This is a debug message that won't show")
+	pterm.DefaultLogger.Level = pterm.LogLevelDebug // Enable debug messages
+	logger.Debug("This is a debug message", "changedLevel", true)
+	logger.Info("This is an info message")
+	logger.Warn("This is a warning message")
+	logger.Error("This is an error message")
 }
 
 ```

@@ -44,7 +44,7 @@ func add(cmd *cobra.Command, args []string) error {
 	}
 	pc, err := cache.New()
 	if err != nil {
-		fin.Error.Println(app.Trans("search.cacheError"))
+		fin.Logger.Error(app.Trans("search.cacheError"))
 		return err
 	}
 	var hits []cache.SearchResult
@@ -76,11 +76,11 @@ func add(cmd *cobra.Command, args []string) error {
 			}
 		}
 		if len(exactHits) == 1 {
-			fin.Info.Println("Found exact match for " + p)
+			fin.Logger.Info("Found exact match for " + p)
 		}
 		if len(exactHits) < 1 {
 			if len(hits) > 0 {
-				fin.Info.Println("Found " + fmt.Sprint(len(hits)) + " matche(s) for " + p)
+				fin.Logger.Info("Found " + fmt.Sprint(len(hits)) + " matche(s) for " + p)
 				for _, hit := range hits {
 					fin.Info.Println("\tName: ", hit.Name)
 					fin.Info.Println("\tDescription: ", hit.Package.Description)
@@ -90,17 +90,16 @@ func add(cmd *cobra.Command, args []string) error {
 				return nil
 
 			}
-			fin.Info.Println("Found no matches for " + p + "!")
+			fin.Logger.Info("Found no matches for " + p + "!")
 			return nil
 
 		}
-		fin.Info.Println("exact hits", len(exactHits))
-		fin.Info.Println("possible matches", len(hits))
+		fin.Logger.Info("results", fin.Logger.Args("exact hits", len(exactHits), "possible matches", len(hits)))
 
-		fin.Info.Println(app.Trans("add.adding") + p)
+		fin.Logger.Info(app.Trans("add.adding") + p)
 		err = fl.Config.AddPackage(p)
 		if err != nil {
-			fin.Debug.Printfln("add package error: %s", err)
+			fin.Logger.Debug("add package", fin.Logger.Args("error", err))
 			return err
 		}
 		sb.WriteString(p + " ")
@@ -108,11 +107,11 @@ func add(cmd *cobra.Command, args []string) error {
 	}
 	err = fl.Write(sb.String(), false, false)
 	if err != nil {
-		fin.Debug.Printfln("flake write error: %s", err)
+		fin.Logger.Debug("write flake", fin.Logger.Args("error", err))
 		return err
 	}
 
-	fin.Info.Println(app.Trans("add.applying"))
+	fin.Logger.Info(app.Trans("add.applying"))
 
 	err = fl.Apply()
 	if err != nil {

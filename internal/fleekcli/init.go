@@ -70,11 +70,11 @@ func initialize(cmd *cobra.Command, _ []string) error {
 		if err != nil {
 			return usererr.WithUserMessage(err, app.Trans("init.applyFlag"))
 		}
-		fin.Info.Println(app.Trans("global.completed"))
+		fin.Logger.Info(app.Trans("global.completed"))
 
 		return nil
 	}
-	fin.Info.Println(app.Trans("init.complete"))
+	fin.Logger.Info(app.Trans("init.complete"))
 
 	return nil
 }

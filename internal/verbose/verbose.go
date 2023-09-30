@@ -1,4 +1,4 @@
-package debug
+package verbose
 
 import (
 	"fmt"
@@ -8,24 +8,22 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-	"github.com/pterm/pterm"
 	"github.com/ublue-os/fleek/fin"
 )
 
 var enabled bool
 
 func init() {
-	enabled, _ = strconv.ParseBool(os.Getenv("FLEEK_DEBUG"))
+	enabled, _ = strconv.ParseBool(os.Getenv("FLEEK_VERBOSE"))
 }
 
 func IsEnabled() bool { return enabled }
 
 func Enable() {
 	enabled = true
-	pterm.EnableDebugMessages()
-	log.SetPrefix("[DEBUG] ")
-	log.SetFlags(log.Lshortfile | log.Ltime)
-	fin.SetDebug()
+	//pterm.EnableDebugMessages()
+
+	fin.SetVerbose()
 	//_ = log.Output(2, "Debug mode enabled.")
 }
 

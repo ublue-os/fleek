@@ -60,7 +60,7 @@ func eject(cmd *cobra.Command) error {
 		return err
 	}
 	// TODO app trans
-	fin.Info.Println(app.Trans("generate.runFlake"))
+	fin.Logger.Info(app.Trans("generate.runFlake"))
 
 	for _, system := range fl.Config.Systems {
 		// nix run --impure home-manager/master -- -b bak switch --flake .#bjk@ghanima

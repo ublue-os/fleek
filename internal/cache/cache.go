@@ -35,7 +35,7 @@ var cacheName = "packages.json"
 
 func New() (*PackageCache, error) {
 	cacheDir := xdg.CacheSubpath("fleek")
-	fin.Debug.Printfln("package cache: %s", cacheDir)
+	fin.Logger.Debug("package cache", fin.Logger.Args("dir", cacheDir))
 
 	pc := &PackageCache{
 		location: cacheDir,
@@ -47,14 +47,14 @@ func New() (*PackageCache, error) {
 		}
 	}
 	if pc.valid() {
-		fin.Debug.Println("package list exists")
+		fin.Logger.Debug("package list exists")
 		// read it
 		bb, err := os.ReadFile(pc.cacheFile())
 		if err != nil {
 			return pc, err
 		}
 		var plist PackageList
-		fin.Debug.Println("unmarshal package list")
+		fin.Logger.Debug("unmarshal package list")
 		err = json.Unmarshal(bb, &plist)
 		if err != nil {
 			return pc, err
@@ -79,20 +79,20 @@ func (pc *PackageCache) cacheFile() string {
 	return filepath.Join(pc.location, cacheName)
 }
 func (pc *PackageCache) Update() error {
-	fin.Debug.Println("updating package list")
+	fin.Logger.Debug("updating package list")
 	// get it
 	bb, err := pc.packageIndex()
 	if err != nil {
 		return err
 	}
-	fin.Debug.Printfln("writing cache file: %s", pc.cacheFile())
+	fin.Logger.Debug("writing cache file", fin.Logger.Args("file", pc.cacheFile()))
 
 	err = os.WriteFile(pc.cacheFile(), bb, 0755)
 	if err != nil {
 		return err
 	}
 	var plist PackageList
-	fin.Debug.Println("unmarshal package list")
+	fin.Logger.Debug("unmarshal package list")
 	err = json.Unmarshal(bb, &plist)
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func (pc *PackageCache) Update() error {
 
 func (pc *PackageCache) packageIndex() ([]byte, error) {
 	args := []string{"search", "nixpkgs", "--json"}
-	cmd, buf := cmdutil.CommandTTYWithBuffer("nix", args...)
+	cmd, buf := cmdutil.CommandTTYWithBufferNoOut("nix", args...)
 	cmd.Env = os.Environ()
 	// nix search nixpkgs --json
 	err := cmd.Run()
