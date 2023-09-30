@@ -355,9 +355,11 @@ func (c *Config) UserForSystem(system string) *User {
 		return userSystem.User
 	}
 	// legacy unmigrated users
-	for _, u := range c.Users {
-		if u.Username == userSystem.Username {
-			return u
+	if c.Users != nil {
+		for _, u := range c.Users {
+			if u.Username == userSystem.Username {
+				return u
+			}
 		}
 	}
 	return nil
