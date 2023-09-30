@@ -102,6 +102,7 @@ func latestVersion() (string, error) {
 	if err != nil {
 		return "unknown", err
 	}
+	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "unknown", err
