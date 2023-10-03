@@ -114,7 +114,7 @@ func (f *Flake) Create(force bool, symlink bool) error {
 		return err
 	}
 
-	fin.Logger.Info("", fin.Logger.Args(f.app.Trans("init.blingLevel", f.Config.Bling)))
+	fin.Logger.Info("", fin.Logger.Args(f.app.Trans("init.blingLevel"), f.Config.Bling))
 	err = f.Config.WriteInitialConfig(force, symlink)
 	if err != nil {
 		return err
