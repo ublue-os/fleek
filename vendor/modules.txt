@@ -94,7 +94,7 @@ github.com/erikgeiser/promptkit
 github.com/erikgeiser/promptkit/confirmation
 github.com/erikgeiser/promptkit/selection
 github.com/erikgeiser/promptkit/textinput
-# github.com/fatih/color v1.15.0
+# github.com/fatih/color v1.16.0
 ## explicit; go 1.17
 github.com/fatih/color
 # github.com/fitv/go-i18n v1.0.4
@@ -192,7 +192,7 @@ github.com/lucasb-eyer/go-colorful
 # github.com/mattn/go-colorable v0.1.13
 ## explicit; go 1.15
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.19
+# github.com/mattn/go-isatty v0.0.20
 ## explicit; go 1.15
 github.com/mattn/go-isatty
 # github.com/mattn/go-localereader v0.0.1
@@ -303,8 +303,8 @@ golang.org/x/net/proxy
 ## explicit; go 1.17
 golang.org/x/sync/errgroup
 golang.org/x/sync/semaphore
-# golang.org/x/sys v0.13.0
-## explicit; go 1.17
+# golang.org/x/sys v0.14.0
+## explicit; go 1.18
 golang.org/x/sys/cpu
 golang.org/x/sys/execabs
 golang.org/x/sys/plan9
