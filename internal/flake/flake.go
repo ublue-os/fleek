@@ -13,6 +13,7 @@ import (
 	app "github.com/ublue-os/fleek"
 	"github.com/ublue-os/fleek/fin"
 	"github.com/ublue-os/fleek/internal/cmdutil"
+	"github.com/ublue-os/fleek/internal/debug"
 	"github.com/ublue-os/fleek/internal/fleek"
 )
 
@@ -565,6 +566,9 @@ func (f *Flake) Apply() error {
 		return err
 	}
 	applyCmdLine := []string{"run", "--no-write-lock-file", "--impure", "home-manager/master", "--", "-b", "bak", "switch", "--flake", ".#" + user + "@" + host}
+	if debug.IsEnabled() {
+		applyCmdLine = append(applyCmdLine, "--show-trace")
+	}
 	err = f.runNix(nixbin, applyCmdLine)
 	if err != nil {
 		return err
