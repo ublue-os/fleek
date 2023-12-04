@@ -250,7 +250,7 @@ github.com/rivo/uniseg
 # github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab
 ## explicit
 github.com/riywo/loginshell
-# github.com/samber/lo v1.38.1
+# github.com/samber/lo v1.39.0
 ## explicit; go 1.18
 github.com/samber/lo
 # github.com/sergi/go-diff v1.3.1
