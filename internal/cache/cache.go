@@ -102,7 +102,7 @@ func (pc *PackageCache) Update() error {
 }
 
 func (pc *PackageCache) packageIndex() ([]byte, error) {
-	args := []string{"search", "nixpkgs", "--json"}
+	args := []string{"search", "nixpkgs", "--json", "^"}
 	cmd, buf := cmdutil.CommandTTYWithBufferNoOut("nix", args...)
 	cmd.Env = os.Environ()
 	// nix search nixpkgs --json
