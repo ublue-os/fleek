@@ -1,6 +1,7 @@
 # Fleek - "Home as Code" for Humans
 
 ** Fleek will no longer be maintained as of March 2024 **
+* Please use Nix Home Manager instead *
 
 [![FlakeHub](https://img.shields.io/endpoint?url=https://flakehub.com/f/ublue-os/fleek/badge)](https://flakehub.com/flake/ublue-os/fleek)
 
